@@ -1,0 +1,278 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2"><meta name="theme-color" content="#222"><meta name="generator" content="Hexo 4.2.1"><link rel="apple-touch-icon" sizes="180x180" href="/images/favicon-1.png"><link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-1.png"><link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-1.png"><link rel="mask-icon" href="/images/favicon-1.png" color="#222"><meta name="google-site-verification" content="lkGKflS_fVXQNJnC_UXP0lqUEpV4NFx0b000PxRrX7g"><meta name="baidu-site-verification" content="codeva-Uj3syugSr3"><link rel="stylesheet" href="/css/main.css"><link rel="stylesheet" href="/lib/font-awesome/css/all.min.css"><link rel="stylesheet" href="//cdn.jsdelivr.net/npm/pace-js@1.2.4/themes/blue/pace-theme-minimal.css"><script src="//cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><script id="hexo-configurations">var NexT=window.NexT||{},CONFIG={hostname:"www.luobuyu.site",root:"/",scheme:"Gemini",version:"7.8.0",exturl:!1,sidebar:{position:"right",display:"post",padding:18,offset:12,onmobile:!1},copycode:{enable:!0,show_result:!1,style:null},back2top:{enable:!0,sidebar:!1,scrollpercent:!1},bookmark:{enable:!1,color:"#222",save:"auto"},fancybox:!1,mediumzoom:!1,lazyload:!1,pangu:!1,comments:{style:"tabs",active:null,storage:!0,lazyload:!1,nav:null},algolia:{hits:{per_page:10},labels:{input_placeholder:"Search for Posts",hits_empty:"We didn't find any results for the search: ${query}",hits_stats:"${hits} results found in ${time} ms"}},localsearch:{enable:!0,trigger:"auto",top_n_per_article:1,unescape:!1,preload:!1},motion:{enable:!0,async:!1,transition:{post_block:"fadeIn",post_header:"slideDownIn",post_body:"slideDownIn",coll_header:"slideLeftIn",sidebar:"slideUpIn"}},path:"search.xml"}</script><meta name="description" content="fjsp问题的一篇论文。jsp只需要调度任务的顺序即可，在析取图上确定箭头的顺序，而fjsp需要调度机器和任务的顺序，是比较复杂的问题。"><meta property="og:type" content="article"><meta property="og:title" content="A Two-Individual Based Evolutionary Algorithm for the Flexible Job Shop Scheduling Problem"><meta property="og:url" content="https://www.luobuyu.site/2022/Two-Individual-fjsp/index.html"><meta property="og:site_name" content="Luobuyu&#39;s Blog"><meta property="og:description" content="fjsp问题的一篇论文。jsp只需要调度任务的顺序即可，在析取图上确定箭头的顺序，而fjsp需要调度机器和任务的顺序，是比较复杂的问题。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220403110816.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220403162034.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220403161046.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220403161127.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220403162929.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220405104923.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220405110555.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220405110637.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220405110959.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220405111944.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220405112002.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220405112039.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220405112240.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220405112556.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220405112610.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220405112754.png"><meta property="article:published_time" content="2022-04-03T02:01:39.000Z"><meta property="article:modified_time" content="2024-10-30T14:47:37.468Z"><meta property="article:author" content="luobuyu"><meta property="article:tag" content="fjsp"><meta property="article:tag" content="任务调度"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220403110816.png"><link rel="canonical" href="https://www.luobuyu.site/2022/Two-Individual-fjsp/"><script id="page-configurations">CONFIG.page={sidebar:"",isHome:!1,isPost:!0,lang:"zh-CN"}</script><title>A Two-Individual Based Evolutionary Algorithm for the Flexible Job Shop Scheduling Problem | Luobuyu's Blog</title><noscript><style>.sidebar-inner,.use-motion .brand,.use-motion .collection-header,.use-motion .comments,.use-motion .menu-item,.use-motion .pagination,.use-motion .post-block,.use-motion .post-body,.use-motion .post-header{opacity:initial}.use-motion .site-subtitle,.use-motion .site-title{opacity:initial;top:initial}.use-motion .logo-line-before i{left:initial}.use-motion .logo-line-after i{right:initial}</style></noscript><link rel="alternate" href="/atom.xml" title="Luobuyu's Blog" type="application/atom+xml"><link rel="stylesheet" href="/assets/css/APlayer.min.css" class="aplayer-style-marker"><script src="/assets/js/APlayer.min.js" class="aplayer-script-marker"></script><script>var meting_api="https://api.injahow.cn/meting/?server=:server&type=:type&id=:id&r=:r"</script><script src="/assets/js/Meting.min.js" class="meting-script-marker"></script></head><body itemscope itemtype="http://schema.org/WebPage"><div class="container use-motion"><div class="headband"></div><header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="header-inner"><div class="site-brand-container"><div class="site-nav-toggle"><div class="toggle" aria-label="切换导航栏"><span class="toggle-line toggle-line-first"></span><span class="toggle-line toggle-line-middle"></span><span class="toggle-line toggle-line-last"></span></div></div><div class="site-meta"><a href="/" class="brand" rel="start"><span class="logo-line-before"><i></i></span><h1 class="site-title">Luobuyu's Blog</h1><span class="logo-line-after"><i></i></span></a></div><div class="site-nav-right"><div class="toggle popup-trigger"><i class="fa fa-search fa-fw fa-lg"></i></div></div></div><nav class="site-nav"><ul id="menu" class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i> 首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i> 关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i> 标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i> 分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i> 归档</a></li><li class="menu-item menu-item-music"><a href="/music/" rel="section"><i class="fa fa-music fa-fw"></i> 歌单</a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i> 朋友</a></li><li class="menu-item menu-item-search"><a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i> 搜索</a></li></ul></nav><div class="search-pop-overlay"><div class="popup search-popup"><div class="search-header"><span class="search-icon"><i class="fa fa-search"></i></span><div class="search-input-container"> <input autocomplete="off" autocapitalize="off" placeholder="搜索..." spellcheck="false" type="search" class="search-input"></div><span class="popup-btn-close"><i class="fa fa-times-circle"></i></span></div><div id="search-result"><div id="no-result"><i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i></div></div></div></div></div></header><div class="back-to-top"><i class="fa fa-arrow-up"></i> <span>0%</span></div><main class="main"><div class="main-inner"><div class="content-wrap"><div class="content post posts-expand"><article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN"><link itemprop="mainEntityOfPage" href="https://www.luobuyu.site/2022/Two-Individual-fjsp/"><span hidden itemprop="author" itemscope itemtype="http://schema.org/Person"><meta itemprop="image" content="/images/avatar.png"><meta itemprop="name" content="luobuyu"><meta itemprop="description" content=""></span><span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization"><meta itemprop="name" content="Luobuyu's Blog"></span><header class="post-header"><h1 class="post-title" itemprop="name headline"> A Two-Individual Based Evolutionary Algorithm for the Flexible Job Shop Scheduling Problem</h1><div class="post-meta"><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar"></i></span> <span class="post-meta-item-text">发表于</span> <time title="创建时间：2022-04-03 10:01:39" itemprop="dateCreated datePublished" datetime="2022-04-03T10:01:39+08:00">2022-04-03</time></span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-folder"></i></span> <span class="post-meta-item-text">分类于</span> <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/%E8%AE%BA%E6%96%87/" itemprop="url" rel="index"><span itemprop="name">论文</span></a></span> ， <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/%E8%AE%BA%E6%96%87/%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6/" itemprop="url" rel="index"><span itemprop="name">任务调度</span></a></span></span><span id="/2022/Two-Individual-fjsp/" class="post-meta-item leancloud_visitors" data-flag-title="A Two-Individual Based Evolutionary Algorithm for the Flexible Job Shop Scheduling Problem" title="热度"><span class="post-meta-item-icon"><i class="fa fa-eye"></i></span> <span class="post-meta-item-text">热度：</span><span class="leancloud-visitors-count"></span> <span>℃</span></span><span class="post-meta-item" title="热度" id="busuanzi_container_page_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i></span> <span class="post-meta-item-text">热度：</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-comment"></i></span> <span class="post-meta-item-text">评论：</span><a title="valine" href="/2022/Two-Individual-fjsp/#valine-comments" itemprop="discussionUrl"><span class="post-comments-count valine-comment-count" data-xid="/2022/Two-Individual-fjsp/" itemprop="commentCount"></span></a></span><br><span class="post-meta-item" title="本文字数"><span class="post-meta-item-icon"><i class="far fa-file-word"></i></span> <span class="post-meta-item-text">本文字数：</span> <span>11k</span></span><span class="post-meta-item" title="阅读时长"><span class="post-meta-item-icon"><i class="far fa-clock"></i></span> <span class="post-meta-item-text">阅读时长 &asymp;</span> <span>10 分钟</span></span><div class="post-description">fjsp问题的一篇论文。jsp只需要调度任务的顺序即可，在析取图上确定箭头的顺序，而fjsp需要调度机器和任务的顺序，是比较复杂的问题。</div></div></header><div class="post-body" itemprop="articleBody"><h1 id="A-Two-Individual-Based-Evolutionary-Algorithm-for-the-Flexible-Job-Shop"><a href="#A-Two-Individual-Based-Evolutionary-Algorithm-for-the-Flexible-Job-Shop" class="headerlink" title="A Two-Individual Based Evolutionary Algorithm for the Flexible Job Shop"></a>A Two-Individual Based Evolutionary Algorithm for the Flexible Job Shop</h1><h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>基于种群的进化算法通常要管理大量的个体以保持搜索的多样性，这是很复杂和耗时的。在本文中，我们提出了一种只使用两个个体的进化算法，称为师徒进化算法（MAE），用于解决灵活的工作车间调度问题（FJSP）。为了保证进化的多样性和质量，MAE考虑到FJSP的多种复杂约束，整合了一个Tabu搜索程序，一个基于路径重联的重组算子，以及一个有效的个体更新策略。在313个广泛使用的公共实例上的实验表明，MAE在47个实例上改进了以前的最佳结果，在除3个以外的所有剩余实例上与已知的最佳结果相匹配，而消耗的计算时间与目前最先进的元启发式方法相同。MAE还为10个困难实例建立了解决方案的质量记录，这些实例以前的最佳值是由一个著名的工业求解器和一个最先进的精确方法建立的。</p><h2 id="一、介绍"><a href="#一、介绍" class="headerlink" title="一、介绍"></a>一、介绍</h2><p>工作车间调度问题（JSP）是一个强 NP-hard 问题（Garey, Johnson, and Sethi 1976）。在这个问题中，有一组工作 $ J=\{J_1, \cdots , Jn\} $ ，必须在一组 $ M = {M_1,\cdots, M_m} $ 的机器上处理。每个作业 $ J_i, i = 1, \cdots , n $ ，由 $ n_i $ 个操作 $ O_i = {o_{i1}, \cdots , O_{ini} } $ ，应按顺序处理。此外，每个操作 $ O_{ij} $ 都需要在整个处理时间内不间断地独家使用其分配的机器。灵活的工作车间调度问题（FJSP）是JSP的扩展，它允许一个操作 $ O_{ij} $ 在一组候选机器 $ M(O_{ij}) \subseteq M $ 上处理。操作 $ O_{ij} $ 在机器 $ M_k \in M(O_{ij}) $ 上的处理时间用 $ t_{O_{ij}k} $ 表示。问题是将每个操作分配给一台机器，并对机器上的操作进行排序，使得所有工作的最大完成时间（即makespan）达到最小。</p><p>自从FJSP由(Brucker and Schlie 1991)提出以来，文献中提出了大量的方法来解决它。在这些方法中，我们引用了几种精确的方法。Thomalla 2005）提出的基于拉格朗日松弛法的离散时间整数编程，Özgüven, Özbakr和Yavuz 2010）提出的具有路由和流程计划灵活性的混合整数线性编程模型，以及Hansmann, Rieger和Zimmermann 2014）提出的与分支和边界算法相结合的混合整数线性优化模型。其他基于混合整数线性规划的精确方法可以在（Gomes, Barbosa-Pvoa, and Novais 2013; Roshanaei, Azab, and Elmaraghy 2013）找到。</p><p>对于大型FJSP实例，已经采用了各种元启发式算法。值得注意的文献包括。(Brandimarte 1993), (Dauzère-Pérès and Paulli 1997), (Mastrolilli and Gambardella 2000), (Pezzella, Morganti, and Ciaschetti 2008), (Gao, Sun, and Gen 2008), (Oddi et al. 2011），（Bo˙zejko, Uchro´nski, and Wodecki 2010），（Gutiérrez and Garc´ıa-Magari˜no 2011），（Li, Pan, and Liang 2010），（Wang et al. 2012），（Wang et al. 2013），（Yuan and Xu 2013a），（González, Vela, and Varela 2013）和（Gao et al. 2016）。最近的方法包括攀登深度边界差异搜索（CDDS）算法（Hmida, Haouari, and Lopez 2010）、混合差分进化算法（HDE-N2）（Yuan and Xu 2013b）、带路径重联的散点搜索（SSPR）（González, Vela, and Varela 2015）、遗传标签搜索（HGTS）（Palacios et al. 2015年），带有Tabu搜索的混合遗传算法（HA）（Li和Gao 2016年），以及多起点多层次进化局部搜索（GRASP-mELS）（Kemmoé-Tchomté, Lamy, and Tchernev 2017年）。尽管这些方法在所有基准的解决方案质量和计算效率方面都不占优势，但CDDS、HDE-N2、SSPR、HGTS、HA和GRASP-mELS在这些方法中表现得最好。</p><p>基于种群的进化算法在解决FJSP问题上有很好的性能。然而，他们面临着管理大量个体以保持搜索多样性的缺点（Lahiri和Cebrian，2010）。在本文中，我们提出了一种仅使用两个个体的进化算法，称为师徒进化（MAE）算法，用于求解FJSP，灵感来自HEAD（Moalic and Gondran 2017），这是我们所知的唯一一种基于两个个体的进化算法。HEAD用于解决k-着色问题。k-着色问题的特殊性在于其约束非常简单，而FJSP具有多个复杂约束。因此，HEAD和MAE必须非常不同：HEAD使用贪婪分割交叉生成子解，因为它在不可行解空间中搜索可行的k-着色，而MAE使用基于路径重新链接的重组算子和新的距离定义生成子解，因为它在可行解空间中寻找最优可行解。事实上，交叉算子通常会为FJSP生成不可行的子解，修复这些解会导致较差的解，而基于路径重新链接的重组算子可以更容易地控制以生成可行的子解。此外，交叉算子还保持了头部搜索的多样性，而MAE则通过在两个个体接近时直接用随机可行解替换一个个体来保持多样性。在（Duarte et al.2005）中可以找到两个单独的记忆算法与常规重新初始化相混合的类似尝试。</p><p>本文的剩余部分组织如下：第2节介绍了所提出的MAE算法。第3节将MAE与最先进的算法进行了比较，并分析了MAE的关键特征，以确定其成功因素。第四部分总结全文。</p><h2 id="二、Master-Apprentice-Evolutionary-Algorithm"><a href="#二、Master-Apprentice-Evolutionary-Algorithm" class="headerlink" title="二、Master-Apprentice Evolutionary Algorithm"></a>二、Master-Apprentice Evolutionary Algorithm</h2><p>师徒进化算法的思想起源于社会活动，学徒从他们的主人那里获得知识。当两个学徒（个体）在给定的世代（一个周期）内进化时，他们会成为大师，并且有很多相似之处。因此，当一个周期结束时，一个学徒被上一个周期中的大师替换，以继续进化，从而吸收历史（上一个周期）的精髓。这就是为什么我们称这种算法为师徒进化算法。</p><p>基于两个个体的进化机制是MAE的一个独特特征。传统的基于种群的进化算法通常面临着种群数量大、计算资源消耗高的缺点。通过使用有效的个体更新策略管理两个个体，MAE可以在多样化和搜索效率之间实现更好的权衡。在本节中，我们首先介绍MAE的总体架构，然后介绍其不同组件。</p><h3 id="2-1-Main-scheme-of-MAE"><a href="#2-1-Main-scheme-of-MAE" class="headerlink" title="2.1 Main scheme of MAE"></a>2.1 Main scheme of MAE</h3><p>MAE遵循进化算法的基本框架（吕、格洛弗和郝2010；萨顿和诺依曼2012；于、姚和周2013）。其示意图如图1所示，其总体架构如算法1所述。该算法有三个主要组成部分：用于生成随机解的 Init() 函数、用于改进解 S 的禁忌搜索过程 TS(S) 以及用于生成两个子解的基于路径重新链接的重组算子。这些世代被划分为长度为 p 的循环，其中 p 是一个整数参数。当前（上一个）循环中的最优解存储在 $ S_c^ <em>(S_p^</em>) $ 。开始时，MAE生成两个随机解 $ S_1 $ 和 $ S_2 $ 。然后，在每一代中，它在 $ S_1 $ 和 $ S_2 $ 上应用基于路径重新链接的重组算子来生成两个子解 $ S_{1}^{\prime} $ 和 $ S_{2}^{\prime} $ ，然后通过禁忌搜索过程对其进行优化，以成为新的 $ S_1 $ 和 $ S_2 $ 。如果新的 $ S_1 $ 或 $ S_2 $ 优于 $ S_c^ <em>$ ，然后是 $ S^∗_c $ 被更新。在每个循环结束时， $ S_1 $ 被上一次循环中的最优解 $ S_p^</em> $ 取代， $ S_p^ <em>$ 被 $ S_c^</em> $ 取代， $ S_c^* $ 被设置为随机解。一旦 $ S_1 $ 接近 $ S_2 $ ，就用随机解替换 $ S_2 $ ，以确保搜索的多样性。最后，返回在搜索过程中找到的最优解。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220403110816.png" alt="image-20220403110809326"></p><center>图1：MAE的流程图</center><blockquote><p>上一次循环的最优解 $ S_p^* $</p><p>本次循环的最优解 $ S_c^* $ ，刚开始的时候初始化为随机解</p><p>本次循环结束， $ S_1 = S_p^ <em>$ ，被上一次循环的最优解取代。 $ S_p^</em> = S_c^ <em>$ ，把最优解赋给 $ S_p^</em> $ 。? $ S_2 $ 咋办，重新生成一个随机解？，可能是新收一个徒弟。</p></blockquote><h3 id="2-2-Initial-solutions-and-tabu-search-procedure"><a href="#2-2-Initial-solutions-and-tabu-search-procedure" class="headerlink" title="2.2 Initial solutions and tabu search procedure"></a>2.2 Initial solutions and tabu search procedure</h3><p>如同（González, Vela, and Varela 2015），MAE中FJSP的解决方案采取 $ (\alpha,\pi) $ 的形式，其中 $ \alpha $ 是每个操作 $ o $ 对机器 $ M_a \in M(o) $ 的可行分配，用 $ \alpha(o)=a $ 表示， $ \pi $ 是所有机器上的操作的处理顺序，与作业顺序兼容。开始时，MAE 使用 Init() 函数分别为 $ S_1 $ 、 $ S_2 $ 、 $ S^∗_c $ 、 $ S^∗_p $ 和 $ S^∗ $ 生成随机解决方案，在尊重所有约束条件的前提下，将每个作业的每个操作以相等的概率分配给其候选机器。</p><p>在MAE中调用Tabu搜索程序TS(S)来加强搜索。它通过将一个关键操作重新分配到不同的机器上并将其插入到一个可行的位置，或者通过改变同一机器上的关键操作的位置来改进解决方案S。请注意，关键路径中的操作被称为关键操作，<strong>关键路径是时间表的二分法图表示中最长的路径</strong>。在本文中，机器重新分配是在（Mastrolilli和Gambardella 2000）提出的k-insertion 邻域（这里称为 $ N^k $ ）上进行的，而位置改变是在（González, Vela, and Varela 2015）提出的称为 $ N^\pi $ 的邻域上进行的。简而言之，MAE从 $ N^\pi\cup N^k $ 中反复选择最佳的非禁忌动作来执行，并且禁止在禁忌任期内再次执行该动作，这与（Peng, Lü, and Cheng 2015）中使用的禁忌策略类似。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220403162034.png" alt="image-20220403162034613"></p><h3 id="2-3-Path-relinking-based-recombination-operator"><a href="#2-3-Path-relinking-based-recombination-operator" class="headerlink" title="2.3 Path relinking based recombination operator"></a>2.3 Path relinking based recombination operator</h3><p>两个个体 $ S_1 $ 和 $ S_2 $ 的传统路径重联包括找出个体 $ T_0 $ 、 $ T_1 $ 、 $ T_2 $ 、……，使 $ T_0=S_1 $ ，而 $ T_{i+1} $ 是通过对 $ T_i $ 进行一次移动得到的，并且比 $ T_i $ 更接近 $ S_2 $ 。在FJSP中应用路径重联的关键问题是定义两个个体之间的距离。</p><p>例如，在(González, Vela, and Varela 2015)提出的FJSP的散点搜索中，基于路径重联的重组算子被应用于两个从称为RefSet的集合中选出的解决方案 $ S_1 $ 和 $ S_2 $ ，使用两个距离。第一个距离 $ d^\alpha $ 是测量分配差异，定义为在 $ S_1 $ 和 $ S_2 $ 中具有不同机器分配的操作的数量，第二个距离 $ d^\pi $ 是测量序列差异，定义为需要同一机器的操作对以不同顺序处理的数量。此外， $ d^\alpha $ 的优先级比 $ d^\pi $ 高。为了从 $ T_i $ 获得 $ T_{i+1} $ ，同时考虑 $ d^\alpha $ 和 $ d^\pi $ 的距离。</p><p>在本文中，我们在 $ S_1 $ 和 $ S_2 $ 之间定义了一个独特的距离，它将分配差异和序列差异统一起来，具体如下。让 $ M^S_o $ ( $ P^S_o $ )表示解决方案S中分配给操作 $ o $ 的机器（ $ o $ 在 $ M^S_o $ 上的位置）， $ L^S_a $ 是解决方案 $ S $ 中分配给机器 $ a $ 的操作数。如果操作 $ o $ 在两个解决方案 $ S_1 $ 和 $ S_2 $ 中被分配到同一台机器上，我们定义 $ d_o(S_1, S_2) = |P^{S_1}_o - P^{S_2}_o| $ 为 $ o $ 在 $ S_1 $ 和 $ S_2 $ 之间的差异（见图2）。否则， $ o $ 可以被移到 $ M^{S_1}_o $ 的开头（结尾），然后从 $ S_1 $ 的 $ M^{S_2}_o $ 的开头（结尾）移到与 $ S_2 $ 的 $ M^{S_2}_o $ 中相同的位置（见图3中的路径1（路径2））。路径1和路径2之间的最小值被选为 $ S_1 $ 和 $ S_2 $ 之间的 $ o $ 之差，即 $ d_o(S_1,S_2) = \min \{P^{S_1}_o + P^{S_2}_o , (L^{S_1}_{M^{S_1}_o} - P^{S_1}_o) + (L^{S_2}_{M^{S_2}_o} - P^{S_2}_o)\} $ 。然后， $ S_1 $ 和 $ S_2 $ 之间的距离被定义为 $ d\left(S_{1}, S_{2}\right)=\sum_{i=1}^{n} \sum_{j=1}^{m} d_{o_{i j}}\left(S_{1}, S_{2}\right) $ 。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220403161046.png" alt="image-20220403161046472"></p><center>图2：在同一台机器上操作的距离。</center><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220403161127.png" alt="image-20220403161127362"></p><center> 图3：在不同机器上操作的距离。</center><p>因此，为了从 $ T_i $ 获得 $ T_{i+1} $ ，我们的路径重联应用了一个单一的移动，即改变同一台机器上的操作的位置，或者将不同的机器重新分配给一个操作，这样得到的解决方案是可行的，并且比 $ T_i $ 更接近 $ S_2 $ 。请注意，被移动的操作可以是非关键性的。我们的邻域实际上是 $ N^\pi_g\cup N^k_g $ ，其中 $ N^\pi_g(N^k_g) $ 是由 $ N^\pi(N^k) $ 扩展而来，包括非关键操作的移动，导致可行的解决方案。由于有唯一的距离，这种路径重新连接要简单得多。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220403162929.png" alt="image-20220403162929127"></p><p>算法2介绍了我们基于路径重联的重组算子。该运算符使用三个参数 $ \alpha $ 、 $ \beta $ 和 $ \gamma $ ，其值将在以后根据经验确定。从初始解 $ S_i $ 到指导解 $ S_g $ 的路径是按以下步骤建立的。设 $ S_c $ 为当前解（ $ S_c $ 被初始化为 $ S_i $ ）。首先，我们构建一个可行的解决方案 $ N $ 的集合，这些解决方案可以通过应用一个单一的动作从 $ S_c $ 得到（第5-13行）。对于每个操作 $ o $ ，如果 $ o $ 在 $ S_c $ 和 $ S_g $ 的不同机器上，让 $ N^k_g(S_c, o) $ 是通过将 $ o $ 移动到 $ S_g $ 中 $ o $ 的机器上而从 $ S_c $ 获得的可行解决方案的集合。否则，让 $ N^π_g(S_c,o) $ 是通过改变 $ o $ 在同一台机器上的位置从 $ S_c $ 得到的可行方案的集合。让 $ S_{min} $ 是使 $ d_o(S_{min}, S_g) $ 最小的解决方案（并列关系是随机打破的）。然后， $ N^k_g(S_c,o) $ 或 $ N^π_g(S_c,o) $ 中的 $ S_{min} $ 被添加到 $ N $ 中。第二，从N中移除每一个 $ d(S, S_g)&gt;d(S_c, S_g) $ 的解决方案 $ S $ ，并估计每个剩余解决方案的makespan（第14-18行）。第三，对于N中剩下的每个解决方案S，计算出更接近 $ S_g $ （具有更好的makespan）的解决方案的数量，并用indexDis(S)（indexObj(S)）表示。(第21-24行)。第四，我们按照indexDis(S)+indexObj(S)的递增顺序对 $ N $ 进行排序，并随机选择前 $ \gamma $ 个解决方案中的一个作为路径上的下一个 $ S_c $ ，如果它与 $ S_g $ 的距离小于 $ \beta \times d(S_i, S_g) $ ，则将其存入PathSet（第25-30行）。这些步骤重复进行，直到 $ d(S_c, S_g) $ 不再大于 $ \alpha \times d(S_i, S_g) $ （第4行）。最后，PathSet中的最佳解被返回作为参考解（第32行）。</p><p>很明显，集合N的最大尺寸是 $ n_o $ ，其中 $ n_o $ 是所有工作中的所有操作总数，即 $ n_{o}=\sum_{j=1}^{n} n_{j} $ 。第5-13行的最差时间复杂度是O(n2o)。第21-25行实际上是对集合N的解进行排序，其时间复杂度为 $ O(|N|\log|N|) $ 。因此，算法2的最差时间复杂度是 $ O(n^3_o) $ 。</p><h2 id="三、Computational-Results-Experimental-protocol-and-benchmarks"><a href="#三、Computational-Results-Experimental-protocol-and-benchmarks" class="headerlink" title="三、Computational Results Experimental protocol and benchmarks"></a>三、Computational Results Experimental protocol and benchmarks</h2><p>我们的MAE算法在C++中实现，并运行在英特尔Xeon E5-2697处理器上，具有2.60 GHz CPU和2 GB RAM。在我们的实验中，我们将p、α、β、γ分别设置为10、0.4、0.6和5。<strong>当在同一台机器上具有不同机器分配或不同位置的操作数小于所有作业中操作总数的10%时，两个解决方案被认为是接近的</strong>，其中一个解决方案被替换为随机解决方案。禁忌搜索过程的最大迭代次数为10000次。这些参数值是通过大量的初步实验确定的。</p><p>我们在文献中广泛使用的四个基准上评估了MAE的性能：DPdata（Dauzère-Pérès和Paulli 1997）、BCdata（Barnes和Chambers 1998）、BRdata（Brandimarte 1993）和HUdata（Hurink、Jurisch和Thole 1994），共有313个不同大小和灵活性的实例。MAE应用于每个实例，有20次独立运行。按照该领域的常规做法，我们使用以下数值来比较不同的方法：</p><ul><li>20次运行期间目标的平均相对百分比偏差 RPD，定义为 $ RPD=100 \times(f−LB)/LB $ ，其中 f 是通过给定算法获得的最大完工时间，LB是 $ \text{Quintiq}^1 $ 中提供的下限；</li><li>以及20次运行的平均计算时间t(s)，以秒为单位。</li></ul><p>为了与其他算法进行公平比较，BRdata和BCdata实例的MAE截止时间设置为90秒，DPdata和HUdata实例的MAE截止时间设置为5分钟，这与GRASP-mELS中的相同。我们还提供了截止时间为1小时的MAE结果。此外，我们将计算时间标准化为与计算机无关的CPU时间（CI-CPU），方法与GRASP-mELS中的方法相同。因此，将计算机的速度系数设置为1，GRAP-mELS、SSPR、HA和HGTS的速度系数分别为1.09、0.75、0.50和0.63。</p><h3 id="3-1-Comparison-with-metaheuristics"><a href="#3-1-Comparison-with-metaheuristics" class="headerlink" title="3.1 Comparison with metaheuristics"></a>3.1 Comparison with metaheuristics</h3><p>在四个基准集上，我们将MAE算法与最新的最新算法（SSPR、HGTS、HA和GRASP mELS）进行比较。比较结果见表1-4。请注意，列best（avg）和t（s）是获得的最佳（平均）解，以及每个算法所需的平均计算时间（以秒为单位），LB值标记为∗ 表示最优解，<strong>每个参考算法可以获得的最知名解用粗体表示</strong>。行#better、#even和#better给出了MAE在5分钟或90秒内获得的最佳解比每种参考算法更好、相等和更差的实例数。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220405104923.png" alt="image-20220405104916434"></p><p>从表1可以看出，在DPdata基准上，MAE在解决方案质量和计算时间方面都优于HGTS和HA。尽管与SSPR和GRASPmELS相比，MAE需要稍多的计算时间，但对于最佳和平均目标值，其RP D值最少（1.04和1.24）。此外，MAE在12例和15例中分别比SSPR和GRAP mELS获得更好的结果。当将截止时间延长到1小时时，MAE对15个实例改进了以前最著名的解决方案。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220405110555.png" alt="image-20220405110555810"></p><p>从表2可以看出，MAE在BCdata基准上与HGTS和HA具有竞争力，因为它的最佳和平均目标值较小。此外，MAE在解决方案质量方面优于HGTS。与SSPR相比，MAE分别在1、19和1个实例中获得更好、相等和更差的解。GRASPmELS在BCdata基准上的性能优于MAE。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220405110637.png" alt="image-20220405110637652"></p><p>表3中的结果表明，MAE在解决方案质量和计算时间方面都优于SSPR、HGTS和GRAP mELS。虽然HA所需的计算时间稍短，但MAE的最佳和平均完工时间值较小。此外，与其他参考算法相比，MAE在所有情况下都获得了更好或相同的结果。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220405110959.png" alt="image-20220405110959586"></p><p>表4给出了在HUdata基准上MAE与SSPR和GRAP mELS的比较结果。人们观察到，MAE的性能优于SSPR和GRAP mELS，因为MAE在所有实例中都能获得更好或相等的结果，并且只需要较少的计算时间，rdata集上的GRAP mELS除外。特别是，MAE分别对edata、rdata和vdata上的4（5）、18（19）和13（9）个实例改进了GRAP mELS（SSPR）获得的最佳结果。</p><p>总之，MAE改进了SSPR和GRASP mELS之前获得的最佳结果，在178个测试实例中，分别有47个和52个。</p><h3 id="3-2-Comparison-with-the-state-of-the-art-exact-method"><a href="#3-2-Comparison-with-the-state-of-the-art-exact-method" class="headerlink" title="3.2 Comparison with the state-of-the-art exact method"></a>3.2 Comparison with the state-of-the-art exact method</h3><p>我们将MAE与基于约束编程的最新精确方法进行了比较：LNS+FDS（Viĺım、Laborie和Shaw，2015）。LNS+FDS构成了CP Optimizer中自动搜索调度问题的基础，CP Optimizer是IBM ILOG CPLEX Optimization Studio的一部分。LNS+FDS（也称为CPO）已在一系列调度基准上成功测试，如JSP和FJSP等。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220405111944.png" alt="image-20220405111944052"></p><p>与313例中的CPO相比，MAE分别在45例、255例和13例中获得更好、相等和更差的结果。表5报告了45个改进实例的MAE结果以及与CPO的比较。请注意，CPO的结果是在8小时的时限内获得的，而MAE的结果是在1小时的时限内获得的。</p><h3 id="3-3-Comparison-with-the-industrial-solver-Quintiq"><a href="#3-3-Comparison-with-the-industrial-solver-Quintiq" class="headerlink" title="3.3 Comparison with the industrial solver Quintiq"></a>3.3 Comparison with the industrial solver Quintiq</h3><p>我们现在将MAE与著名的工业求解器Quintiq进行比较，Quintiq为313个实例中的119个实例找到了新的最知名的解决方案。它还指出了所有313个实例的解决方案质量的世界记录，以及第一个创下记录的方法。然而，Quintiq并没有描述他们的方法和获得这些结果的时间限制。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220405112002.png" alt="image-20220405112002284"></p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220405112039.png" alt="image-20220405112039364"></p><p>我们通过对MAE使用1小时的时间限制来比较MAE和Quintiq。实验表明，在121个实例中，MAE获得的结果比Quintiq更好。表6中提供了这些由MAE获得的新记录，供以后比较，其中 “UB Ref. “和 “UB Date “栏分别代表获得新记录的方法和日期，”[Q]”代表Quintiq方法。最后，表7报告了MAE与CPO和Quintiq的总结性比较，其中列&lt;、=、&gt;表示MAE获得比参考算法更好、相同和更差结果的实例数。</p><h3 id="3-4-Discuss-and-analysis"><a href="#3-4-Discuss-and-analysis" class="headerlink" title="3.4 Discuss and analysis"></a>3.4 Discuss and analysis</h3><p>为了显示基于两个个体的进化框架的优点，我们将MAE与被称为迭代塔布搜索（ITS）的轨迹方法进行了比较，该方法在单一解决方案上工作。在ITS的每个迭代中，执行与MAE相同的Tabu搜索程序，然后是一个扰动程序，在N π ∪ N k中随机对当前的解决方案或最佳发现的解决方案应用0.2 ∗ |Nc|移动，如果连续非改进的迭代次数超过500，其中Nc是关键操作的集合。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220405112240.png" alt="image-20220405112240159"></p><p>图4显示了MAE和ITS针对DPdata中18个实例中的每一个获得的最佳、平均和最差解。可以观察到，在所有情况下，MAE的最佳、平均和最差解都优于或等于ITS的最佳、平均和最差解。此外，MAE的最佳和最差解之间的差异也小于ITS的差异。这表明基于两个个体的进化算法优于轨迹法。</p><p>在初步实验中，我们选取了11个不同的p值（5,6，…，15），5组不同的[α，β]值（[0,0.2]，…，[0.8,1]），以及10个不同的γ值（1，…，10）来分析参数敏感性。所有参数总共有11<em>5</em>10=550个组合。我们独立运行MAE 10次，以解决BCdata中一个相对困难的实例seti5xyz，每次运行的截止时间为90秒。结果表明，考虑到解的质量和计算效率，当p、α、β和γ分别设置为10、0.4、0.6和5时，MAE的性能最佳。在下面的段落中，我们将通过扩展MAE的值域和保持其他参数不变，进一步分析一个参数对MAE性能的影响。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220405112556.png" alt="image-20220405112556552"></p><p>为了分析参数p对MAE性能的影响，我们取了20个不同的值（p∈ {1，…，20}），保持其他参数不变，并对DPdata中的所有实例应用MAE。相应的结果如图5所示。人们发现，当p∈ {1，…，10}并在p∈ {10，…，20}，而当p∈ {1,2,3}并随着p∈ {3, . . . , 20} . 原因可能在于，当p很小时，在上一个周期中保存的最佳解决方案不是高质量的，这无法提供好的可继承特性。当p太大时，一个循环中的最佳解更接近迄今为止找到的最佳解，这无法提供足够的多样性，因此MAE更有可能陷入局部最优。MAE中p的最佳值建议为10。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220405112610.png" alt="image-20220405112610204"></p><p>为了分析参数α、β、γ对MAE的影响，我们对[α、β]、[0.2]、[0.8,1]）取5组值（[0,0.2]、[0.8,1]），对γ取15组值（1，…，15），保持其他参数不变，并分别对DPdata和BCdata进行实验。结果如图6和图7所示。图6显示，平均完工时间从第一组到第三组减少，从第三组到第五组增加，而相应的计算时间在整个范围内逐渐增加。图7显示，当γ∈ {1，…，5}并且当γ∈ {5, . . . , 15}. 考虑到解的质量和计算效率，建议α、β和γ分别为0.4、0.6和5。</p><p>MAE是有效的，因为它使用两个个体S1和S2在集约化和多样化之间保持了良好的平衡，其中S1扮演集约化的角色，S2扮演多样化的角色。为了说明这一点，我们在图8中描述了在解决代表性实例01a时，S1和S∗的目标值的演变，以及距离d（S1, S∗）和d（S1, S2）。我们看到，S1的目标值通常是好的，而S∗的目标值是单调的。这是可能的，因为d(S1, S2)周期性地变大（与d(S1, S∗)相比），所以S1和S2的路径重联算子能够找到多样化的解决方案。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220405112754.png" alt="image-20220405112754065"></p><p>此外，我们对MAE与SSPR和GRASPmELS相比，通过多次运行得到的实例的平均makespan进行了统计学意义上的检验，得出的MAE和SSPR（GRASP-mELS）之间的平均makespan的p值见表8。考虑到0.05的显著性水平，从表8中可以看出，MAE和SSPR在DPdata、rdata和vdata上有显著差异，而MAE和SSPR在BCdata、BRdata和edata上没有显著差异。此外，在DPdata、rdata、vdata和BCdata上，MAE和GRASP-mELS之间有显著差异，而在BRdata和edata上，MAE和GRASP-mELS之间没有显著差异。原因可能在于BCdata、BRdata和edata的实例相对容易解决。表1-4中的#better、#even和#worse的值也可以说明实例的难度。</p><h2 id="四、Conclusion"><a href="#四、Conclusion" class="headerlink" title="四、Conclusion"></a>四、Conclusion</h2><p>我们提出了一种称为MAE的师徒进化算法来解决柔性作业车间调度问题，该算法在三个主要方面与基于单一解决方案和传统基于种群的元启发式算法有所不同：（1）MAE中的种群规模是两个，允许两个个体之间进行有效协作；（2） MAE使用简单但非常有效的个体更新策略来确保进化的质量和多样性；（3） 为了产生有希望的后代解决方案，MAE使用了一种基于路径重新链接的语义问题特定重组算子，并为两个个体定义了一种新的距离定义。计算实验表明，MAE在求解质量和计算效率方面都有很高的性能。我们坚信，这种基于两个个体的主学徒进化算法是解决其他具有挑战性的组合优化问题的一个有前途的框架。</p></div><div><ul class="post-copyright"><li class="post-copyright-author"> <strong>本文作者：</strong> luobuyu</li><li class="post-copyright-link"> <strong>本文链接：</strong> <a href="https://www.luobuyu.site/2022/Two-Individual-fjsp/" title="A Two-Individual Based Evolutionary Algorithm for the Flexible Job Shop Scheduling Problem">https://www.luobuyu.site/2022/Two-Individual-fjsp/</a></li><li class="post-copyright-license"> <strong>版权声明：</strong> 本博客所有文章除特别声明外，均采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i> BY-NC-SA</a> 许可协议。转载请注明出处！</li></ul></div><footer class="post-footer"><div class="post-tags"><a href="/tags/fjsp/" rel="tag"><i class="fa fa-tag"></i> fjsp</a><a href="/tags/%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6/" rel="tag"><i class="fa fa-tag"></i> 任务调度</a></div><div class="post-nav"><div class="post-nav-item"><a href="/2022/ASA-2D-RPAMP/" rel="prev" title="An adaptive selection approach for the 2D rectangle packing area minimization problem"><i class="fa fa-chevron-left"></i> An adaptive selection approach for the 2D rectangle packing area minimization problem</a></div><div class="post-nav-item"> <a href="/2022/fjsp-jsp/" rel="next" title="fjsp基础学习">fjsp基础学习<i class="fa fa-chevron-right"></i></a></div></div></footer></article></div><div class="comments" id="valine-comments"></div><script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script></div><div class="toggle sidebar-toggle"><span class="toggle-line toggle-line-first"></span><span class="toggle-line toggle-line-middle"></span><span class="toggle-line toggle-line-last"></span></div><aside class="sidebar"><div class="sidebar-inner"><ul class="sidebar-nav motion-element"><li class="sidebar-nav-toc"> 文章目录</li><li class="sidebar-nav-overview"> 站点概览</li></ul><div class="post-toc-wrap sidebar-panel"><div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#A-Two-Individual-Based-Evolutionary-Algorithm-for-the-Flexible-Job-Shop"><span class="nav-number">1.</span> <span class="nav-text">A Two-Individual Based Evolutionary Algorithm for the Flexible Job Shop</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#摘要"><span class="nav-number">1.1.</span> <span class="nav-text">摘要</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一、介绍"><span class="nav-number">1.2.</span> <span class="nav-text">一、介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、Master-Apprentice-Evolutionary-Algorithm"><span class="nav-number">1.3.</span> <span class="nav-text">二、Master-Apprentice Evolutionary Algorithm</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-Main-scheme-of-MAE"><span class="nav-number">1.3.1.</span> <span class="nav-text">2.1 Main scheme of MAE</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-Initial-solutions-and-tabu-search-procedure"><span class="nav-number">1.3.2.</span> <span class="nav-text">2.2 Initial solutions and tabu search procedure</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-Path-relinking-based-recombination-operator"><span class="nav-number">1.3.3.</span> <span class="nav-text">2.3 Path relinking based recombination operator</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、Computational-Results-Experimental-protocol-and-benchmarks"><span class="nav-number">1.4.</span> <span class="nav-text">三、Computational Results Experimental protocol and benchmarks</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-Comparison-with-metaheuristics"><span class="nav-number">1.4.1.</span> <span class="nav-text">3.1 Comparison with metaheuristics</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-Comparison-with-the-state-of-the-art-exact-method"><span class="nav-number">1.4.2.</span> <span class="nav-text">3.2 Comparison with the state-of-the-art exact method</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-Comparison-with-the-industrial-solver-Quintiq"><span class="nav-number">1.4.3.</span> <span class="nav-text">3.3 Comparison with the industrial solver Quintiq</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-Discuss-and-analysis"><span class="nav-number">1.4.4.</span> <span class="nav-text">3.4 Discuss and analysis</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、Conclusion"><span class="nav-number">1.5.</span> <span class="nav-text">四、Conclusion</span></a></li></ol></li></ol></div></div><div class="site-overview-wrap sidebar-panel"><div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person"> <a href="/"><img class="site-author-image" itemprop="image" alt="luobuyu" src="/images/avatar.png"></a><p class="site-author-name" itemprop="name">luobuyu</p><div class="site-description" itemprop="description"></div></div><div class="site-state-wrap motion-element"><nav class="site-state"><div class="site-state-item site-state-posts"> <a href="/archives/"><span class="site-state-item-count">362</span> <span class="site-state-item-name">日志</span></a></div><div class="site-state-item site-state-categories"> <a href="/categories/"><span class="site-state-item-count">66</span> <span class="site-state-item-name">分类</span></a></div><div class="site-state-item site-state-tags"> <a href="/tags/"><span class="site-state-item-count">274</span> <span class="site-state-item-name">标签</span></a></div></nav></div><div class="links-of-author motion-element"><span class="links-of-author-item"><a href="https://github.com/luobuyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;luobuyu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i> GitHub</a></span><span class="links-of-author-item"><a href="mailto:1528751774@qq.com" title="E-Mail → mailto:1528751774@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i> E-Mail</a></span><span class="links-of-author-item"><a href="https://valine.luobuyu.site/" title="Comments → https:&#x2F;&#x2F;valine.luobuyu.site" rel="noopener" target="_blank"><i class="fas fa-comments fa-fw"></i> Comments</a></span></div></div></div></aside><div id="sidebar-dimmer"></div></div></main><footer class="footer"><div class="footer-inner"><div id="aplayer-ukhYMhCo" class="aplayer aplayer-tag-marker meting-tag-marker" data-id="7289878554" data-server="netease" data-type="playlist" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#FF4081" data-listfolded="true"></div><div class="copyright"> &copy; 2020 – <span itemprop="copyrightYear">2024</span><span class="with-love"><i class="fa fa-heartbeat"></i></span> <span class="author" itemprop="copyrightHolder">luobuyu</span><br><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span class="post-meta-divider"></span><span class="post-meta-item-icon"><i class="fa fa-chart-area"></i></span> <span class="post-meta-item-text">站点总字数：</span> <span title="站点总字数">938k</span> <span class="post-meta-divider">|</span><span class="post-meta-item-icon"><i class="fa fa-coffee"></i></span> <span class="post-meta-item-text">站点阅读时长 &asymp;</span> <span title="站点阅读时长">14:13</span></div> <span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span><script>var now=new Date;function createtime(){var n=new Date("07/20/2020 12:00:00");now.setTime(now.getTime()+250),days=(now-n)/1e3/60/60/24,dnum=Math.floor(days),hours=(now-n)/1e3/60/60-24*dnum,hnum=Math.floor(hours),1==String(hnum).length&&(hnum="0"+hnum),minutes=(now-n)/1e3/60-1440*dnum-60*hnum,mnum=Math.floor(minutes),1==String(mnum).length&&(mnum="0"+mnum),seconds=(now-n)/1e3-86400*dnum-3600*hnum-60*mnum,snum=Math.round(seconds),1==String(snum).length&&(snum="0"+snum),document.getElementById("timeDate").innerHTML="luobuyuの个人博客，已经勉强存活了 "+dnum+" 天 ",document.getElementById("times").innerHTML=hnum+" 小时 "+mnum+" 分 "+snum+" 秒"}setInterval("createtime()",250)</script><div class="busuanzi-count"><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span class="post-meta-item" id="busuanzi_container_site_uv" style="display:none"></span><span class="post-meta-item-icon"><i class="fa fa-user"></i></span> <span class="site-uv" title="总访客量">访问人数<span id="busuanzi_value_site_uv"></span></span> <span class="post-meta-divider">|</span><span class="post-meta-item" id="busuanzi_container_site_pv" style="display:none"></span><span class="post-meta-item-icon"><i class="fa fa-eye"></i></span> <span class="site-pv" title="总访问量">总访问量<span id="busuanzi_value_site_pv"></span></span></div></div></footer></div><script src="/lib/anime.min.js"></script><script src="/lib/velocity/velocity.min.js"></script><script src="/lib/velocity/velocity.ui.min.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/pisces.js"></script><script src="/js/next-boot.js"></script><script>!function(){var o,n,e=document.getElementsByTagName("link");if(0<e.length)for(i=0;i<e.length;i++)"canonical"==e[i].rel.toLowerCase()&&e[i].href&&(o=e[i].href);n=o?o.split(":")[0]:window.location.protocol.split(":")[0],o||(o=window.location.href),function(){var e=o,i=document.referrer;if(!/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi.test(e)){var t="https"===String(n).toLowerCase()?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";i?(t+="?r="+encodeURIComponent(document.referrer),e&&(t+="&l="+e)):e&&(t+="?l="+e),(new Image).src=t}}(window)}()</script><script src="/js/local-search.js"></script><script type="text/x-mathjax-config">
+    MathJax.Ajax.config.path['mhchem'] = '//cdn.jsdelivr.net/npm/mathjax-mhchem@3';
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        extensions: ['[mhchem]/mhchem.js'],
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script><script>
+  NexT.utils.getScript('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/GamerNoTitle/Picture-repo-v1@master/css/Valine-Emotion.css"><style>.v[data-class=v] .veditor{background-image:url(https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220325200442.gif);background-size:contain;background-repeat:no-repeat;background-position:right}</style><script>
+
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/valine@1.5.1/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+
+    var requiredFields = ['nick', 'mail', 'link'];
+    var requiredField = 'nick,mail';
+    requiredField = requiredField.split(',').filter(item => {
+      return requiredFields.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'GqF4f53ddiLc4MvB6rAMxrM6-MdYXbMMI',
+      appKey     : 'rn6pv6g3Qzu4mcbqhI7qWEk5',
+      emojiCDN: 'https://valinecdn.bili33.top/',
+      emojiMaps: {
+        "bilibiliHotKey1": "bilibiliHotKey/1.jpg",
+        "bilibiliHotKey2": "bilibiliHotKey/10.jpg",
+        "bilibiliHotKey3": "bilibiliHotKey/11.jpg",
+        "bilibiliHotKey4": "bilibiliHotKey/12.jpg",
+        "bilibiliHotKey5": "bilibiliHotKey/13.jpg",
+        "bilibiliHotKey6": "bilibiliHotKey/14.jpg",
+        "bilibiliHotKey7": "bilibiliHotKey/15.jpg",
+        "bilibiliHotKey8": "bilibiliHotKey/16.jpg",
+        "bilibiliHotKey9": "bilibiliHotKey/17.jpg",
+        "bilibiliHotKey10": "bilibiliHotKey/18.jpg",
+        "bilibiliHotKey11": "bilibiliHotKey/19.jpg",
+        "bilibiliHotKey12": "bilibiliHotKey/2.jpg",
+        "bilibiliHotKey13": "bilibiliHotKey/20.jpg",
+        "bilibiliHotKey14": "bilibiliHotKey/21.jpg",
+        "bilibiliHotKey15": "bilibiliHotKey/22.jpg",
+        "bilibiliHotKey16": "bilibiliHotKey/23.jpg",
+        "bilibiliHotKey17": "bilibiliHotKey/24.jpg",
+        "bilibiliHotKey18": "bilibiliHotKey/25.jpg",
+        "bilibiliHotKey19": "bilibiliHotKey/26.jpg",
+        "bilibiliHotKey20": "bilibiliHotKey/27.jpg",
+        "bilibiliHotKey21": "bilibiliHotKey/28.jpg",
+        "bilibiliHotKey22": "bilibiliHotKey/29.jpg",
+        "bilibiliHotKey23": "bilibiliHotKey/3.jpg",
+        "bilibiliHotKey24": "bilibiliHotKey/30.jpg",
+        "bilibiliHotKey25": "bilibiliHotKey/31.jpg",
+        "bilibiliHotKey26": "bilibiliHotKey/32.jpg",
+        "bilibiliHotKey27": "bilibiliHotKey/4.jpg",
+        "bilibiliHotKey28": "bilibiliHotKey/5.jpg",
+        "bilibiliHotKey29": "bilibiliHotKey/6.jpg",
+        "bilibiliHotKey30": "bilibiliHotKey/7.jpg",
+        "bilibiliHotKey31": "bilibiliHotKey/8.jpg",
+        "bilibiliHotKey32": "bilibiliHotKey/9.jpg",
+        "KeQing1": "KeQing/1MtdPr4y.png",
+        "KeQing2": "KeQing/29E353B37F06F48D0D32B896A555AB10.jpg",
+        "KeQing3": "KeQing/5q8iVluo.png",
+        "KeQing4": "KeQing/6Bo9DvjS.png",
+        "KeQing5": "KeQing/8uRU02Qn.png",
+        "KeQing6": "KeQing/a7Xxm0ou.png",
+        "KeQing7": "KeQing/aEhyb3F5.png",
+        "KeQing8": "KeQing/alT6XmFj.png",
+        "KeQing9": "KeQing/b4l6cyUT.png",
+        "KeQing10": "KeQing/BWYIgTtC.png",
+        "KeQing11": "KeQing/c1ZrqNaX.png",
+        "KeQing12": "KeQing/c7yp9Ewx.png",
+        "KeQing13": "KeQing/CeZsrXIq.png",
+        "KeQing14": "KeQing/CJRTKlGP.png",
+        "KeQing15": "KeQing/COMie4xg.png",
+        "KeQing16": "KeQing/D4G8UsxH.png",
+        "KeQing17": "KeQing/D80028AB4478C5C3986FE1A9FEEFEB35.gif",
+        "KeQing18": "KeQing/e01OVkHC.png",
+        "KeQing19": "KeQing/ELmIkgpZ.png",
+        "KeQing20": "KeQing/fbR6FSd3.png",
+        "KeQing21": "KeQing/Fh58COx7.png",
+        "KeQing22": "KeQing/FM1l6d9h.png",
+        "KeQing23": "KeQing/ghCViEvU.png",
+        "KeQing24": "KeQing/ivmGU68a.png",
+        "KeQing25": "KeQing/JmyRiSt1.png",
+        "KeQing26": "KeQing/jvI8Wa35.png",
+        "KeQing27": "KeQing/lHQhDR71.png",
+        "KeQing28": "KeQing/lxfPMp5I.png",
+        "KeQing29": "KeQing/nK5k6fHL.png",
+        "KeQing30": "KeQing/OsVSotEn.png",
+        "KeQing31": "KeQing/R4QdmJb1.png",
+        "KeQing32": "KeQing/rADUyouz.png",
+        "KeQing33": "KeQing/Rex3GWlg.png",
+        "KeQing34": "KeQing/RkHtnfyU.png",
+        "KeQing35": "KeQing/RrXmaHeb.png",
+        "KeQing36": "KeQing/sJ58YlzP.png",
+        "KeQing37": "KeQing/tjJGYOVF.png",
+        "KeQing38": "KeQing/tTnXvgZH.png",
+        "KeQing39": "KeQing/w37qQAel.png",
+        "KeQing40": "KeQing/W6y0ReEh.png",
+        "KeQing41": "KeQing/xDIO54sg.png",
+        "KeQing42": "KeQing/Xy8BbkcP.png",
+        "KeQing43": "KeQing/YCL13G5e.png",
+        "KeQing44": "KeQing/yG7MulxF.png",
+        "KeQing45": "KeQing/ZDI38NMK.png",
+        "KeQing46": "KeQing/Zl9NR6It.png",
+        "Snow-Miku1": "Snow-Miku/3583066@2x.png",
+        "Snow-Miku2": "Snow-Miku/3583067@2x.png",
+        "Snow-Miku3": "Snow-Miku/3583068@2x.png",
+        "Snow-Miku4": "Snow-Miku/3583069@2x.png",
+        "Snow-Miku5": "Snow-Miku/3583070@2x.png",
+        "Snow-Miku6": "Snow-Miku/3583071@2x.png",
+        "Snow-Miku7": "Snow-Miku/3583072@2x.png",
+        "Snow-Miku8": "Snow-Miku/3583073@2x.png",
+        "Snow-Miku9": "Snow-Miku/3583074@2x.png",
+        "Snow-Miku10": "Snow-Miku/3583075@2x.png",
+        "Snow-Miku11": "Snow-Miku/3583076@2x.png",
+        "Snow-Miku12": "Snow-Miku/3583077@2x.png",
+        "Snow-Miku13": "Snow-Miku/3583078@2x.png",
+        "Snow-Miku14": "Snow-Miku/3583079@2x.png",
+        "Snow-Miku15": "Snow-Miku/3583080@2x.png",
+        "Snow-Miku16": "Snow-Miku/3583081@2x.png",
+        "Snow-Miku17": "Snow-Miku/3583082@2x.png",
+        "Snow-Miku18": "Snow-Miku/3583083@2x.png",
+        "Snow-Miku19": "Snow-Miku/3583084@2x.png",
+        "Snow-Miku20": "Snow-Miku/3583085@2x.png",
+        "Snow-Miku21": "Snow-Miku/3583086@2x.png",
+        "Snow-Miku22": "Snow-Miku/3583087@2x.png",
+        "Snow-Miku23": "Snow-Miku/3583088@2x.png",
+        "Snow-Miku24": "Snow-Miku/3583089@2x.png",
+        "Snow-Miku25": "Snow-Miku/3583090@2x.png",
+        "Snow-Miku26": "Snow-Miku/3583091@2x.png",
+        "Snow-Miku27": "Snow-Miku/3583092@2x.png",
+        "Snow-Miku28": "Snow-Miku/3583093@2x.png",
+        "Snow-Miku29": "Snow-Miku/3583094@2x.png",
+        "Snow-Miku30": "Snow-Miku/3583095@2x.png",
+        "Snow-Miku31": "Snow-Miku/3583096@2x.png",
+        "Snow-Miku32": "Snow-Miku/3583097@2x.png",
+        "Snow-Miku33": "Snow-Miku/3583098@2x.png",
+        "Snow-Miku34": "Snow-Miku/3583099@2x.png",
+        "Snow-Miku35": "Snow-Miku/3583100@2x.png",
+        "Snow-Miku36": "Snow-Miku/3583101@2x.png",
+        "Snow-Miku37": "Snow-Miku/3583102@2x.png",
+        "Snow-Miku38": "Snow-Miku/3583103@2x.png",
+        "Snow-Miku39": "Snow-Miku/3583104@2x.png",
+        "Snow-Miku40": "Snow-Miku/3583105@2x.png",
+        "bilibilitv2": "bilibilitv/[tv_doge].png",
+        "bilibilitv3": "bilibilitv/[tv_亲亲].png",
+        "bilibilitv4": "bilibilitv/[tv_偷笑].png",
+        "bilibilitv5": "bilibilitv/[tv_再见].png",
+        "bilibilitv6": "bilibilitv/[tv_冷漠].png",
+        "bilibilitv7": "bilibilitv/[tv_发怒].png",
+        "bilibilitv8": "bilibilitv/[tv_发财].png",
+        "bilibilitv9": "bilibilitv/[tv_可爱].png",
+        "bilibilitv10": "bilibilitv/[tv_吐血].png",
+        "bilibilitv11": "bilibilitv/[tv_呆].png",
+        "bilibilitv12": "bilibilitv/[tv_呕吐].png",
+        "bilibilitv13": "bilibilitv/[tv_困].png",
+        "bilibilitv14": "bilibilitv/[tv_坏笑].png",
+        "bilibilitv15": "bilibilitv/[tv_大佬].png",
+        "bilibilitv16": "bilibilitv/[tv_大哭].png",
+        "bilibilitv17": "bilibilitv/[tv_委屈].png",
+        "bilibilitv18": "bilibilitv/[tv_害羞].png",
+        "bilibilitv19": "bilibilitv/[tv_尴尬].png",
+        "bilibilitv20": "bilibilitv/[tv_微笑].png",
+        "bilibilitv21": "bilibilitv/[tv_思考].png",
+        "bilibilitv22": "bilibilitv/[tv_惊吓].png",
+        "bilibilitv23": "bilibilitv/[tv_打脸].png",
+        "bilibilitv24": "bilibilitv/[tv_抓狂].png",
+        "bilibilitv25": "bilibilitv/[tv_抠鼻].png",
+        "bilibilitv26": "bilibilitv/[tv_斜眼笑].png",
+        "bilibilitv27": "bilibilitv/[tv_无奈].png",
+        "bilibilitv28": "bilibilitv/[tv_晕].png",
+        "bilibilitv29": "bilibilitv/[tv_流汗].png",
+        "bilibilitv30": "bilibilitv/[tv_流泪].png",
+        "bilibilitv31": "bilibilitv/[tv_流鼻血].png",
+        "bilibilitv32": "bilibilitv/[tv_点赞].png",
+        "bilibilitv33": "bilibilitv/[tv_生气].png",
+        "bilibilitv34": "bilibilitv/[tv_生病].png",
+        "bilibilitv35": "bilibilitv/[tv_疑问].png",
+        "bilibilitv36": "bilibilitv/[tv_白眼].png",
+        "bilibilitv37": "bilibilitv/[tv_皱眉].png",
+        "bilibilitv38": "bilibilitv/[tv_目瞪口呆].png",
+        "bilibilitv39": "bilibilitv/[tv_睡着].png",
+        "bilibilitv40": "bilibilitv/[tv_笑哭].png",
+        "bilibilitv41": "bilibilitv/[tv_腼腆].png",
+        "bilibilitv42": "bilibilitv/[tv_色].png",
+        "bilibilitv43": "bilibilitv/[tv_调侃].png",
+        "bilibilitv44": "bilibilitv/[tv_调皮].png",
+        "bilibilitv45": "bilibilitv/[tv_鄙视].png",
+        "bilibilitv46": "bilibilitv/[tv_闭嘴].png",
+        "bilibilitv47": "bilibilitv/[tv_难过].png",
+        "bilibilitv48": "bilibilitv/[tv_馋].png",
+        "bilibilitv49": "bilibilitv/[tv_鬼脸].png",
+        "bilibilitv50": "bilibilitv/[tv_黑人问号].png",
+        "bilibilitv51": "bilibilitv/[tv_鼓掌].png",
+        "HONKAI3-MEI1": "HONKAI3-MEI/501ac209b259bb545dea898838c24229483fcfeb.gif",
+        "HONKAI3-MEI2": "HONKAI3-MEI/5baf4306d1f685bf47922fbae365ccfba7721beb.gif",
+        "HONKAI3-MEI3": "HONKAI3-MEI/624857651c863ea9571f5e557fca8516dd41e0fc.gif",
+        "HONKAI3-MEI4": "HONKAI3-MEI/680311714674014d0c17f757eb40c3071448222a.gif",
+        "HONKAI3-MEI5": "HONKAI3-MEI/bf68423446465d396d3cbd8856882b5e9fb1c0c7.gif",
+        "HONKAI3-MEI6": "HONKAI3-MEI/d3a2a9c6ad1e2a0b262dca9354ab8de736d81cdf.gif",
+        "HONKAI3-MEI7": "HONKAI3-MEI/dd0fd1f3668f4907c9f6fcd39c6138417ac0e1f5.gif"
+      },
+      placeholder: "Leave a comment now!",
+      avatar     : 'wavatar',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-CN' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://chat.luobuyu.site',
+      requiredFields: requiredField
+    });
+  }, window.Valine);
+});
+</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({pluginRootPath:"live2dw/",pluginJsPath:"lib/",pluginModelPath:"assets/",tagMode:!1,debug:!1,model:{jsonPath:"/live2dw/assets/assets/haru01.model.json"},display:{superSample:2,width:200,height:400,position:"right",hOffset:0,vOffset:-20},mobile:{show:!0,scale:.5},react:{opacityDefault:.7,opacityOnHover:.8},log:!1})</script></body></html>

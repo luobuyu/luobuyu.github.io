@@ -1,0 +1,282 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2"><meta name="theme-color" content="#222"><meta name="generator" content="Hexo 4.2.1"><link rel="apple-touch-icon" sizes="180x180" href="/images/favicon-1.png"><link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-1.png"><link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-1.png"><link rel="mask-icon" href="/images/favicon-1.png" color="#222"><meta name="google-site-verification" content="lkGKflS_fVXQNJnC_UXP0lqUEpV4NFx0b000PxRrX7g"><meta name="baidu-site-verification" content="codeva-Uj3syugSr3"><link rel="stylesheet" href="/css/main.css"><link rel="stylesheet" href="/lib/font-awesome/css/all.min.css"><link rel="stylesheet" href="//cdn.jsdelivr.net/npm/pace-js@1.2.4/themes/blue/pace-theme-minimal.css"><script src="//cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><script id="hexo-configurations">var NexT=window.NexT||{},CONFIG={hostname:"www.luobuyu.site",root:"/",scheme:"Gemini",version:"7.8.0",exturl:!1,sidebar:{position:"right",display:"post",padding:18,offset:12,onmobile:!1},copycode:{enable:!0,show_result:!1,style:null},back2top:{enable:!0,sidebar:!1,scrollpercent:!1},bookmark:{enable:!1,color:"#222",save:"auto"},fancybox:!1,mediumzoom:!1,lazyload:!1,pangu:!1,comments:{style:"tabs",active:null,storage:!0,lazyload:!1,nav:null},algolia:{hits:{per_page:10},labels:{input_placeholder:"Search for Posts",hits_empty:"We didn't find any results for the search: ${query}",hits_stats:"${hits} results found in ${time} ms"}},localsearch:{enable:!0,trigger:"auto",top_n_per_article:1,unescape:!1,preload:!1},motion:{enable:!0,async:!1,transition:{post_block:"fadeIn",post_header:"slideDownIn",post_body:"slideDownIn",coll_header:"slideLeftIn",sidebar:"slideUpIn"}},path:"search.xml"}</script><meta name="description" content="考虑差分对和阻塞的有序逃逸布线。"><meta property="og:type" content="article"><meta property="og:title" content="Ordered Escape Routing with Consideration of Differential Pair and Blockage"><meta property="og:url" content="https://www.luobuyu.site/2023/Ordered-Escape-Routing/index.html"><meta property="og:site_name" content="Luobuyu&#39;s Blog"><meta property="og:description" content="考虑差分对和阻塞的有序逃逸布线。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202304191739113.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202304191740396.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202304191743515.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202304191800775.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202304191944568.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202304192016664.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202304192020208.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202304192041716.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202304192123941.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202304192131283.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202304211708432.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202304211736949.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202305050959765.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202305051018873.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202305051024346.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202305051100556.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202305051532028.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202305051657655.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202305052003489.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202305052005710.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202305052022932.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202305052026117.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202305102050585.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202305102102001.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202305102102731.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202305102118615.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202305102126394.png"><meta property="article:published_time" content="2023-04-19T09:07:01.000Z"><meta property="article:modified_time" content="2024-10-30T14:47:37.476Z"><meta property="article:author" content="luobuyu"><meta property="article:tag" content="pcb布线"><meta property="article:tag" content="有序逃逸"><meta property="article:tag" content="逃逸布线"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202304191739113.png"><link rel="canonical" href="https://www.luobuyu.site/2023/Ordered-Escape-Routing/"><script id="page-configurations">CONFIG.page={sidebar:"",isHome:!1,isPost:!0,lang:"zh-CN"}</script><title>Ordered Escape Routing with Consideration of Differential Pair and Blockage | Luobuyu's Blog</title><noscript><style>.sidebar-inner,.use-motion .brand,.use-motion .collection-header,.use-motion .comments,.use-motion .menu-item,.use-motion .pagination,.use-motion .post-block,.use-motion .post-body,.use-motion .post-header{opacity:initial}.use-motion .site-subtitle,.use-motion .site-title{opacity:initial;top:initial}.use-motion .logo-line-before i{left:initial}.use-motion .logo-line-after i{right:initial}</style></noscript><link rel="alternate" href="/atom.xml" title="Luobuyu's Blog" type="application/atom+xml"><link rel="stylesheet" href="/assets/css/APlayer.min.css" class="aplayer-style-marker"><script src="/assets/js/APlayer.min.js" class="aplayer-script-marker"></script><script>var meting_api="https://api.injahow.cn/meting/?server=:server&type=:type&id=:id&r=:r"</script><script src="/assets/js/Meting.min.js" class="meting-script-marker"></script></head><body itemscope itemtype="http://schema.org/WebPage"><div class="container use-motion"><div class="headband"></div><header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="header-inner"><div class="site-brand-container"><div class="site-nav-toggle"><div class="toggle" aria-label="切换导航栏"><span class="toggle-line toggle-line-first"></span><span class="toggle-line toggle-line-middle"></span><span class="toggle-line toggle-line-last"></span></div></div><div class="site-meta"><a href="/" class="brand" rel="start"><span class="logo-line-before"><i></i></span><h1 class="site-title">Luobuyu's Blog</h1><span class="logo-line-after"><i></i></span></a></div><div class="site-nav-right"><div class="toggle popup-trigger"><i class="fa fa-search fa-fw fa-lg"></i></div></div></div><nav class="site-nav"><ul id="menu" class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i> 首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i> 关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i> 标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i> 分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i> 归档</a></li><li class="menu-item menu-item-music"><a href="/music/" rel="section"><i class="fa fa-music fa-fw"></i> 歌单</a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i> 朋友</a></li><li class="menu-item menu-item-search"><a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i> 搜索</a></li></ul></nav><div class="search-pop-overlay"><div class="popup search-popup"><div class="search-header"><span class="search-icon"><i class="fa fa-search"></i></span><div class="search-input-container"> <input autocomplete="off" autocapitalize="off" placeholder="搜索..." spellcheck="false" type="search" class="search-input"></div><span class="popup-btn-close"><i class="fa fa-times-circle"></i></span></div><div id="search-result"><div id="no-result"><i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i></div></div></div></div></div></header><div class="back-to-top"><i class="fa fa-arrow-up"></i> <span>0%</span></div><main class="main"><div class="main-inner"><div class="content-wrap"><div class="content post posts-expand"><article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN"><link itemprop="mainEntityOfPage" href="https://www.luobuyu.site/2023/Ordered-Escape-Routing/"><span hidden itemprop="author" itemscope itemtype="http://schema.org/Person"><meta itemprop="image" content="/images/avatar.png"><meta itemprop="name" content="luobuyu"><meta itemprop="description" content=""></span><span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization"><meta itemprop="name" content="Luobuyu's Blog"></span><header class="post-header"><h1 class="post-title" itemprop="name headline"> Ordered Escape Routing with Consideration of Differential Pair and Blockage</h1><div class="post-meta"><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar"></i></span> <span class="post-meta-item-text">发表于</span> <time title="创建时间：2023-04-19 17:07:01" itemprop="dateCreated datePublished" datetime="2023-04-19T17:07:01+08:00">2023-04-19</time></span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-folder"></i></span> <span class="post-meta-item-text">分类于</span> <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/%E8%AE%BA%E6%96%87/" itemprop="url" rel="index"><span itemprop="name">论文</span></a></span> ， <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/%E8%AE%BA%E6%96%87/PCB%E5%B8%83%E5%B1%80%E5%B8%83%E7%BA%BF/" itemprop="url" rel="index"><span itemprop="name">PCB布局布线</span></a></span></span><span id="/2023/Ordered-Escape-Routing/" class="post-meta-item leancloud_visitors" data-flag-title="Ordered Escape Routing with Consideration of Differential Pair and Blockage" title="热度"><span class="post-meta-item-icon"><i class="fa fa-eye"></i></span> <span class="post-meta-item-text">热度：</span><span class="leancloud-visitors-count"></span> <span>℃</span></span><span class="post-meta-item" title="热度" id="busuanzi_container_page_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i></span> <span class="post-meta-item-text">热度：</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-comment"></i></span> <span class="post-meta-item-text">评论：</span><a title="valine" href="/2023/Ordered-Escape-Routing/#valine-comments" itemprop="discussionUrl"><span class="post-comments-count valine-comment-count" data-xid="/2023/Ordered-Escape-Routing/" itemprop="commentCount"></span></a></span><br><span class="post-meta-item" title="本文字数"><span class="post-meta-item-icon"><i class="far fa-file-word"></i></span> <span class="post-meta-item-text">本文字数：</span> <span>6.9k</span></span><span class="post-meta-item" title="阅读时长"><span class="post-meta-item-icon"><i class="far fa-clock"></i></span> <span class="post-meta-item-text">阅读时长 &asymp;</span> <span>6 分钟</span></span><div class="post-description">考虑差分对和阻塞的有序逃逸布线。</div></div></header><div class="post-body" itemprop="articleBody"><h1 id="Ordered-Escape-Routing-with-Consideration-of-Differential-Pair-and-Blockage"><a href="#Ordered-Escape-Routing-with-Consideration-of-Differential-Pair-and-Blockage" class="headerlink" title="Ordered Escape Routing with Consideration of Differential Pair and Blockage"></a>Ordered Escape Routing with Consideration of Differential Pair and Blockage</h1><center>FENGXIAN JIAO and SHEQIN DONG, Tsinghua University</center><h2 id="1-INTRODUCTION"><a href="#1-INTRODUCTION" class="headerlink" title="1.INTRODUCTION"></a>1.INTRODUCTION</h2><p>不同的引脚阵列：</p><p>a.grid pin array(GPA)，b.staggered pin array(SPA)（不带差分对）</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202304191739113.png" alt="image-20230419173901996"></p><p>带差分对：</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202304191740396.png" alt="image-20230419174016372"></p><p>带阻塞的差分对有序逃逸示例</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202304191743515.png" alt="image-20230419174308484"></p><p>常使用网络流模型对GPA和SPA封装进行求解。</p><h2 id="2-PRELIMINARIES"><a href="#2-PRELIMINARIES" class="headerlink" title="2.PRELIMINARIES"></a>2.PRELIMINARIES</h2><h3 id="2-1-MMCF模型"><a href="#2-1-MMCF模型" class="headerlink" title="2.1 MMCF模型"></a>2.1 MMCF模型</h3><p>最小成本多商品流（MMCF）通过单个网络以最小成本同时运输多个商品，不同的商品在单个网络中竞争弧容量所代表的资源。例如，在电话网络中，不同地点之间的呼叫必须通过相同的电话电缆进行路由，这些电话电缆的容量有限，成本不同（Ahuja等人，1993）。图4是最小成本多商品流问题的一个例子，其中源节点是V1，目的节点是V9。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202304191800775.png" alt="image-20230419180001736"></p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202304191944568.png" alt="image-20230419194418530"></p><p>对于每条边 $link(i,j)\in A$ 和每个商品 $k \in K$ ，关联一个单位流量的成本，用 $c_{ij}^k$ 表示。每个节点 $i \in N$ 对商品 $k$ 的需求被指定为 $b_i^k$ ，其中 $b^k_i\ge 0$ 表示供应节点， $b^k_i\lt 0$ 表示需求节点。定义决策变量 $x_{ij}^k$ ，表示从节点 $i$ 和节点 $j$ 发送的商品 $k$ 的数量。<br>可以通过每条链路发送的所有商品的总流量，其上限为 $u_{ij}$ .</p><p>目标是为这些需求中的每一个找到通过网络的最优（即，最小成本）路由集。限制条件是，每条链路的总流量必须小于链路的容量，并且流量需求不能划分到不同的路由上，即整个连接通过一条路径进行路由。</p><p>MMCF线性规划模型如下所示：</p><script type="math/tex;mode=display">
+\min & \sum_{k \in K} \sum_{(i, j) \in A} c_{i j}^{k} x_{i j}^{k}, \\
+\text { s.t. } & \sum_{k \in K} x_{i j}^{k} \leq u_{i j} \quad(i, j) \in A, \\
+& \sum_{k \in K} x_{i j}^{k}-\sum_{(j, i) \in A} x_{j i}^{k}=b_{i}^{k} \quad i \in N, k \in K, \\
+& x_{i j}^{k} \geq 0 \quad(i, j) \in A, k \in K .</script><p>其中，第一个约束限制了每个弧上所有商品的总流量。</p><p>第二个约束确保离开每个供应节点和进入每个需求节点的商品流量是平衡的。</p><p>第三个约束是决策变量的数据范围。</p><p>MMCF在文献中得到了广泛的讨论，因为<strong>它对各种传输和调度问题进行了建模</strong>。从算法的角度来看，MMCF激发了许多重要的想法，这些想法后来得到了更广泛的应用：例如<strong>列生成方法</strong>和<strong>Dantzig-Wolfe分解算法</strong>。在本文中，我们将有序转义路由转换为MMCF，并通过MMCF求解器进行求解。细节将在第4节中说明。</p><h3 id="2-2-GPA封装"><a href="#2-2-GPA封装" class="headerlink" title="2.2 GPA封装"></a>2.2 GPA封装</h3><p>网格引脚阵列上路由网络的定义如下：</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202304192016664.png" alt="image-20230419201636614"></p><center>网格引脚阵列和通过网格瓦片网络的路由示例。（a） 栅格引脚阵列；（b） 路由示例。</center><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202304192020208.png" alt="image-20230419202035156"></p><center>交错引脚阵列和通过瓦片网络的路由示例。（a） 交错引脚阵列；（b） 路由示例。</center><p><strong>定义2.1（栅格引脚阵列）</strong>：m×n栅格引脚阵列（GPA）由m行和n列组成。m×n引脚“排列”在一系列正方形的“网格”中。换句话说，每行和每列引脚都是对齐的。方形瓦片由四个相邻的引脚组成，我们假设<strong>每个瓦片的中心都有一个瓦片节点</strong>，如图5（A）所示。</p><p><strong>定义2.2（网格平铺网络）</strong>：相邻的瓦片节点可以相互连接以形成瓦片网络，如图5（b）所示。瓦片网络的边缘是逃生路由的通道。图5（b）举例说明了通过tile网络进行路由的示例。</p><blockquote><p>虚拟节点就是瓦片节点，虚拟节点形成的网络就是路由路径。</p></blockquote><p>对于网格引脚阵列上的有序逃逸布线，可以将问题转化为在容量、有序和不交叉的约束下，通过网格瓦片网络将多个商品从特殊引脚同时运送到引脚阵列边界。</p><h3 id="2-3-SPA封装"><a href="#2-3-SPA封装" class="headerlink" title="2.3 SPA封装"></a>2.3 SPA封装</h3><p>为了适应PCB上引脚密度的增加，提出了交错引脚阵列。许多类型的交错引脚阵列可用于工业PCB设计。在本文中，我们考虑定义如下的类型：</p><p><strong>定义2.3（交错引脚阵列）</strong>：m×n交错引脚阵列具有m行。每个奇数行有n个引脚，每个偶数行有n−1个引脚。连接任何相邻两个引脚的线之间的角度总是60度的倍数（Wang等人，2013）。三角形瓦片表示由三个相邻引脚形成的三角形区域，每个瓦片的中心都有一个瓦片节点，如图6（A）所示。</p><p><strong>定义2.4（交错平铺网络）</strong>：相邻的瓦片节点可以以六边形的形式相互连接，形成交错的瓦片网络，如图6（b）所示。交错瓦片网络的边缘是逃生路由的通道。图6（b）显示了通过交错瓦片网络进行路由的示例。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202304192041716.png" alt="image-20230419204138669"></p><p>虚拟节点构成的网络不是四边形，而是正六边形。</p><h2 id="3-PROBLEM-FORMULATION"><a href="#3-PROBLEM-FORMULATION" class="headerlink" title="3.PROBLEM FORMULATION"></a>3.PROBLEM FORMULATION</h2><p>给定具有一组引脚 $P＝\{P_1,P_2,\cdots,P_r\}$ 的m×n网格引脚阵列。将引脚布线到边界，不得交叉和超过每个信号路径的容量。此外，边界周围的逃逸布线需要遵循一些排序约束。同时，在100%的可布线性保证下，总导线长度需要最小化。</p><p>直观地说，输入是一个m×n网格引脚阵列，输出是满足三个约束的路由结果：非交叉约束、容量约束和排序约束。非交叉约束保证信号没有交叉。<strong>容量限制确保相邻引脚之间的信号总量不会超过容量</strong>。顺序约束意味着引脚不能按错误的顺序布线到边界。在不失一般性的情况下，我们可以假设目的地的顺序是1、2、3、，。。。，顺时针方向 $r$ ，其中 $r$ 是引脚数量，如果需要，可以适当地重命名引脚。</p><p>如果所有逃逸网的目的地都需要在引脚阵列的单侧逃逸，那么有序逃逸路由问题可以定义为单侧有序逃逸路由。类似地，我们可以定义双侧、三侧和四边的有序转义路由问题。</p><p>在给定差分对保护和线路长度匹配的约束下，问题变成了差分对有序逃逸路由。对于阻塞问题，只需添加阻塞区域的约束，即可避免信号通过。在引脚阵列中，<strong>容量包括正交容量和对角线容量</strong>（Yan和Wong，2012）。在本文中，为了简化问题，我们假设除了差分对路由之外，正交容量为1（O-cap），对角容量为2（D-cap）。</p><blockquote><p>在引脚阵列中，设计规则限制<strong>两个正交或对角相邻引脚</strong>之间的导线数量。我们将这种约束分别称为<strong>正交容量</strong>和<strong>对角容量</strong>，简称为O-cap和D-cap（见图1）。如果我们考虑引脚阵列的瓦片，它是由四个相邻引脚形成的正方形，我们可以看到O-cap限制了通过其四边的导线数量，而D-cap限制了穿过其两条对角线的导线数量。</p></blockquote><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202304192123941.png" alt="image-20230419212323887"></p><p>（a） 逃逸布线问题的示例和（b）瓦片的放大视图。阴影区域表示堵塞。指定的节点（黑色）将逃逸到节点栅格的边界。在本例中，O-cap=2，D-cap=3。</p><h2 id="4-MMCF模型"><a href="#4-MMCF模型" class="headerlink" title="4 MMCF模型"></a>4 MMCF模型</h2><p>在本节中，我们提出了最小成本多商品流模型（MMCF模型）来制定有序逃生路线，然后我们提出了三种满足约束的转换。构建最小成本多商品模型的概述流程如图所示。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202304192131283.png" alt="image-20230419213134247"></p><p>图8展示了基本的MMCF模型。我们在边界处放置额外的单元，称为候选终端节点。每个要布线的引脚都是模型中的源节点，它将向边界运送1个单位的商品。请注意，这些针脚运送不同类型的商品。选择相同数量的终端节点作为候选终端节点的运输目的地，同时满足顺时针的排序约束（在这个例子中，我们选择 $T1,T2,T3$ ）。每条边的容量和成本为 $1$ 。 最后，我们得到一个MMCF问题，并且<strong>总线长等于问题的总成本</strong>。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202304211708432.png" alt="image-20230421170841280"></p><p>然而，模型中存在一些错误。首先，路由路径用于在PCB上传输信号，但两个信号的网络可能在<strong>瓦片节点处交叉</strong>。我们使用<strong>非交叉变换</strong>来避免它。第二，从终端节点中选择目的地的<strong>组合太多</strong>。如何确定具有正确排序约束的目的地是一个大问题。我们使用<strong>排序变换</strong>来求解。第三，网络中<strong>既有无向边，也有向边</strong>，在使用MMCF求解器求解之前必须统一。但是，当我们将<strong>无向边转换为有向边时</strong>，要满足容量约束有点困难，这将用于<strong>容量转换</strong>。为避免错误而进行的转换的详细信息将在以下部分中介绍。</p><h3 id="4-1-非交叉约束建模"><a href="#4-1-非交叉约束建模" class="headerlink" title="4.1 非交叉约束建模"></a>4.1 非交叉约束建模</h3><p>如图10（a）所示，两个信号的网络可以在瓦片节点处交叉。在无序转义路由中，通过交换交叉节点后的路径可以很容易地解决这个问题，如图10（b）和10（c）所示。然而，在有序转义路由中要避免交叉要困难得多，因为不允许交换路径，这不符合排序约束。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202304211736949.png" alt="image-20230421173647908"></p><center>图10. 在无序转义路由中避免交叉的方法（a）交叉，（b）交换信号，（c）无交叉。</center><p>首先，我们列举了网格引脚阵列（如图11所示）和交错引脚阵列（图12所示）中所有可能的交叉情况。之后，我们定义了两种类型的交叉，如下所示：</p><p><strong>定义4.1（第一类交叉）：</strong>类型1交叉是来自两个瓦片节点的信号之间的交叉，如图11（a）所示</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202305050959765.png" alt="image-20230505095915665"></p><center>图11. 网格引脚阵列中的三种交叉（a）瓦片节点之间，（b）引脚节点之间，以及（c）瓦片节点和引脚节点之间。</center><p><strong>定义4.2（第二类交叉）：</strong>2型交叉是来自两个引脚的信号之间的交叉（图11（b）），或来自一个引脚和一个瓦片节点的信号之间（图11的（c））。</p><p>请注意，第一类交叉仅存在于栅格引脚阵列中，因为交错引脚阵列中没有交叉瓦片节点。</p><h4 id="4-1-1-建模第一类交叉"><a href="#4-1-1-建模第一类交叉" class="headerlink" title="4.1.1 建模第一类交叉"></a>4.1.1 建模第一类交叉</h4><p>为了避免类型1交叉，我们必须将基本瓦片模型转移到新的瓦片模型，如下所示：</p><p><strong>定义4.3（非交叉变换类型1）：</strong>对于每个瓦片，创建四个虚拟瓦片节点，分别是N-瓦片、E-瓦片、S-瓦片和W-瓦片（见图13（b））。在分别具有容量1和成本0的节点对（N，E）、（E，S）、（S，W）、（W，N）之间创建无向，将这样的边称为瓦片内边。N-tilenode与北邻的S-tilenode以无向边连接，其容量和成本为1。将这样的边称为瓦片间边。其他三个虚拟瓦片节点也连接到具有瓦片边的相邻节点。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202305051018873.png" alt="image-20230505101821837"></p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202305051024346.png" alt="image-20230505102425319"></p><center>图14。信号通过瓦片节点的所有可能情况，其中情况1、情况2和情况3是合法的，而情况4是非法的。</center><blockquote><p>注意边的容量的限制。case 4中因为一条边需要走两个相邻的虚拟边，存在重叠，但是容量为1，因此出现矛盾。</p></blockquote><h4 id="4-1-2-建模第二类交叉"><a href="#4-1-2-建模第二类交叉" class="headerlink" title="4.1.2 建模第二类交叉"></a>4.1.2 建模第二类交叉</h4><p>2型交叉是由引脚节点引起的。对于栅格引脚阵列，避免它们的转换如下：</p><p><strong>定义4.5（GPA非交叉变换类型2）：</strong>对于要转义的每个引脚，在引脚周围的四条边的中心创建四个虚拟引脚节点，分别为N-引脚节点、E-引脚节点、S-引脚节点和W-引脚节点（见图15（b））。假想的pin节点将边划分为八条边，这些边被称为 around-box 的边。在引脚节点和虚拟引脚节点之间创建有向边，容量为1，成本为0。将这些边称为 in-box 边。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202305051100556.png" alt="image-20230505110002521"></p><center>图15. 避免网格引脚阵列上的类型2交叉的转换（a）基本引脚模型和（b）转移引脚模型。</center><h3 id="4-2-排序约束建模"><a href="#4-2-排序约束建模" class="headerlink" title="4.2 排序约束建模"></a>4.2 排序约束建模</h3><p>在有序转义路由中，引脚必须转义到具有排序约束的引脚阵列的边界。然而，我们不必在一开始就确定它们的目的地。但<strong>在MMCF问题中，我们必须首先选择每种商品的目的地</strong>。</p><p>一个可行的解决方案是枚举满足排序约束的所有终端组合。之后，解决每一个案例并选择最佳结果。对于 $m×n$ 栅格引脚阵列，有 $2m+2n−4个$ 候选端子。如果我们有 $r$ 个引脚要转义，那么合法组合的总数是 $C_{2m + 2n - 4}^r$ 。然而，该方法效率低下，我们更倾向于在统一的最小成本最大商品流模型中解决问题。</p><p>用正确排序决定每个商品目的地的方法的定义如下：</p><p><strong>定义4.8（有序变换）：</strong>假设有 $r$ 个引脚和 $k(k\ge r)$ 个候选终端（见图17第1行）。创建 $k-r$ 行的假想终端节点，并且下一行的节点数比上一行少一个。换句话说，每行的节点数形成一个公差为1的算术级数。注意，最后一行的节点数是 $r$ ，等于要布线的引脚数。让 $T_{i,j}$ 表示第 $i$ 行的第 $j$ 个节点。在第 $i$ 行的节点对 $(T_{i,j} ,T_{i +1,j})$ 和 $(T_{i,j+1},T_{i +1,j})$ 之间建立有向边，如图17所示。每条边的容量为1，成本为0。最后一行的虚数节点是要逃逸的引脚的终端。把这些节点称为目的节点。换句话说，目标节点是我们MMCF模型的目的地。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202305051532028.png" alt="image-20230505153226988"></p><center>图17. 构造要转义的引脚的端子的转换。</center><p>为了保证排序约束，在我们的网络模型中，最多只有1个信号可以通过每个虚构的终端节点。为此，我们可以用一条假想的边代替假想的终端节点（最后一行除外），其容量为1，成本为0，如图18所示。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202305051657655.png" alt="image-20230505165704625"></p><center>图18. 保证最多有1个信号通过每个虚终端节点的方法</center><p>如果所有要转义的引脚都以正确的顺序路由到边界，那么让我们称转义路由是合法的。如果所有来自源节点的商品都被传输到正确的目的地节点，那么我们的MMCF流是合法的。定理3保证了这两个合法性的等价性。</p><h3 id="4-3-容量约束建模"><a href="#4-3-容量约束建模" class="headerlink" title="4.3 容量约束建模"></a>4.3 容量约束建模</h3><p>如上所述，在本文中，我们只考虑每条边的容量为1。因此，只有当多商品流是一个整体流时，我们才能确保流量解决方案对应于一个有效的路由解决方案。然而，在MMCF模型中既有有向边，也有无向边。容量为1的无向边意味着只有一个单位的商品可以在这条边上进行转换，其方向可以是前向和后向。在用MMCF求解器解决网络模型之前，我们必须将无向边转换成有向边。</p><p>在无序逃逸路由中，创建一条前向边和一条后向边来替代容量相同的无向边u，如图20（a）所示。如果一个信号占据了前向边，另一个信号占据了后向边，那么原来的无向边的容量就被超过了。幸运的是，我们可以把前向边和后向边的信号都去掉，然后交换路径，就可以轻松解决问题，如图21（a）所示。然而，在有序逃逸路由中，该方法是非法的，因为它不能满足排序约束。解决该问题的转换方法如下（Ahuja等人，1993）。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202305052003489.png" alt="image-20230505200340455"></p><center>图20. 在(a)无序逃逸路由和(b)有序逃逸路由中，将无向边转换为有向边的方法。</center><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202305052005710.png" alt="image-20230505200537670"></p><center>图21. 一个关于如何满足无序逃逸路由中的容量的例子</center><p><strong>定义4.12（容量转换）：</strong></p><p>对于每条无向边，创建两个假想的节点。然后，创建一条容量为u、成本为c的有向边来连接它们。之后，创建四条容量为 $\infty$ 、成本为0的有向边来连接相邻的节点，如图20（b）所示。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202305052022932.png" alt="image-20230505202141408"></p><p>无向网络中节点a和节点b之间的每一个流动单位必须在有向图中的路径a-a′-b′-b或b-a′-b′-a上流动。弧(a′,b′)意味着这种流动不能超过u。此外，每个单位产生的费用为c。通过第4.1, 4.2, 4.3节介绍的转换，我们将基本的MMCF模型转换为最终的MMCF模型，如图22和23所示，正确捕捉了有序逃逸路由中的约束。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202305052026117.png" alt="image-20230505202643070"></p><center>图22. 最终的MMCF模型的网格针阵列和部分放大图</center><h2 id="5-DIFFERENTIAL-PAIR-PROCESSING"><a href="#5-DIFFERENTIAL-PAIR-PROCESSING" class="headerlink" title="5.DIFFERENTIAL PAIR PROCESSING"></a>5.DIFFERENTIAL PAIR PROCESSING</h2><p>差分对处理的概述流程如图24所示。它基于Wang等人提出的算法。（2014）。由于篇幅有限，我们只会说明Wang等人（2014）和我们的方法之间的不同方面。</p><ul><li>选择中间点，也就是汇聚点</li><li>逃逸引脚到中间点的路径选择</li><li>确定中间点到边界的路线</li><li>结果提取</li></ul><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202305102050585.png" alt="image-20230510205014481"></p><center>图24. 差分对处理流程概述。</center><h3 id="5-1-中间点搜索算法"><a href="#5-1-中间点搜索算法" class="headerlink" title="5.1 中间点搜索算法"></a>5.1 中间点搜索算法</h3><p>第一步是找到所有的中位点。一个差分对的最小成本中位点是一个具有<strong>最短</strong>和<strong>相等的曼哈顿距离</strong>的点。有人提出了一种有效的方法，为每个差分对找到基于GPA的中位点候选人（Li等人，2012）。同样地，Wang等人（2014）提出了基于SPA的算法。通过列举所有差分对位置的情况，我们可以得到所有的中值点。如图25和26所示。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202305102102001.png" alt="image-20230510210237966"></p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202305102102731.png" alt="image-20230510210248700"></p><center>图25. 栅格引脚阵列中两个引脚的不同位置有四种情况。</center><h3 id="5-2-引脚中间点路径确定"><a href="#5-2-引脚中间点路径确定" class="headerlink" title="5.2 引脚中间点路径确定"></a>5.2 引脚中间点路径确定</h3><p>基于上述情况，我们可以计算出每个差分对的所有中值点候选者。下一步是获得从引脚到中位点的所有可能路径。由于这些路径占用了路由资源，我们最好得到最短的引脚-中位点路径。</p><p>以GPA为例，我们可以通过枚举法获得所有最短的引脚-中点路径，如图27所示。但是，在有序逃逸路由中，有些路径对于排序约束来说是非法的。假设差分对的排序是边界处顺时针方向的a1,a2。对于图27中的情况d，a1和a2在中间点汇合后，它们可以向东走或向北走，通过瓦片网络到达边界。无论他们选择哪个方向，他们都会以错误的顺序到达边界。对于情况a、情况e、情况f和情况g，在中位点收敛后只有一个方向是正确的，对于情况b、情况c、情况d、情况h和情况i，两个方向是正确的。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202305102118615.png" alt="image-20230510211827564"></p><center>图27. 现有九条引脚-中间点的路径。</center><h3 id="5-3-中间点到边界路径的确定"><a href="#5-3-中间点到边界路径的确定" class="headerlink" title="5.3 中间点到边界路径的确定"></a>5.3 中间点到边界路径的确定</h3><p>在为每个差分对枚举所有合法的最短引脚中点路径之后，下一步是确定要使用的路径。与Wang等人（2014）类似的基于ILP的方法可以应用于求解，不同之处在于我们考虑了排序约束的合法方向数的权重。然后，使用MMCF模型将中间点布线到边界，如图28所示。请注意，在确定引脚中点路径后，具有错误排序的方向的容量将设置为0。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202305102126394.png" alt="image-20230510212642356"></p><center>图28. 网格引脚阵列上的差分对模型示例。</center><h2 id="6-BLOCKAGE-AVOIDED-PROCESSING-避开阻塞区域的处理"><a href="#6-BLOCKAGE-AVOIDED-PROCESSING-避开阻塞区域的处理" class="headerlink" title="6.BLOCKAGE-AVOIDED PROCESSING(避开阻塞区域的处理)"></a>6.BLOCKAGE-AVOIDED PROCESSING(避开阻塞区域的处理)</h2><p>如上所述，具有过度热变化或其他应用的区域不能传输信号。在我们研究如何处理这些区域之前，首先定义阻塞边界：</p><p>定义6.1（区块边界）：区块边界由区块网络的某些边组成。它包含了面积最小的整个堵塞物。</p><p>我们提出了一种获得阻塞边界的方法，如图30所示。具体来说，计算堵塞物占用的瓷砖。这些瓦片形成一个多边形，多边形的边界就是阻塞边界。</p><p>在获得阻塞边界后，我们可以去除所有的内部边，并使用MMCF模型来处理该问题。请注意，不会删除阻塞边界的边缘。</p></div><div><ul class="post-copyright"><li class="post-copyright-author"> <strong>本文作者：</strong> luobuyu</li><li class="post-copyright-link"> <strong>本文链接：</strong> <a href="https://www.luobuyu.site/2023/Ordered-Escape-Routing/" title="Ordered Escape Routing with Consideration of Differential Pair and Blockage">https://www.luobuyu.site/2023/Ordered-Escape-Routing/</a></li><li class="post-copyright-license"> <strong>版权声明：</strong> 本博客所有文章除特别声明外，均采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i> BY-NC-SA</a> 许可协议。转载请注明出处！</li></ul></div><footer class="post-footer"><div class="post-tags"><a href="/tags/pcb%E5%B8%83%E7%BA%BF/" rel="tag"><i class="fa fa-tag"></i> pcb布线</a><a href="/tags/%E6%9C%89%E5%BA%8F%E9%80%83%E9%80%B8/" rel="tag"><i class="fa fa-tag"></i> 有序逃逸</a><a href="/tags/%E9%80%83%E9%80%B8%E5%B8%83%E7%BA%BF/" rel="tag"><i class="fa fa-tag"></i> 逃逸布线</a></div><div class="post-nav"><div class="post-nav-item"><a href="/2023/possible-bipartition/" rel="prev" title="886.可能的二分法"><i class="fa fa-chevron-left"></i> 886.可能的二分法</a></div><div class="post-nav-item"> <a href="/2023/make-array-strictly-increasing/" rel="next" title="1187. 使数组严格递增">1187. 使数组严格递增<i class="fa fa-chevron-right"></i></a></div></div></footer></article></div><div class="comments" id="valine-comments"></div><script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script></div><div class="toggle sidebar-toggle"><span class="toggle-line toggle-line-first"></span><span class="toggle-line toggle-line-middle"></span><span class="toggle-line toggle-line-last"></span></div><aside class="sidebar"><div class="sidebar-inner"><ul class="sidebar-nav motion-element"><li class="sidebar-nav-toc"> 文章目录</li><li class="sidebar-nav-overview"> 站点概览</li></ul><div class="post-toc-wrap sidebar-panel"><div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Ordered-Escape-Routing-with-Consideration-of-Differential-Pair-and-Blockage"><span class="nav-number">1.</span> <span class="nav-text">Ordered Escape Routing with Consideration of Differential Pair and Blockage</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-INTRODUCTION"><span class="nav-number">1.1.</span> <span class="nav-text">1.INTRODUCTION</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-PRELIMINARIES"><span class="nav-number">1.2.</span> <span class="nav-text">2.PRELIMINARIES</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-MMCF模型"><span class="nav-number">1.2.1.</span> <span class="nav-text">2.1 MMCF模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-GPA封装"><span class="nav-number">1.2.2.</span> <span class="nav-text">2.2 GPA封装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-SPA封装"><span class="nav-number">1.2.3.</span> <span class="nav-text">2.3 SPA封装</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-PROBLEM-FORMULATION"><span class="nav-number">1.3.</span> <span class="nav-text">3.PROBLEM FORMULATION</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-MMCF模型"><span class="nav-number">1.4.</span> <span class="nav-text">4 MMCF模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-非交叉约束建模"><span class="nav-number">1.4.1.</span> <span class="nav-text">4.1 非交叉约束建模</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-1-1-建模第一类交叉"><span class="nav-number">1.4.1.1.</span> <span class="nav-text">4.1.1 建模第一类交叉</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-1-2-建模第二类交叉"><span class="nav-number">1.4.1.2.</span> <span class="nav-text">4.1.2 建模第二类交叉</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-排序约束建模"><span class="nav-number">1.4.2.</span> <span class="nav-text">4.2 排序约束建模</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-容量约束建模"><span class="nav-number">1.4.3.</span> <span class="nav-text">4.3 容量约束建模</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-DIFFERENTIAL-PAIR-PROCESSING"><span class="nav-number">1.5.</span> <span class="nav-text">5.DIFFERENTIAL PAIR PROCESSING</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-中间点搜索算法"><span class="nav-number">1.5.1.</span> <span class="nav-text">5.1 中间点搜索算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-引脚中间点路径确定"><span class="nav-number">1.5.2.</span> <span class="nav-text">5.2 引脚中间点路径确定</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-中间点到边界路径的确定"><span class="nav-number">1.5.3.</span> <span class="nav-text">5.3 中间点到边界路径的确定</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-BLOCKAGE-AVOIDED-PROCESSING-避开阻塞区域的处理"><span class="nav-number">1.6.</span> <span class="nav-text">6.BLOCKAGE-AVOIDED PROCESSING(避开阻塞区域的处理)</span></a></li></ol></li></ol></div></div><div class="site-overview-wrap sidebar-panel"><div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person"> <a href="/"><img class="site-author-image" itemprop="image" alt="luobuyu" src="/images/avatar.png"></a><p class="site-author-name" itemprop="name">luobuyu</p><div class="site-description" itemprop="description"></div></div><div class="site-state-wrap motion-element"><nav class="site-state"><div class="site-state-item site-state-posts"> <a href="/archives/"><span class="site-state-item-count">362</span> <span class="site-state-item-name">日志</span></a></div><div class="site-state-item site-state-categories"> <a href="/categories/"><span class="site-state-item-count">66</span> <span class="site-state-item-name">分类</span></a></div><div class="site-state-item site-state-tags"> <a href="/tags/"><span class="site-state-item-count">274</span> <span class="site-state-item-name">标签</span></a></div></nav></div><div class="links-of-author motion-element"><span class="links-of-author-item"><a href="https://github.com/luobuyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;luobuyu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i> GitHub</a></span><span class="links-of-author-item"><a href="mailto:1528751774@qq.com" title="E-Mail → mailto:1528751774@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i> E-Mail</a></span><span class="links-of-author-item"><a href="https://valine.luobuyu.site/" title="Comments → https:&#x2F;&#x2F;valine.luobuyu.site" rel="noopener" target="_blank"><i class="fas fa-comments fa-fw"></i> Comments</a></span></div></div></div></aside><div id="sidebar-dimmer"></div></div></main><footer class="footer"><div class="footer-inner"><div id="aplayer-ukhYMhCo" class="aplayer aplayer-tag-marker meting-tag-marker" data-id="7289878554" data-server="netease" data-type="playlist" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#FF4081" data-listfolded="true"></div><div class="copyright"> &copy; 2020 – <span itemprop="copyrightYear">2024</span><span class="with-love"><i class="fa fa-heartbeat"></i></span> <span class="author" itemprop="copyrightHolder">luobuyu</span><br><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span class="post-meta-divider"></span><span class="post-meta-item-icon"><i class="fa fa-chart-area"></i></span> <span class="post-meta-item-text">站点总字数：</span> <span title="站点总字数">938k</span> <span class="post-meta-divider">|</span><span class="post-meta-item-icon"><i class="fa fa-coffee"></i></span> <span class="post-meta-item-text">站点阅读时长 &asymp;</span> <span title="站点阅读时长">14:13</span></div> <span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span><script>var now=new Date;function createtime(){var n=new Date("07/20/2020 12:00:00");now.setTime(now.getTime()+250),days=(now-n)/1e3/60/60/24,dnum=Math.floor(days),hours=(now-n)/1e3/60/60-24*dnum,hnum=Math.floor(hours),1==String(hnum).length&&(hnum="0"+hnum),minutes=(now-n)/1e3/60-1440*dnum-60*hnum,mnum=Math.floor(minutes),1==String(mnum).length&&(mnum="0"+mnum),seconds=(now-n)/1e3-86400*dnum-3600*hnum-60*mnum,snum=Math.round(seconds),1==String(snum).length&&(snum="0"+snum),document.getElementById("timeDate").innerHTML="luobuyuの个人博客，已经勉强存活了 "+dnum+" 天 ",document.getElementById("times").innerHTML=hnum+" 小时 "+mnum+" 分 "+snum+" 秒"}setInterval("createtime()",250)</script><div class="busuanzi-count"><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span class="post-meta-item" id="busuanzi_container_site_uv" style="display:none"></span><span class="post-meta-item-icon"><i class="fa fa-user"></i></span> <span class="site-uv" title="总访客量">访问人数<span id="busuanzi_value_site_uv"></span></span> <span class="post-meta-divider">|</span><span class="post-meta-item" id="busuanzi_container_site_pv" style="display:none"></span><span class="post-meta-item-icon"><i class="fa fa-eye"></i></span> <span class="site-pv" title="总访问量">总访问量<span id="busuanzi_value_site_pv"></span></span></div></div></footer></div><script src="/lib/anime.min.js"></script><script src="/lib/velocity/velocity.min.js"></script><script src="/lib/velocity/velocity.ui.min.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/pisces.js"></script><script src="/js/next-boot.js"></script><script>!function(){var o,n,e=document.getElementsByTagName("link");if(0<e.length)for(i=0;i<e.length;i++)"canonical"==e[i].rel.toLowerCase()&&e[i].href&&(o=e[i].href);n=o?o.split(":")[0]:window.location.protocol.split(":")[0],o||(o=window.location.href),function(){var e=o,i=document.referrer;if(!/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi.test(e)){var t="https"===String(n).toLowerCase()?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";i?(t+="?r="+encodeURIComponent(document.referrer),e&&(t+="&l="+e)):e&&(t+="?l="+e),(new Image).src=t}}(window)}()</script><script src="/js/local-search.js"></script><script type="text/x-mathjax-config">
+    MathJax.Ajax.config.path['mhchem'] = '//cdn.jsdelivr.net/npm/mathjax-mhchem@3';
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        extensions: ['[mhchem]/mhchem.js'],
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script><script>
+  NexT.utils.getScript('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/GamerNoTitle/Picture-repo-v1@master/css/Valine-Emotion.css"><style>.v[data-class=v] .veditor{background-image:url(https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220325200442.gif);background-size:contain;background-repeat:no-repeat;background-position:right}</style><script>
+
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/valine@1.5.1/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+
+    var requiredFields = ['nick', 'mail', 'link'];
+    var requiredField = 'nick,mail';
+    requiredField = requiredField.split(',').filter(item => {
+      return requiredFields.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'GqF4f53ddiLc4MvB6rAMxrM6-MdYXbMMI',
+      appKey     : 'rn6pv6g3Qzu4mcbqhI7qWEk5',
+      emojiCDN: 'https://valinecdn.bili33.top/',
+      emojiMaps: {
+        "bilibiliHotKey1": "bilibiliHotKey/1.jpg",
+        "bilibiliHotKey2": "bilibiliHotKey/10.jpg",
+        "bilibiliHotKey3": "bilibiliHotKey/11.jpg",
+        "bilibiliHotKey4": "bilibiliHotKey/12.jpg",
+        "bilibiliHotKey5": "bilibiliHotKey/13.jpg",
+        "bilibiliHotKey6": "bilibiliHotKey/14.jpg",
+        "bilibiliHotKey7": "bilibiliHotKey/15.jpg",
+        "bilibiliHotKey8": "bilibiliHotKey/16.jpg",
+        "bilibiliHotKey9": "bilibiliHotKey/17.jpg",
+        "bilibiliHotKey10": "bilibiliHotKey/18.jpg",
+        "bilibiliHotKey11": "bilibiliHotKey/19.jpg",
+        "bilibiliHotKey12": "bilibiliHotKey/2.jpg",
+        "bilibiliHotKey13": "bilibiliHotKey/20.jpg",
+        "bilibiliHotKey14": "bilibiliHotKey/21.jpg",
+        "bilibiliHotKey15": "bilibiliHotKey/22.jpg",
+        "bilibiliHotKey16": "bilibiliHotKey/23.jpg",
+        "bilibiliHotKey17": "bilibiliHotKey/24.jpg",
+        "bilibiliHotKey18": "bilibiliHotKey/25.jpg",
+        "bilibiliHotKey19": "bilibiliHotKey/26.jpg",
+        "bilibiliHotKey20": "bilibiliHotKey/27.jpg",
+        "bilibiliHotKey21": "bilibiliHotKey/28.jpg",
+        "bilibiliHotKey22": "bilibiliHotKey/29.jpg",
+        "bilibiliHotKey23": "bilibiliHotKey/3.jpg",
+        "bilibiliHotKey24": "bilibiliHotKey/30.jpg",
+        "bilibiliHotKey25": "bilibiliHotKey/31.jpg",
+        "bilibiliHotKey26": "bilibiliHotKey/32.jpg",
+        "bilibiliHotKey27": "bilibiliHotKey/4.jpg",
+        "bilibiliHotKey28": "bilibiliHotKey/5.jpg",
+        "bilibiliHotKey29": "bilibiliHotKey/6.jpg",
+        "bilibiliHotKey30": "bilibiliHotKey/7.jpg",
+        "bilibiliHotKey31": "bilibiliHotKey/8.jpg",
+        "bilibiliHotKey32": "bilibiliHotKey/9.jpg",
+        "KeQing1": "KeQing/1MtdPr4y.png",
+        "KeQing2": "KeQing/29E353B37F06F48D0D32B896A555AB10.jpg",
+        "KeQing3": "KeQing/5q8iVluo.png",
+        "KeQing4": "KeQing/6Bo9DvjS.png",
+        "KeQing5": "KeQing/8uRU02Qn.png",
+        "KeQing6": "KeQing/a7Xxm0ou.png",
+        "KeQing7": "KeQing/aEhyb3F5.png",
+        "KeQing8": "KeQing/alT6XmFj.png",
+        "KeQing9": "KeQing/b4l6cyUT.png",
+        "KeQing10": "KeQing/BWYIgTtC.png",
+        "KeQing11": "KeQing/c1ZrqNaX.png",
+        "KeQing12": "KeQing/c7yp9Ewx.png",
+        "KeQing13": "KeQing/CeZsrXIq.png",
+        "KeQing14": "KeQing/CJRTKlGP.png",
+        "KeQing15": "KeQing/COMie4xg.png",
+        "KeQing16": "KeQing/D4G8UsxH.png",
+        "KeQing17": "KeQing/D80028AB4478C5C3986FE1A9FEEFEB35.gif",
+        "KeQing18": "KeQing/e01OVkHC.png",
+        "KeQing19": "KeQing/ELmIkgpZ.png",
+        "KeQing20": "KeQing/fbR6FSd3.png",
+        "KeQing21": "KeQing/Fh58COx7.png",
+        "KeQing22": "KeQing/FM1l6d9h.png",
+        "KeQing23": "KeQing/ghCViEvU.png",
+        "KeQing24": "KeQing/ivmGU68a.png",
+        "KeQing25": "KeQing/JmyRiSt1.png",
+        "KeQing26": "KeQing/jvI8Wa35.png",
+        "KeQing27": "KeQing/lHQhDR71.png",
+        "KeQing28": "KeQing/lxfPMp5I.png",
+        "KeQing29": "KeQing/nK5k6fHL.png",
+        "KeQing30": "KeQing/OsVSotEn.png",
+        "KeQing31": "KeQing/R4QdmJb1.png",
+        "KeQing32": "KeQing/rADUyouz.png",
+        "KeQing33": "KeQing/Rex3GWlg.png",
+        "KeQing34": "KeQing/RkHtnfyU.png",
+        "KeQing35": "KeQing/RrXmaHeb.png",
+        "KeQing36": "KeQing/sJ58YlzP.png",
+        "KeQing37": "KeQing/tjJGYOVF.png",
+        "KeQing38": "KeQing/tTnXvgZH.png",
+        "KeQing39": "KeQing/w37qQAel.png",
+        "KeQing40": "KeQing/W6y0ReEh.png",
+        "KeQing41": "KeQing/xDIO54sg.png",
+        "KeQing42": "KeQing/Xy8BbkcP.png",
+        "KeQing43": "KeQing/YCL13G5e.png",
+        "KeQing44": "KeQing/yG7MulxF.png",
+        "KeQing45": "KeQing/ZDI38NMK.png",
+        "KeQing46": "KeQing/Zl9NR6It.png",
+        "Snow-Miku1": "Snow-Miku/3583066@2x.png",
+        "Snow-Miku2": "Snow-Miku/3583067@2x.png",
+        "Snow-Miku3": "Snow-Miku/3583068@2x.png",
+        "Snow-Miku4": "Snow-Miku/3583069@2x.png",
+        "Snow-Miku5": "Snow-Miku/3583070@2x.png",
+        "Snow-Miku6": "Snow-Miku/3583071@2x.png",
+        "Snow-Miku7": "Snow-Miku/3583072@2x.png",
+        "Snow-Miku8": "Snow-Miku/3583073@2x.png",
+        "Snow-Miku9": "Snow-Miku/3583074@2x.png",
+        "Snow-Miku10": "Snow-Miku/3583075@2x.png",
+        "Snow-Miku11": "Snow-Miku/3583076@2x.png",
+        "Snow-Miku12": "Snow-Miku/3583077@2x.png",
+        "Snow-Miku13": "Snow-Miku/3583078@2x.png",
+        "Snow-Miku14": "Snow-Miku/3583079@2x.png",
+        "Snow-Miku15": "Snow-Miku/3583080@2x.png",
+        "Snow-Miku16": "Snow-Miku/3583081@2x.png",
+        "Snow-Miku17": "Snow-Miku/3583082@2x.png",
+        "Snow-Miku18": "Snow-Miku/3583083@2x.png",
+        "Snow-Miku19": "Snow-Miku/3583084@2x.png",
+        "Snow-Miku20": "Snow-Miku/3583085@2x.png",
+        "Snow-Miku21": "Snow-Miku/3583086@2x.png",
+        "Snow-Miku22": "Snow-Miku/3583087@2x.png",
+        "Snow-Miku23": "Snow-Miku/3583088@2x.png",
+        "Snow-Miku24": "Snow-Miku/3583089@2x.png",
+        "Snow-Miku25": "Snow-Miku/3583090@2x.png",
+        "Snow-Miku26": "Snow-Miku/3583091@2x.png",
+        "Snow-Miku27": "Snow-Miku/3583092@2x.png",
+        "Snow-Miku28": "Snow-Miku/3583093@2x.png",
+        "Snow-Miku29": "Snow-Miku/3583094@2x.png",
+        "Snow-Miku30": "Snow-Miku/3583095@2x.png",
+        "Snow-Miku31": "Snow-Miku/3583096@2x.png",
+        "Snow-Miku32": "Snow-Miku/3583097@2x.png",
+        "Snow-Miku33": "Snow-Miku/3583098@2x.png",
+        "Snow-Miku34": "Snow-Miku/3583099@2x.png",
+        "Snow-Miku35": "Snow-Miku/3583100@2x.png",
+        "Snow-Miku36": "Snow-Miku/3583101@2x.png",
+        "Snow-Miku37": "Snow-Miku/3583102@2x.png",
+        "Snow-Miku38": "Snow-Miku/3583103@2x.png",
+        "Snow-Miku39": "Snow-Miku/3583104@2x.png",
+        "Snow-Miku40": "Snow-Miku/3583105@2x.png",
+        "bilibilitv2": "bilibilitv/[tv_doge].png",
+        "bilibilitv3": "bilibilitv/[tv_亲亲].png",
+        "bilibilitv4": "bilibilitv/[tv_偷笑].png",
+        "bilibilitv5": "bilibilitv/[tv_再见].png",
+        "bilibilitv6": "bilibilitv/[tv_冷漠].png",
+        "bilibilitv7": "bilibilitv/[tv_发怒].png",
+        "bilibilitv8": "bilibilitv/[tv_发财].png",
+        "bilibilitv9": "bilibilitv/[tv_可爱].png",
+        "bilibilitv10": "bilibilitv/[tv_吐血].png",
+        "bilibilitv11": "bilibilitv/[tv_呆].png",
+        "bilibilitv12": "bilibilitv/[tv_呕吐].png",
+        "bilibilitv13": "bilibilitv/[tv_困].png",
+        "bilibilitv14": "bilibilitv/[tv_坏笑].png",
+        "bilibilitv15": "bilibilitv/[tv_大佬].png",
+        "bilibilitv16": "bilibilitv/[tv_大哭].png",
+        "bilibilitv17": "bilibilitv/[tv_委屈].png",
+        "bilibilitv18": "bilibilitv/[tv_害羞].png",
+        "bilibilitv19": "bilibilitv/[tv_尴尬].png",
+        "bilibilitv20": "bilibilitv/[tv_微笑].png",
+        "bilibilitv21": "bilibilitv/[tv_思考].png",
+        "bilibilitv22": "bilibilitv/[tv_惊吓].png",
+        "bilibilitv23": "bilibilitv/[tv_打脸].png",
+        "bilibilitv24": "bilibilitv/[tv_抓狂].png",
+        "bilibilitv25": "bilibilitv/[tv_抠鼻].png",
+        "bilibilitv26": "bilibilitv/[tv_斜眼笑].png",
+        "bilibilitv27": "bilibilitv/[tv_无奈].png",
+        "bilibilitv28": "bilibilitv/[tv_晕].png",
+        "bilibilitv29": "bilibilitv/[tv_流汗].png",
+        "bilibilitv30": "bilibilitv/[tv_流泪].png",
+        "bilibilitv31": "bilibilitv/[tv_流鼻血].png",
+        "bilibilitv32": "bilibilitv/[tv_点赞].png",
+        "bilibilitv33": "bilibilitv/[tv_生气].png",
+        "bilibilitv34": "bilibilitv/[tv_生病].png",
+        "bilibilitv35": "bilibilitv/[tv_疑问].png",
+        "bilibilitv36": "bilibilitv/[tv_白眼].png",
+        "bilibilitv37": "bilibilitv/[tv_皱眉].png",
+        "bilibilitv38": "bilibilitv/[tv_目瞪口呆].png",
+        "bilibilitv39": "bilibilitv/[tv_睡着].png",
+        "bilibilitv40": "bilibilitv/[tv_笑哭].png",
+        "bilibilitv41": "bilibilitv/[tv_腼腆].png",
+        "bilibilitv42": "bilibilitv/[tv_色].png",
+        "bilibilitv43": "bilibilitv/[tv_调侃].png",
+        "bilibilitv44": "bilibilitv/[tv_调皮].png",
+        "bilibilitv45": "bilibilitv/[tv_鄙视].png",
+        "bilibilitv46": "bilibilitv/[tv_闭嘴].png",
+        "bilibilitv47": "bilibilitv/[tv_难过].png",
+        "bilibilitv48": "bilibilitv/[tv_馋].png",
+        "bilibilitv49": "bilibilitv/[tv_鬼脸].png",
+        "bilibilitv50": "bilibilitv/[tv_黑人问号].png",
+        "bilibilitv51": "bilibilitv/[tv_鼓掌].png",
+        "HONKAI3-MEI1": "HONKAI3-MEI/501ac209b259bb545dea898838c24229483fcfeb.gif",
+        "HONKAI3-MEI2": "HONKAI3-MEI/5baf4306d1f685bf47922fbae365ccfba7721beb.gif",
+        "HONKAI3-MEI3": "HONKAI3-MEI/624857651c863ea9571f5e557fca8516dd41e0fc.gif",
+        "HONKAI3-MEI4": "HONKAI3-MEI/680311714674014d0c17f757eb40c3071448222a.gif",
+        "HONKAI3-MEI5": "HONKAI3-MEI/bf68423446465d396d3cbd8856882b5e9fb1c0c7.gif",
+        "HONKAI3-MEI6": "HONKAI3-MEI/d3a2a9c6ad1e2a0b262dca9354ab8de736d81cdf.gif",
+        "HONKAI3-MEI7": "HONKAI3-MEI/dd0fd1f3668f4907c9f6fcd39c6138417ac0e1f5.gif"
+      },
+      placeholder: "Leave a comment now!",
+      avatar     : 'wavatar',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-CN' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://chat.luobuyu.site',
+      requiredFields: requiredField
+    });
+  }, window.Valine);
+});
+</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({pluginRootPath:"live2dw/",pluginJsPath:"lib/",pluginModelPath:"assets/",tagMode:!1,debug:!1,model:{jsonPath:"/live2dw/assets/assets/haru01.model.json"},display:{superSample:2,width:200,height:400,position:"right",hOffset:0,vOffset:-20},mobile:{show:!0,scale:.5},react:{opacityDefault:.7,opacityOnHover:.8},log:!1})</script></body></html>

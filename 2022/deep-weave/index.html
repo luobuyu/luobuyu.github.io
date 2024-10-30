@@ -1,0 +1,286 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2"><meta name="theme-color" content="#222"><meta name="generator" content="Hexo 4.2.1"><link rel="apple-touch-icon" sizes="180x180" href="/images/favicon-1.png"><link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-1.png"><link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-1.png"><link rel="mask-icon" href="/images/favicon-1.png" color="#222"><meta name="google-site-verification" content="lkGKflS_fVXQNJnC_UXP0lqUEpV4NFx0b000PxRrX7g"><meta name="baidu-site-verification" content="codeva-Uj3syugSr3"><link rel="stylesheet" href="/css/main.css"><link rel="stylesheet" href="/lib/font-awesome/css/all.min.css"><link rel="stylesheet" href="//cdn.jsdelivr.net/npm/pace-js@1.2.4/themes/blue/pace-theme-minimal.css"><script src="//cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><script id="hexo-configurations">var NexT=window.NexT||{},CONFIG={hostname:"www.luobuyu.site",root:"/",scheme:"Gemini",version:"7.8.0",exturl:!1,sidebar:{position:"right",display:"post",padding:18,offset:12,onmobile:!1},copycode:{enable:!0,show_result:!1,style:null},back2top:{enable:!0,sidebar:!1,scrollpercent:!1},bookmark:{enable:!1,color:"#222",save:"auto"},fancybox:!1,mediumzoom:!1,lazyload:!1,pangu:!1,comments:{style:"tabs",active:null,storage:!0,lazyload:!1,nav:null},algolia:{hits:{per_page:10},labels:{input_placeholder:"Search for Posts",hits_empty:"We didn't find any results for the search: ${query}",hits_stats:"${hits} results found in ${time} ms"}},localsearch:{enable:!0,trigger:"auto",top_n_per_article:1,unescape:!1,preload:!1},motion:{enable:!0,async:!1,transition:{post_block:"fadeIn",post_header:"slideDownIn",post_body:"slideDownIn",coll_header:"slideLeftIn",sidebar:"slideUpIn"}},path:"search.xml"}</script><meta name="description" content="基于深度强化学习的同流调度加快作业完成时间"><meta property="og:type" content="article"><meta property="og:title" content="DeepWeave"><meta property="og:url" content="https://www.luobuyu.site/2022/deep-weave/index.html"><meta property="og:site_name" content="Luobuyu&#39;s Blog"><meta property="og:description" content="基于深度强化学习的同流调度加快作业完成时间"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220212144712.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220212165954.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220212211013.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220212221744.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220212222055.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220213135633.png"><meta property="article:published_time" content="2022-02-12T04:38:35.000Z"><meta property="article:modified_time" content="2024-10-30T14:47:37.472Z"><meta property="article:author" content="luobuyu"><meta property="article:tag" content="云计算"><meta property="article:tag" content="资源调度"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220212144712.png"><link rel="canonical" href="https://www.luobuyu.site/2022/deep-weave/"><script id="page-configurations">CONFIG.page={sidebar:"",isHome:!1,isPost:!0,lang:"zh-CN"}</script><title>DeepWeave | Luobuyu's Blog</title><noscript><style>.sidebar-inner,.use-motion .brand,.use-motion .collection-header,.use-motion .comments,.use-motion .menu-item,.use-motion .pagination,.use-motion .post-block,.use-motion .post-body,.use-motion .post-header{opacity:initial}.use-motion .site-subtitle,.use-motion .site-title{opacity:initial;top:initial}.use-motion .logo-line-before i{left:initial}.use-motion .logo-line-after i{right:initial}</style></noscript><link rel="alternate" href="/atom.xml" title="Luobuyu's Blog" type="application/atom+xml"><link rel="stylesheet" href="/assets/css/APlayer.min.css" class="aplayer-style-marker"><script src="/assets/js/APlayer.min.js" class="aplayer-script-marker"></script><script>var meting_api="https://api.injahow.cn/meting/?server=:server&type=:type&id=:id&r=:r"</script><script src="/assets/js/Meting.min.js" class="meting-script-marker"></script></head><body itemscope itemtype="http://schema.org/WebPage"><div class="container use-motion"><div class="headband"></div><header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="header-inner"><div class="site-brand-container"><div class="site-nav-toggle"><div class="toggle" aria-label="切换导航栏"><span class="toggle-line toggle-line-first"></span><span class="toggle-line toggle-line-middle"></span><span class="toggle-line toggle-line-last"></span></div></div><div class="site-meta"><a href="/" class="brand" rel="start"><span class="logo-line-before"><i></i></span><h1 class="site-title">Luobuyu's Blog</h1><span class="logo-line-after"><i></i></span></a></div><div class="site-nav-right"><div class="toggle popup-trigger"><i class="fa fa-search fa-fw fa-lg"></i></div></div></div><nav class="site-nav"><ul id="menu" class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i> 首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i> 关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i> 标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i> 分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i> 归档</a></li><li class="menu-item menu-item-music"><a href="/music/" rel="section"><i class="fa fa-music fa-fw"></i> 歌单</a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i> 朋友</a></li><li class="menu-item menu-item-search"><a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i> 搜索</a></li></ul></nav><div class="search-pop-overlay"><div class="popup search-popup"><div class="search-header"><span class="search-icon"><i class="fa fa-search"></i></span><div class="search-input-container"> <input autocomplete="off" autocapitalize="off" placeholder="搜索..." spellcheck="false" type="search" class="search-input"></div><span class="popup-btn-close"><i class="fa fa-times-circle"></i></span></div><div id="search-result"><div id="no-result"><i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i></div></div></div></div></div></header><div class="back-to-top"><i class="fa fa-arrow-up"></i> <span>0%</span></div><main class="main"><div class="main-inner"><div class="content-wrap"><div class="content post posts-expand"><article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN"><link itemprop="mainEntityOfPage" href="https://www.luobuyu.site/2022/deep-weave/"><span hidden itemprop="author" itemscope itemtype="http://schema.org/Person"><meta itemprop="image" content="/images/avatar.png"><meta itemprop="name" content="luobuyu"><meta itemprop="description" content=""></span><span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization"><meta itemprop="name" content="Luobuyu's Blog"></span><header class="post-header"><h1 class="post-title" itemprop="name headline"> DeepWeave</h1><div class="post-meta"><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar"></i></span> <span class="post-meta-item-text">发表于</span> <time title="创建时间：2022-02-12 12:38:35" itemprop="dateCreated datePublished" datetime="2022-02-12T12:38:35+08:00">2022-02-12</time></span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-folder"></i></span> <span class="post-meta-item-text">分类于</span> <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/%E8%AE%BA%E6%96%87/" itemprop="url" rel="index"><span itemprop="name">论文</span></a></span> ， <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/%E8%AE%BA%E6%96%87/%E4%BA%91%E8%AE%A1%E7%AE%97%E8%B0%83%E5%BA%A6/" itemprop="url" rel="index"><span itemprop="name">云计算调度</span></a></span></span><span id="/2022/deep-weave/" class="post-meta-item leancloud_visitors" data-flag-title="DeepWeave" title="热度"><span class="post-meta-item-icon"><i class="fa fa-eye"></i></span> <span class="post-meta-item-text">热度：</span><span class="leancloud-visitors-count"></span> <span>℃</span></span><span class="post-meta-item" title="热度" id="busuanzi_container_page_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i></span> <span class="post-meta-item-text">热度：</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-comment"></i></span> <span class="post-meta-item-text">评论：</span><a title="valine" href="/2022/deep-weave/#valine-comments" itemprop="discussionUrl"><span class="post-comments-count valine-comment-count" data-xid="/2022/deep-weave/" itemprop="commentCount"></span></a></span><br><span class="post-meta-item" title="本文字数"><span class="post-meta-item-icon"><i class="far fa-file-word"></i></span> <span class="post-meta-item-text">本文字数：</span> <span>6.5k</span></span><span class="post-meta-item" title="阅读时长"><span class="post-meta-item-icon"><i class="far fa-clock"></i></span> <span class="post-meta-item-text">阅读时长 &asymp;</span> <span>6 分钟</span></span><div class="post-description">基于深度强化学习的同流调度加快作业完成时间</div></div></header><div class="post-body" itemprop="articleBody"><h1 id="DeepWeave"><a href="#DeepWeave" class="headerlink" title="DeepWeave"></a>DeepWeave</h1><h2 id="一、摘要"><a href="#一、摘要" class="headerlink" title="一、摘要"></a>一、摘要</h2><p>coflow：为了提高分布式计算中作业的处理效率，提出了共流的概念。共流是多阶段计算任务中语义相关的工作流的集合。</p><p>作业由多个共流组成，通常可以表示为有向无环图（DAG）。在分布式计算中，合理地<strong>调度</strong>协同流可以显著缩短作业的完成时间。然而，这个<strong>调度</strong>问题被证明是<strong>NP难</strong>的。与现有的使用手工制作的<strong>启发式算法</strong>来解决这个问题的方案不同，本文提出了一个名为 <strong>DeepWeave</strong> 的深度强化学习（DRL）框架来生成同流调度策略。为了提高作业DAG中的同流调度能力，DeepWeave 采用图形神经网络（GNN）来处理DAG信息。DeepWeave从历史工作负载跟踪中学习，训练DRL代理的神经网络，并在神经网络中编码调度策略，从而在没有专家知识或预先假设的模型的情况下做出同流调度决策。该方案通过一个使用真实跟踪的模拟器进行了评估。模拟结果表明，DeepWeave完成作业的速度至少比最先进的解决方案快1.7倍。</p><h2 id="二、介绍"><a href="#二、介绍" class="headerlink" title="二、介绍"></a>二、介绍</h2><p>​ 随着数据处理需求的增加，近年来，基于<strong>集群计算</strong>的计算已被广泛采用，因为它可以在相对较低的资本支出（CAPEX）下实现较高的并行计算性能。许多集群计算应用程序（如Spark和MapReduce）部署在数据中心，并使用作业模型进行抽象，作业模型由几个连续的<strong>计算阶段</strong>和计算阶段之间的<strong>通信阶段</strong>组成。每个计算阶段的执行只能在前一阶段的中间数据完全传输时开始。这个工作程序可以被建模为一个作业有向无环图（DAG），其中计算阶段（点集）和通信阶段（边集）分别被建模为节点和边。在作业DAG中，一个通信阶段涉及一组流，这些流从两组机器相互交织，共享一个共同的作业目标。一组这样的流称为共流（coflow）。现有工作指出，在数据中心网络（DCN）中，同流传输（即，中间数据从一个计算元素到另一个计算元素的顺序相关传输）消耗了整个作业至少50%的处理时间。因此，良好的同流调度可以显著减少作业完成时间（JCT）。</p><p>​ 然而，设计一个好的同流调度方案并非易事。在DCN中有效地调度同流是一项挑战，因为应考虑各种同流特性，包括同流的特性（例如，流大小和并行流的数量）以及同流之间的特性（例如，作业DAG中不同同流的关系）。已证明最优同流调度是NP难的。现有工作简化了问题，并使用启发式解决方案来最小化共流的传输时间。然而，这些作品有以下两个局限性：</p><ol><li>大多数现有工作仅专注于在单个通信阶段尽量缩短共流的传输时间，并未深入探讨具体工作的通信要求。因此，可能不会考虑作业DAG的不同通信阶段中的同流执行顺序，并且这些作业不可知调度方法无法带来最佳JCT。</li><li>手工编制的启发式解决方案通过一些放松简化了问题，只确保粗略地近似于NP难问题的最优解。例如，非抢占式调度算法只能确保2-近似最优解（ε-最优理想解），与最优解之间存在很大差距</li></ol><p>​ 在本文中，我们提出了DeepWeave，一种基于学习的方法来有效地调度合流。DeepWeave使用深度强化学习（DRL）框架从历史轨迹中学习并训练神经网络。Deep-Weave由<strong>两组级联的神经网络</strong>和<strong>一个策略转换模块</strong>组成，它<strong>将调度策略编码到神经网络中</strong>，可以在不需要专家知识和预先假设的模型的情况下做出同流调度决策。DeepWeave同时适用于同向流内调度和同向流间调度。具体来说，为了更好地处理作业DAG信息，并确保神经网络在不可预测的输入DAG下的泛化能力，我们建议使用图神经网络（GNN）来处理输入数据。DRL代理使用训练好的神经网络中的策略为不同的流生成优先级调度列表。根据该列表，以细粒度的方式进一步调度每个同流中的流。仿真结果表明，DeepWeave完成作业的速度至少比最先进的解决方案快1.7倍。</p><p>​ 本文的贡献总结如下：</p><ol><li>本文首次提出了一种基于机器学习的同流调度体系结构来加速JCT。</li><li>我们使用DRL作为基于学习的框架来训练神经网络，并在没有人类经验的情况下探索同流调度策略。</li><li>我们设计了一种基于GNN的神经网络结构来处理输入任务DAG。经过训练，该结构可以很好地推广到不同的DAG尺寸和形状。</li><li>我们使用真实的痕迹和生成的痕迹来评估DeepWeave的性能。仿真结果表明，DeepWeave在JCT方面优于最先进的解决方案。（用真实的生产数据进行评估）</li></ol><h2 id="三、问题表述"><a href="#三、问题表述" class="headerlink" title="三、问题表述"></a>三、问题表述</h2><p>DCNs中的多阶段计算任务通常存在共流。在同流调度中，DCN在逻辑上可以被视为连接不同计算机器的巨大非阻塞交换结构。结构的每个端口都具有相同的容量，并且由于同一端口中的流竞争带宽，拥塞只发生在端口。在现有工作的基础上，我们使用这个DCN模型进行研究。下图是coflow的典型例子[Chowdhury and Stoica，2015]。DCN被建模为非阻塞交换结构，并互连不同的机器组。</p><p>​ 在这个图中，结构有三个输入端口，每个输入端口有三个队列。共有三种共流：C1、C2和C3。</p><ul><li><p>在时隙0，C1到达端口1，C2到达端口1和2。C1和C2争夺端口1。（只有端口1存在争夺）</p></li><li><p>在时隙1，C3到达端口2。</p></li></ul><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220212144712.png" alt="image-20220212144705686"></p><p>建模，搞一个DAG $ G = (V,E,T) $ ，其中</p><ul><li>$ V=\left(v_{1}, v_{2}, \cdots, v_{|V|}\right) $ 点集代表工作的计算阶段。</li><li>$ E=\left(e_{1}, e_{2}, \cdots, e_{|E|}\right) $ 边集代表工作的通信阶段。</li><li>$ T $ 指标，代表工作的全局截止时间。</li></ul><p>每一个通信阶段都是两个计算阶段之间的共流。作业 DAG按照其不同阶段之间的依赖关系在管道中进行处理，其处理必须在截止时间 $ T $ 内完成。下图展示的是一个带有七个计算结点和六个通信边的例子。作业DAG中有两种类型的Coflow依赖关系：<strong>开始后</strong>和<strong>完成前</strong>。在一个开始后关系中， $ e_a $ 在 $ e_b $ 完成之前不能启动（表示为 $ e_a \mapsto e_b $ ）；在完成前关系的情况下， $ e_a $ 在 $ e_b $ 完成之前无法完成（表示为 $ e_a \to e_b $ ）。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220212165954.png" alt="image-20220212165954937"></p><p>​ 在作业DAG中，计算阶段通常是并行执行的，因此，从不同的计算阶段并行生成共流，并在结构的端口上相互竞争。计算阶段的计算时间可以视为常数，共流（也就是通信阶段）的调度是整个JCT 的主要因素。</p><p>​ 考虑在一个作业 DAG 中，有 $ N $ 个共流，<strong>交换结构</strong>有 $ M $ 个入度端口和 $ M $ 个出度端口，共流（边）可以定义为</p><script type="math/tex;mode=display">
+e_i = f_i^{m, n} \ \ \ \  1\le m \le M,1\le n \le M</script><p> $ f_i^{m, n} $ 表示一条端口 $ m $ 到端口 $ n $ 的流动。 $ fs_i^{m, n} $ 表示 $ f_i^{m, n} $ 端口的容量。如果在共流 $ e_i $ 中没有没有流动从 $ m $ 端口到 $ n $ 端口，那么 $ fs_i^{m, n} = 0 $ 。由于每个端口具有相同的容量，<strong>因此流的传输时间与每个端口的流大小成正比</strong>。在不丧失一般性的情况下，我们使用每个流的大小来表示以下传输时间。用 $ C_i $ 表示 $ e_i $ 的传输时间， $ C_i = End(e_i) - Start(e_i) $ ，在以上这些的定义下，同流调度的目标是最小化整个作业的平均传输时间</p><script type="math/tex;mode=display">
+\begin{align}
+&f(x) = \min{\sum_i^N C_i}\\
+s.t.:\ \  &Start(e_i) \ge End(e_x|e_x\mapsto e_i)\\
+&End(e_i) \le End(e_x | e_x \to e_i) 
+\end{align}</script><h2 id="四、DeepWeave算法设计"><a href="#四、DeepWeave算法设计" class="headerlink" title="四、DeepWeave算法设计"></a>四、DeepWeave算法设计</h2><p>在本节中，我们将介绍DeepWeave的设计。首先，我们概述DeepWeave的体系结构。其次，我们在训练中介绍plain DeepWeave的DRL框架。第三，我们介绍了神经网络在深编织中的处理机制。最后，我们介绍了策略转换器，它将DRL代理的输出值转换为具体的共流调度策略。</p><h3 id="4-1、DeepWeave概述"><a href="#4-1、DeepWeave概述" class="headerlink" title="4.1、DeepWeave概述"></a>4.1、DeepWeave概述</h3><p>DeepWeave是基于DRL框架设计的，用于为网络生成同流调度策略。下图显示了一个共流调度代理，它由一组神经网络（详见第4.2节和第4.3节）和一个策略转换器（详见第4.4节）组成。在工作过程中，DeepWeave收集作业DAG信息，并将信息转换为特征图，作为GNN的输入，GNN计算作业DAG的特征，并将计算出的信息传递给策略网络。然后，策略网络生成一个优先级列表作为输出，作为策略转换器的输入。最后，策略转换器将优先级列表转换为同流调度选项，用于调度同流中的同流和流。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220212211013.png" alt="image-20220212211013687"></p><h3 id="4-2、DRL训练框架"><a href="#4-2、DRL训练框架" class="headerlink" title="4.2、DRL训练框架"></a>4.2、DRL训练框架</h3><p>DeepWeave通过DRL框架训练其神经网络，并使用包含三个元素 $ 〈S，a，R〉 $ 的元组来描述交互。</p><ul><li>在元组中， $ S $ 是状态空间，代表环境的状态观察（即DeepWeave中的作业DAG）;</li><li>$ A $ 是动作空间，代表 RL 代理输出动作的空间；</li><li>$ R $ 是奖励空间，用于评估动作的质量。</li></ul><p>DeepWeave 的 DRL 代理通过与网络环境的交互逐步得到训练。在每一步中，代理都会收集一个观察结果 $ s \in S $ 从环境中提取并生成动作 $ a \in A $ 通过特定的计算过程安排环境的中共流，可以抽象为策略。某一动作的质量 $ a \in A $ 由带有奖励的评估函数进行评估 $ r \in R $ 来描述质量。基于价值 $ r \in R $ 、 这项策略是为了更好地执行而改进的。具体而言，DeepWeave 中的接口定义如下：</p><ul><li>State：在每个同向流和作业DAG的形状中流动。</li><li>Action：优先级列表，表示作业DAG中边的调度优先级。</li><li>Reward：作业的完成时间。</li></ul><p>​ DRL 代理的训练过程分几回合进行，每回合由多个交互步骤组成。在每一回合中，培训的目标是最大化累积的奖励 $ R_{epi} = \sum_{t = 0} ^ T r(t) $ ， $ T $ 表示该回合中的交互步骤次数。我们使用 $ \mu $ 来表示 DRL 代理的策略。 在每个步骤 $ t $ 中，代理从环境中获取一个观察 $ s_t $ ，并基于 $ a_t=\mu(s_t) $ 生成动作 $ a_t $ 。如上所述，在 DRL 中，策略由神经网络生成。因此， $ a_t=\mu(s_t) $ 可以更准确地表示为 $ at=\mu_\theta(s_t) $ ，其中 $ \theta $ 表示神经网络的参数（例如，不同神经元之间的权重和偏差）。当一回合完成时，累积奖励 $ R_{epi} $ 可用于评估该回合中的策略。</p><p>​ 在 DeepWeave 中，我们使用策略梯度方法来更新基于 $ R_{epi} $ 的神经网络，以获得更好的策略。在政策梯度法中，计算梯度下降以更新神经网络参数，如下所示[Sutton等人，2000]：</p><script type="math/tex;mode=display">
+\theta^{\prime}=\theta+\alpha \sum_{t=1}^{T} \nabla_{\theta} \log \mu_{\theta}\left(s_{t}, a_{t}\right) Q_{t}</script><p>其中 $ \alpha $ 表示在每一集中控制 $ \theta $ 更新速度的学习速率， $ Q_t $ 表示当前集中策略的质量评估。具体来说，我们将 $ Q_{t}=\sum_{t^{\prime}=t}^{T} r_{t^{\prime}}-b_{t} $ 是一种有偏形式，其中 $ b_t $ 被用作基准值，以限制政策梯度的变化[Greensmith等人，2004年]。这样，神经网络的参数在每一回合之后都会得到更新，因此该DRL代理在下一回合的预期性能应该更好。由于在几个初始事件中，神经网络参数接近随机值，且策略不好，我们可以使用类似于Decima[Mao等人，2019]中使用的方法，通过缩短事件长度来加速训练。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220212221744.png" alt="image-20220212221744417"></p><p>​ 整个训练过程的逻辑如算法1所示。为了加快训练过程，我们实现了 $ N $ 个并行代理。算法1的训练目标是让神经网络的参数进化，从而生成一个良好的同流调度策略。第 $ 3-4 $ 为DRL代理运行一系列实验，第 $ 5 $ 行在每次迭代中将神经网络的更新值重置为零。第 $ 6-14 $ 行根据累积奖励计算神经网络的更新值，其中第 $ 7-10 $ 行计算基线值bk以减少训练的偏差，第 $ 11-12 $ 行设置每个代理的神经网络参数的变化。第 $ 15 $ 行规定了一回合的长度。在我们的培训中，学习率 $ \alpha $ 设置为 $ 1×10^{−3} $ ，梯度下降用于使用 Adam 优化器更新神经网络参数[Kingma and Ba，2014]。</p><h3 id="4-3神经网络的实现"><a href="#4-3神经网络的实现" class="headerlink" title="4.3神经网络的实现"></a>4.3神经网络的实现</h3><p>DeepWeave中的神经网络包括两个阶段：GNN处理和策略网络处理，如下图所示。在本小节中，我们将详细介绍这两个阶段。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220212222055.png" alt="image-20220212222055637"></p><p>​ GNN处理作业DAG的信息。与卷积神经网络等其他流行的神经网络相比，GNN更适合处理类似图形的结构化数据[Zhou等人，2018]。此外，GNN被证明具有更好的知识转移能力[Rusek等人，2019]。例如，当输入数据的大小与训练历史略有不同时，GNN仍然可以做出精确的推断。在同流调度中，训练过程很难覆盖所有的作业DAG形状，因此知识转移能力至关重要。</p><p>​ 在GNN中，计算出节点属性和作业属性。首先，将 $ V_i $ 的信息（例如计算成本）抽象为图中节点的特征 $ x_i $ 。然后，根据 $ v_i $ 子节点的属性计算节点 $ v_i $ 的属性 $ attr_i $ 。属性信息从 $ v_i $ 的子节点通过一系列信息传递步骤一步步传递到 $ v_i $ 。在这些消息传递步骤中，每个节点通过 $ attr_i=F(x_i,{attr_u|v_u \in des(v_i)}) $ 计算他的属性值。实际上，函数 $ F(·) $ 可以用神经网络实现。我们在DeepWeave中为 $ F(·) $ 实现了两个神经网络，如下所示：</p><script type="math/tex;mode=display">
+\operatorname{attr}_{i}=f\left[\sum_{v_{u} \in \operatorname{des}\left(v_{i}\right)} g\left(\operatorname{attr}_{u}\right)\right]+x_{i}</script><p>其中 $ f(·) $ 和 $ g(·) $ 是两个小型前馈神经网络，具有两个隐藏层。该函数可以对相应的输入信息进行非线性变换。通过这种方式，消息传递过程可以将复杂信息从节点的子节点传输到节点。此外，[Mao等人，2019]指出，一个神经网络无法计算DAG的关键路径[Kel-ley Jr，1961]。每个节点属性都表示为一个绝对值。属性值被排序，并且在值离开GNN之前，根据它们的值记录每个节点的顺序。在计算节点属性之后，还有一个作业级信息摘要 $ y $ 。在Deep-Weave中，另一组神经网络用于计算 $ y $ ，其中 $ y=f_{job}(\{attr_i，x_i | v_i \in V\}) $ 。</p><p>​ 在GNN计算过程之后，作业级别信息和节点属性的序列被发送到策略网络阶段。该策略网络由一个具有一个隐层的前馈神经网络实现。前馈神经网络计算工作级别信息和节点属性，并生成优先级列表 $ P=(p_1,p_2,\cdots,p_{|V|}) $ 作为输出，其中 $ p_i(1 \le i\le |{V}|) $ 对应于作业执行过程中节点 $ v_i $ 的优先级值， $ p_i $ 越高表示优先级越高。请注意，策略网络不能像GNN那样更改其大小。在我们的设计中，输入层的大小等于实验中可能出现的最大顶点数。对于小型DAG，节点属性中的排序值在用作策略网络的输入之前用零填充。</p><h3 id="4-4策略转换器"><a href="#4-4策略转换器" class="headerlink" title="4.4策略转换器"></a>4.4策略转换器</h3><p>策略转换器将策略网络的输出值转换为具体的同流调度策略。如前所述，策略网络为作业DAG中的每个节点生成优先级列表 $ P=(p_1,p_2,\cdots,p_{|{V}|}) $ 。由于作业DAG只有一条来自某个节点的边，因此我们将边 $ e $ （即同流）的优先级与其源节点的优先级值分配。假设我们得到了优先级列表 $ P=(p_1,p_2,\cdots,p_{|{V}|}) $ 代表每个同流的优先级。调度问题是根据流所属的同流的优先级来调度每个端口的流。调度过程包括入口端口调度和出口端口调度，这两种调度是相似的。为了简单起见，我们只展示入口端口的调度过程。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220213135633.png" alt="image-20220213135626014"></p><p>算法2详细说明了从优先级列表到入口端口的具体调度过程的转换。在算法2中，根据优先级列表 $ P $ 中的优先级对同流进行调度。第2行选择优先级最高的同流进行调度。第3-4行通过首先在选定的同流中安排最大大小的流，来最小化同流的结束时间。第5行获取流的结束时间，并将此流的结束时间用作此同流的结束时间。6-10号线计划 $ n* $ 端口的其他流量. 第11行从优先级列表中删除了已经调度好的同流。</p><h3 id="五、实验与评价"><a href="#五、实验与评价" class="headerlink" title="五、实验与评价"></a>五、实验与评价</h3><p>略</p></div><div><ul class="post-copyright"><li class="post-copyright-author"> <strong>本文作者：</strong> luobuyu</li><li class="post-copyright-link"> <strong>本文链接：</strong> <a href="https://www.luobuyu.site/2022/deep-weave/" title="DeepWeave">https://www.luobuyu.site/2022/deep-weave/</a></li><li class="post-copyright-license"> <strong>版权声明：</strong> 本博客所有文章除特别声明外，均采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i> BY-NC-SA</a> 许可协议。转载请注明出处！</li></ul></div><footer class="post-footer"><div class="post-tags"><a href="/tags/%E4%BA%91%E8%AE%A1%E7%AE%97/" rel="tag"><i class="fa fa-tag"></i> 云计算</a><a href="/tags/%E8%B5%84%E6%BA%90%E8%B0%83%E5%BA%A6/" rel="tag"><i class="fa fa-tag"></i> 资源调度</a></div><div class="post-nav"><div class="post-nav-item"><a href="/2022/Hoofball/" rel="prev" title="1738.蹄球"><i class="fa fa-chevron-left"></i> 1738.蹄球</a></div><div class="post-nav-item"> <a href="/2022/Milking-sequence/" rel="next" title="1726.挤奶顺序">1726.挤奶顺序<i class="fa fa-chevron-right"></i></a></div></div></footer></article></div><div class="comments" id="valine-comments"></div><script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script></div><div class="toggle sidebar-toggle"><span class="toggle-line toggle-line-first"></span><span class="toggle-line toggle-line-middle"></span><span class="toggle-line toggle-line-last"></span></div><aside class="sidebar"><div class="sidebar-inner"><ul class="sidebar-nav motion-element"><li class="sidebar-nav-toc"> 文章目录</li><li class="sidebar-nav-overview"> 站点概览</li></ul><div class="post-toc-wrap sidebar-panel"><div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#DeepWeave"><span class="nav-number">1.</span> <span class="nav-text">DeepWeave</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、摘要"><span class="nav-number">1.1.</span> <span class="nav-text">一、摘要</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、介绍"><span class="nav-number">1.2.</span> <span class="nav-text">二、介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、问题表述"><span class="nav-number">1.3.</span> <span class="nav-text">三、问题表述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、DeepWeave算法设计"><span class="nav-number">1.4.</span> <span class="nav-text">四、DeepWeave算法设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1、DeepWeave概述"><span class="nav-number">1.4.1.</span> <span class="nav-text">4.1、DeepWeave概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2、DRL训练框架"><span class="nav-number">1.4.2.</span> <span class="nav-text">4.2、DRL训练框架</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3神经网络的实现"><span class="nav-number">1.4.3.</span> <span class="nav-text">4.3神经网络的实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-4策略转换器"><span class="nav-number">1.4.4.</span> <span class="nav-text">4.4策略转换器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#五、实验与评价"><span class="nav-number">1.4.5.</span> <span class="nav-text">五、实验与评价</span></a></li></ol></li></ol></li></ol></div></div><div class="site-overview-wrap sidebar-panel"><div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person"> <a href="/"><img class="site-author-image" itemprop="image" alt="luobuyu" src="/images/avatar.png"></a><p class="site-author-name" itemprop="name">luobuyu</p><div class="site-description" itemprop="description"></div></div><div class="site-state-wrap motion-element"><nav class="site-state"><div class="site-state-item site-state-posts"> <a href="/archives/"><span class="site-state-item-count">362</span> <span class="site-state-item-name">日志</span></a></div><div class="site-state-item site-state-categories"> <a href="/categories/"><span class="site-state-item-count">66</span> <span class="site-state-item-name">分类</span></a></div><div class="site-state-item site-state-tags"> <a href="/tags/"><span class="site-state-item-count">274</span> <span class="site-state-item-name">标签</span></a></div></nav></div><div class="links-of-author motion-element"><span class="links-of-author-item"><a href="https://github.com/luobuyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;luobuyu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i> GitHub</a></span><span class="links-of-author-item"><a href="mailto:1528751774@qq.com" title="E-Mail → mailto:1528751774@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i> E-Mail</a></span><span class="links-of-author-item"><a href="https://valine.luobuyu.site/" title="Comments → https:&#x2F;&#x2F;valine.luobuyu.site" rel="noopener" target="_blank"><i class="fas fa-comments fa-fw"></i> Comments</a></span></div></div></div></aside><div id="sidebar-dimmer"></div></div></main><footer class="footer"><div class="footer-inner"><div id="aplayer-ukhYMhCo" class="aplayer aplayer-tag-marker meting-tag-marker" data-id="7289878554" data-server="netease" data-type="playlist" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#FF4081" data-listfolded="true"></div><div class="copyright"> &copy; 2020 – <span itemprop="copyrightYear">2024</span><span class="with-love"><i class="fa fa-heartbeat"></i></span> <span class="author" itemprop="copyrightHolder">luobuyu</span><br><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span class="post-meta-divider"></span><span class="post-meta-item-icon"><i class="fa fa-chart-area"></i></span> <span class="post-meta-item-text">站点总字数：</span> <span title="站点总字数">938k</span> <span class="post-meta-divider">|</span><span class="post-meta-item-icon"><i class="fa fa-coffee"></i></span> <span class="post-meta-item-text">站点阅读时长 &asymp;</span> <span title="站点阅读时长">14:13</span></div> <span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span><script>var now=new Date;function createtime(){var n=new Date("07/20/2020 12:00:00");now.setTime(now.getTime()+250),days=(now-n)/1e3/60/60/24,dnum=Math.floor(days),hours=(now-n)/1e3/60/60-24*dnum,hnum=Math.floor(hours),1==String(hnum).length&&(hnum="0"+hnum),minutes=(now-n)/1e3/60-1440*dnum-60*hnum,mnum=Math.floor(minutes),1==String(mnum).length&&(mnum="0"+mnum),seconds=(now-n)/1e3-86400*dnum-3600*hnum-60*mnum,snum=Math.round(seconds),1==String(snum).length&&(snum="0"+snum),document.getElementById("timeDate").innerHTML="luobuyuの个人博客，已经勉强存活了 "+dnum+" 天 ",document.getElementById("times").innerHTML=hnum+" 小时 "+mnum+" 分 "+snum+" 秒"}setInterval("createtime()",250)</script><div class="busuanzi-count"><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span class="post-meta-item" id="busuanzi_container_site_uv" style="display:none"></span><span class="post-meta-item-icon"><i class="fa fa-user"></i></span> <span class="site-uv" title="总访客量">访问人数<span id="busuanzi_value_site_uv"></span></span> <span class="post-meta-divider">|</span><span class="post-meta-item" id="busuanzi_container_site_pv" style="display:none"></span><span class="post-meta-item-icon"><i class="fa fa-eye"></i></span> <span class="site-pv" title="总访问量">总访问量<span id="busuanzi_value_site_pv"></span></span></div></div></footer></div><script src="/lib/anime.min.js"></script><script src="/lib/velocity/velocity.min.js"></script><script src="/lib/velocity/velocity.ui.min.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/pisces.js"></script><script src="/js/next-boot.js"></script><script>!function(){var o,n,e=document.getElementsByTagName("link");if(0<e.length)for(i=0;i<e.length;i++)"canonical"==e[i].rel.toLowerCase()&&e[i].href&&(o=e[i].href);n=o?o.split(":")[0]:window.location.protocol.split(":")[0],o||(o=window.location.href),function(){var e=o,i=document.referrer;if(!/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi.test(e)){var t="https"===String(n).toLowerCase()?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";i?(t+="?r="+encodeURIComponent(document.referrer),e&&(t+="&l="+e)):e&&(t+="?l="+e),(new Image).src=t}}(window)}()</script><script src="/js/local-search.js"></script><script type="text/x-mathjax-config">
+    MathJax.Ajax.config.path['mhchem'] = '//cdn.jsdelivr.net/npm/mathjax-mhchem@3';
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        extensions: ['[mhchem]/mhchem.js'],
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script><script>
+  NexT.utils.getScript('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/GamerNoTitle/Picture-repo-v1@master/css/Valine-Emotion.css"><style>.v[data-class=v] .veditor{background-image:url(https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220325200442.gif);background-size:contain;background-repeat:no-repeat;background-position:right}</style><script>
+
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/valine@1.5.1/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+
+    var requiredFields = ['nick', 'mail', 'link'];
+    var requiredField = 'nick,mail';
+    requiredField = requiredField.split(',').filter(item => {
+      return requiredFields.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'GqF4f53ddiLc4MvB6rAMxrM6-MdYXbMMI',
+      appKey     : 'rn6pv6g3Qzu4mcbqhI7qWEk5',
+      emojiCDN: 'https://valinecdn.bili33.top/',
+      emojiMaps: {
+        "bilibiliHotKey1": "bilibiliHotKey/1.jpg",
+        "bilibiliHotKey2": "bilibiliHotKey/10.jpg",
+        "bilibiliHotKey3": "bilibiliHotKey/11.jpg",
+        "bilibiliHotKey4": "bilibiliHotKey/12.jpg",
+        "bilibiliHotKey5": "bilibiliHotKey/13.jpg",
+        "bilibiliHotKey6": "bilibiliHotKey/14.jpg",
+        "bilibiliHotKey7": "bilibiliHotKey/15.jpg",
+        "bilibiliHotKey8": "bilibiliHotKey/16.jpg",
+        "bilibiliHotKey9": "bilibiliHotKey/17.jpg",
+        "bilibiliHotKey10": "bilibiliHotKey/18.jpg",
+        "bilibiliHotKey11": "bilibiliHotKey/19.jpg",
+        "bilibiliHotKey12": "bilibiliHotKey/2.jpg",
+        "bilibiliHotKey13": "bilibiliHotKey/20.jpg",
+        "bilibiliHotKey14": "bilibiliHotKey/21.jpg",
+        "bilibiliHotKey15": "bilibiliHotKey/22.jpg",
+        "bilibiliHotKey16": "bilibiliHotKey/23.jpg",
+        "bilibiliHotKey17": "bilibiliHotKey/24.jpg",
+        "bilibiliHotKey18": "bilibiliHotKey/25.jpg",
+        "bilibiliHotKey19": "bilibiliHotKey/26.jpg",
+        "bilibiliHotKey20": "bilibiliHotKey/27.jpg",
+        "bilibiliHotKey21": "bilibiliHotKey/28.jpg",
+        "bilibiliHotKey22": "bilibiliHotKey/29.jpg",
+        "bilibiliHotKey23": "bilibiliHotKey/3.jpg",
+        "bilibiliHotKey24": "bilibiliHotKey/30.jpg",
+        "bilibiliHotKey25": "bilibiliHotKey/31.jpg",
+        "bilibiliHotKey26": "bilibiliHotKey/32.jpg",
+        "bilibiliHotKey27": "bilibiliHotKey/4.jpg",
+        "bilibiliHotKey28": "bilibiliHotKey/5.jpg",
+        "bilibiliHotKey29": "bilibiliHotKey/6.jpg",
+        "bilibiliHotKey30": "bilibiliHotKey/7.jpg",
+        "bilibiliHotKey31": "bilibiliHotKey/8.jpg",
+        "bilibiliHotKey32": "bilibiliHotKey/9.jpg",
+        "KeQing1": "KeQing/1MtdPr4y.png",
+        "KeQing2": "KeQing/29E353B37F06F48D0D32B896A555AB10.jpg",
+        "KeQing3": "KeQing/5q8iVluo.png",
+        "KeQing4": "KeQing/6Bo9DvjS.png",
+        "KeQing5": "KeQing/8uRU02Qn.png",
+        "KeQing6": "KeQing/a7Xxm0ou.png",
+        "KeQing7": "KeQing/aEhyb3F5.png",
+        "KeQing8": "KeQing/alT6XmFj.png",
+        "KeQing9": "KeQing/b4l6cyUT.png",
+        "KeQing10": "KeQing/BWYIgTtC.png",
+        "KeQing11": "KeQing/c1ZrqNaX.png",
+        "KeQing12": "KeQing/c7yp9Ewx.png",
+        "KeQing13": "KeQing/CeZsrXIq.png",
+        "KeQing14": "KeQing/CJRTKlGP.png",
+        "KeQing15": "KeQing/COMie4xg.png",
+        "KeQing16": "KeQing/D4G8UsxH.png",
+        "KeQing17": "KeQing/D80028AB4478C5C3986FE1A9FEEFEB35.gif",
+        "KeQing18": "KeQing/e01OVkHC.png",
+        "KeQing19": "KeQing/ELmIkgpZ.png",
+        "KeQing20": "KeQing/fbR6FSd3.png",
+        "KeQing21": "KeQing/Fh58COx7.png",
+        "KeQing22": "KeQing/FM1l6d9h.png",
+        "KeQing23": "KeQing/ghCViEvU.png",
+        "KeQing24": "KeQing/ivmGU68a.png",
+        "KeQing25": "KeQing/JmyRiSt1.png",
+        "KeQing26": "KeQing/jvI8Wa35.png",
+        "KeQing27": "KeQing/lHQhDR71.png",
+        "KeQing28": "KeQing/lxfPMp5I.png",
+        "KeQing29": "KeQing/nK5k6fHL.png",
+        "KeQing30": "KeQing/OsVSotEn.png",
+        "KeQing31": "KeQing/R4QdmJb1.png",
+        "KeQing32": "KeQing/rADUyouz.png",
+        "KeQing33": "KeQing/Rex3GWlg.png",
+        "KeQing34": "KeQing/RkHtnfyU.png",
+        "KeQing35": "KeQing/RrXmaHeb.png",
+        "KeQing36": "KeQing/sJ58YlzP.png",
+        "KeQing37": "KeQing/tjJGYOVF.png",
+        "KeQing38": "KeQing/tTnXvgZH.png",
+        "KeQing39": "KeQing/w37qQAel.png",
+        "KeQing40": "KeQing/W6y0ReEh.png",
+        "KeQing41": "KeQing/xDIO54sg.png",
+        "KeQing42": "KeQing/Xy8BbkcP.png",
+        "KeQing43": "KeQing/YCL13G5e.png",
+        "KeQing44": "KeQing/yG7MulxF.png",
+        "KeQing45": "KeQing/ZDI38NMK.png",
+        "KeQing46": "KeQing/Zl9NR6It.png",
+        "Snow-Miku1": "Snow-Miku/3583066@2x.png",
+        "Snow-Miku2": "Snow-Miku/3583067@2x.png",
+        "Snow-Miku3": "Snow-Miku/3583068@2x.png",
+        "Snow-Miku4": "Snow-Miku/3583069@2x.png",
+        "Snow-Miku5": "Snow-Miku/3583070@2x.png",
+        "Snow-Miku6": "Snow-Miku/3583071@2x.png",
+        "Snow-Miku7": "Snow-Miku/3583072@2x.png",
+        "Snow-Miku8": "Snow-Miku/3583073@2x.png",
+        "Snow-Miku9": "Snow-Miku/3583074@2x.png",
+        "Snow-Miku10": "Snow-Miku/3583075@2x.png",
+        "Snow-Miku11": "Snow-Miku/3583076@2x.png",
+        "Snow-Miku12": "Snow-Miku/3583077@2x.png",
+        "Snow-Miku13": "Snow-Miku/3583078@2x.png",
+        "Snow-Miku14": "Snow-Miku/3583079@2x.png",
+        "Snow-Miku15": "Snow-Miku/3583080@2x.png",
+        "Snow-Miku16": "Snow-Miku/3583081@2x.png",
+        "Snow-Miku17": "Snow-Miku/3583082@2x.png",
+        "Snow-Miku18": "Snow-Miku/3583083@2x.png",
+        "Snow-Miku19": "Snow-Miku/3583084@2x.png",
+        "Snow-Miku20": "Snow-Miku/3583085@2x.png",
+        "Snow-Miku21": "Snow-Miku/3583086@2x.png",
+        "Snow-Miku22": "Snow-Miku/3583087@2x.png",
+        "Snow-Miku23": "Snow-Miku/3583088@2x.png",
+        "Snow-Miku24": "Snow-Miku/3583089@2x.png",
+        "Snow-Miku25": "Snow-Miku/3583090@2x.png",
+        "Snow-Miku26": "Snow-Miku/3583091@2x.png",
+        "Snow-Miku27": "Snow-Miku/3583092@2x.png",
+        "Snow-Miku28": "Snow-Miku/3583093@2x.png",
+        "Snow-Miku29": "Snow-Miku/3583094@2x.png",
+        "Snow-Miku30": "Snow-Miku/3583095@2x.png",
+        "Snow-Miku31": "Snow-Miku/3583096@2x.png",
+        "Snow-Miku32": "Snow-Miku/3583097@2x.png",
+        "Snow-Miku33": "Snow-Miku/3583098@2x.png",
+        "Snow-Miku34": "Snow-Miku/3583099@2x.png",
+        "Snow-Miku35": "Snow-Miku/3583100@2x.png",
+        "Snow-Miku36": "Snow-Miku/3583101@2x.png",
+        "Snow-Miku37": "Snow-Miku/3583102@2x.png",
+        "Snow-Miku38": "Snow-Miku/3583103@2x.png",
+        "Snow-Miku39": "Snow-Miku/3583104@2x.png",
+        "Snow-Miku40": "Snow-Miku/3583105@2x.png",
+        "bilibilitv2": "bilibilitv/[tv_doge].png",
+        "bilibilitv3": "bilibilitv/[tv_亲亲].png",
+        "bilibilitv4": "bilibilitv/[tv_偷笑].png",
+        "bilibilitv5": "bilibilitv/[tv_再见].png",
+        "bilibilitv6": "bilibilitv/[tv_冷漠].png",
+        "bilibilitv7": "bilibilitv/[tv_发怒].png",
+        "bilibilitv8": "bilibilitv/[tv_发财].png",
+        "bilibilitv9": "bilibilitv/[tv_可爱].png",
+        "bilibilitv10": "bilibilitv/[tv_吐血].png",
+        "bilibilitv11": "bilibilitv/[tv_呆].png",
+        "bilibilitv12": "bilibilitv/[tv_呕吐].png",
+        "bilibilitv13": "bilibilitv/[tv_困].png",
+        "bilibilitv14": "bilibilitv/[tv_坏笑].png",
+        "bilibilitv15": "bilibilitv/[tv_大佬].png",
+        "bilibilitv16": "bilibilitv/[tv_大哭].png",
+        "bilibilitv17": "bilibilitv/[tv_委屈].png",
+        "bilibilitv18": "bilibilitv/[tv_害羞].png",
+        "bilibilitv19": "bilibilitv/[tv_尴尬].png",
+        "bilibilitv20": "bilibilitv/[tv_微笑].png",
+        "bilibilitv21": "bilibilitv/[tv_思考].png",
+        "bilibilitv22": "bilibilitv/[tv_惊吓].png",
+        "bilibilitv23": "bilibilitv/[tv_打脸].png",
+        "bilibilitv24": "bilibilitv/[tv_抓狂].png",
+        "bilibilitv25": "bilibilitv/[tv_抠鼻].png",
+        "bilibilitv26": "bilibilitv/[tv_斜眼笑].png",
+        "bilibilitv27": "bilibilitv/[tv_无奈].png",
+        "bilibilitv28": "bilibilitv/[tv_晕].png",
+        "bilibilitv29": "bilibilitv/[tv_流汗].png",
+        "bilibilitv30": "bilibilitv/[tv_流泪].png",
+        "bilibilitv31": "bilibilitv/[tv_流鼻血].png",
+        "bilibilitv32": "bilibilitv/[tv_点赞].png",
+        "bilibilitv33": "bilibilitv/[tv_生气].png",
+        "bilibilitv34": "bilibilitv/[tv_生病].png",
+        "bilibilitv35": "bilibilitv/[tv_疑问].png",
+        "bilibilitv36": "bilibilitv/[tv_白眼].png",
+        "bilibilitv37": "bilibilitv/[tv_皱眉].png",
+        "bilibilitv38": "bilibilitv/[tv_目瞪口呆].png",
+        "bilibilitv39": "bilibilitv/[tv_睡着].png",
+        "bilibilitv40": "bilibilitv/[tv_笑哭].png",
+        "bilibilitv41": "bilibilitv/[tv_腼腆].png",
+        "bilibilitv42": "bilibilitv/[tv_色].png",
+        "bilibilitv43": "bilibilitv/[tv_调侃].png",
+        "bilibilitv44": "bilibilitv/[tv_调皮].png",
+        "bilibilitv45": "bilibilitv/[tv_鄙视].png",
+        "bilibilitv46": "bilibilitv/[tv_闭嘴].png",
+        "bilibilitv47": "bilibilitv/[tv_难过].png",
+        "bilibilitv48": "bilibilitv/[tv_馋].png",
+        "bilibilitv49": "bilibilitv/[tv_鬼脸].png",
+        "bilibilitv50": "bilibilitv/[tv_黑人问号].png",
+        "bilibilitv51": "bilibilitv/[tv_鼓掌].png",
+        "HONKAI3-MEI1": "HONKAI3-MEI/501ac209b259bb545dea898838c24229483fcfeb.gif",
+        "HONKAI3-MEI2": "HONKAI3-MEI/5baf4306d1f685bf47922fbae365ccfba7721beb.gif",
+        "HONKAI3-MEI3": "HONKAI3-MEI/624857651c863ea9571f5e557fca8516dd41e0fc.gif",
+        "HONKAI3-MEI4": "HONKAI3-MEI/680311714674014d0c17f757eb40c3071448222a.gif",
+        "HONKAI3-MEI5": "HONKAI3-MEI/bf68423446465d396d3cbd8856882b5e9fb1c0c7.gif",
+        "HONKAI3-MEI6": "HONKAI3-MEI/d3a2a9c6ad1e2a0b262dca9354ab8de736d81cdf.gif",
+        "HONKAI3-MEI7": "HONKAI3-MEI/dd0fd1f3668f4907c9f6fcd39c6138417ac0e1f5.gif"
+      },
+      placeholder: "Leave a comment now!",
+      avatar     : 'wavatar',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-CN' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://chat.luobuyu.site',
+      requiredFields: requiredField
+    });
+  }, window.Valine);
+});
+</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({pluginRootPath:"live2dw/",pluginJsPath:"lib/",pluginModelPath:"assets/",tagMode:!1,debug:!1,model:{jsonPath:"/live2dw/assets/assets/haru01.model.json"},display:{superSample:2,width:200,height:400,position:"right",hOffset:0,vOffset:-20},mobile:{show:!0,scale:.5},react:{opacityDefault:.7,opacityOnHover:.8},log:!1})</script></body></html>

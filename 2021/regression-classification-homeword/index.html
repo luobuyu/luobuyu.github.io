@@ -1,0 +1,286 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2"><meta name="theme-color" content="#222"><meta name="generator" content="Hexo 4.2.1"><link rel="apple-touch-icon" sizes="180x180" href="/images/favicon-1.png"><link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-1.png"><link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-1.png"><link rel="mask-icon" href="/images/favicon-1.png" color="#222"><meta name="google-site-verification" content="lkGKflS_fVXQNJnC_UXP0lqUEpV4NFx0b000PxRrX7g"><meta name="baidu-site-verification" content="codeva-Uj3syugSr3"><link rel="stylesheet" href="/css/main.css"><link rel="stylesheet" href="/lib/font-awesome/css/all.min.css"><link rel="stylesheet" href="//cdn.jsdelivr.net/npm/pace-js@1.2.4/themes/blue/pace-theme-minimal.css"><script src="//cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><script id="hexo-configurations">var NexT=window.NexT||{},CONFIG={hostname:"www.luobuyu.site",root:"/",scheme:"Gemini",version:"7.8.0",exturl:!1,sidebar:{position:"right",display:"post",padding:18,offset:12,onmobile:!1},copycode:{enable:!0,show_result:!1,style:null},back2top:{enable:!0,sidebar:!1,scrollpercent:!1},bookmark:{enable:!1,color:"#222",save:"auto"},fancybox:!1,mediumzoom:!1,lazyload:!1,pangu:!1,comments:{style:"tabs",active:null,storage:!0,lazyload:!1,nav:null},algolia:{hits:{per_page:10},labels:{input_placeholder:"Search for Posts",hits_empty:"We didn't find any results for the search: ${query}",hits_stats:"${hits} results found in ${time} ms"}},localsearch:{enable:!0,trigger:"auto",top_n_per_article:1,unescape:!1,preload:!1},motion:{enable:!0,async:!1,transition:{post_block:"fadeIn",post_header:"slideDownIn",post_body:"slideDownIn",coll_header:"slideLeftIn",sidebar:"slideUpIn"}},path:"search.xml"}</script><meta name="description" content="数据科学导论作业（×），调包侠(√)"><meta property="og:type" content="article"><meta property="og:title" content="回归和分类作业"><meta property="og:url" content="https://www.luobuyu.site/2021/regression-classification-homeword/index.html"><meta property="og:site_name" content="Luobuyu&#39;s Blog"><meta property="og:description" content="数据科学导论作业（×），调包侠(√)"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20210419235045.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20210419235057.png"><meta property="article:published_time" content="2021-04-19T16:07:11.000Z"><meta property="article:modified_time" content="2024-10-30T14:47:37.480Z"><meta property="article:author" content="luobuyu"><meta property="article:tag" content="分类"><meta property="article:tag" content="数据科学导论"><meta property="article:tag" content="回归"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20210419235045.png"><link rel="canonical" href="https://www.luobuyu.site/2021/regression-classification-homeword/"><script id="page-configurations">CONFIG.page={sidebar:"",isHome:!1,isPost:!0,lang:"zh-CN"}</script><title>回归和分类作业 | Luobuyu's Blog</title><noscript><style>.sidebar-inner,.use-motion .brand,.use-motion .collection-header,.use-motion .comments,.use-motion .menu-item,.use-motion .pagination,.use-motion .post-block,.use-motion .post-body,.use-motion .post-header{opacity:initial}.use-motion .site-subtitle,.use-motion .site-title{opacity:initial;top:initial}.use-motion .logo-line-before i{left:initial}.use-motion .logo-line-after i{right:initial}</style></noscript><link rel="alternate" href="/atom.xml" title="Luobuyu's Blog" type="application/atom+xml"><link rel="stylesheet" href="/assets/css/APlayer.min.css" class="aplayer-style-marker"><script src="/assets/js/APlayer.min.js" class="aplayer-script-marker"></script><script>var meting_api="https://api.injahow.cn/meting/?server=:server&type=:type&id=:id&r=:r"</script><script src="/assets/js/Meting.min.js" class="meting-script-marker"></script></head><body itemscope itemtype="http://schema.org/WebPage"><div class="container use-motion"><div class="headband"></div><header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="header-inner"><div class="site-brand-container"><div class="site-nav-toggle"><div class="toggle" aria-label="切换导航栏"><span class="toggle-line toggle-line-first"></span><span class="toggle-line toggle-line-middle"></span><span class="toggle-line toggle-line-last"></span></div></div><div class="site-meta"><a href="/" class="brand" rel="start"><span class="logo-line-before"><i></i></span><h1 class="site-title">Luobuyu's Blog</h1><span class="logo-line-after"><i></i></span></a></div><div class="site-nav-right"><div class="toggle popup-trigger"><i class="fa fa-search fa-fw fa-lg"></i></div></div></div><nav class="site-nav"><ul id="menu" class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i> 首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i> 关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i> 标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i> 分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i> 归档</a></li><li class="menu-item menu-item-music"><a href="/music/" rel="section"><i class="fa fa-music fa-fw"></i> 歌单</a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i> 朋友</a></li><li class="menu-item menu-item-search"><a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i> 搜索</a></li></ul></nav><div class="search-pop-overlay"><div class="popup search-popup"><div class="search-header"><span class="search-icon"><i class="fa fa-search"></i></span><div class="search-input-container"> <input autocomplete="off" autocapitalize="off" placeholder="搜索..." spellcheck="false" type="search" class="search-input"></div><span class="popup-btn-close"><i class="fa fa-times-circle"></i></span></div><div id="search-result"><div id="no-result"><i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i></div></div></div></div></div></header><div class="back-to-top"><i class="fa fa-arrow-up"></i> <span>0%</span></div><main class="main"><div class="main-inner"><div class="content-wrap"><div class="content post posts-expand"><article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN"><link itemprop="mainEntityOfPage" href="https://www.luobuyu.site/2021/regression-classification-homeword/"><span hidden itemprop="author" itemscope itemtype="http://schema.org/Person"><meta itemprop="image" content="/images/avatar.png"><meta itemprop="name" content="luobuyu"><meta itemprop="description" content=""></span><span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization"><meta itemprop="name" content="Luobuyu's Blog"></span><header class="post-header"><h1 class="post-title" itemprop="name headline"> 回归和分类作业</h1><div class="post-meta"><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar"></i></span> <span class="post-meta-item-text">发表于</span> <time title="创建时间：2021-04-20 00:07:11" itemprop="dateCreated datePublished" datetime="2021-04-20T00:07:11+08:00">2021-04-20</time></span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-folder"></i></span> <span class="post-meta-item-text">分类于</span> <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E5%AF%BC%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">数据科学导论</span></a></span> ， <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E5%AF%BC%E8%AE%BA/%E4%BD%9C%E4%B8%9A%E4%B8%89/" itemprop="url" rel="index"><span itemprop="name">作业三</span></a></span></span><span id="/2021/regression-classification-homeword/" class="post-meta-item leancloud_visitors" data-flag-title="回归和分类作业" title="热度"><span class="post-meta-item-icon"><i class="fa fa-eye"></i></span> <span class="post-meta-item-text">热度：</span><span class="leancloud-visitors-count"></span> <span>℃</span></span><span class="post-meta-item" title="热度" id="busuanzi_container_page_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i></span> <span class="post-meta-item-text">热度：</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-comment"></i></span> <span class="post-meta-item-text">评论：</span><a title="valine" href="/2021/regression-classification-homeword/#valine-comments" itemprop="discussionUrl"><span class="post-comments-count valine-comment-count" data-xid="/2021/regression-classification-homeword/" itemprop="commentCount"></span></a></span><br><span class="post-meta-item" title="本文字数"><span class="post-meta-item-icon"><i class="far fa-file-word"></i></span> <span class="post-meta-item-text">本文字数：</span> <span>5.2k</span></span><span class="post-meta-item" title="阅读时长"><span class="post-meta-item-icon"><i class="far fa-clock"></i></span> <span class="post-meta-item-text">阅读时长 &asymp;</span> <span>5 分钟</span></span><div class="post-description">数据科学导论作业（×），调包侠(√)</div></div></header><div class="post-body" itemprop="articleBody"><h2 id="一、文件读取"><a href="#一、文件读取" class="headerlink" title="一、文件读取"></a>一、文件读取</h2><ol><li><p>白葡萄酒读数据</p><p>使用 <code>csv</code> 模块，需要打开文件操作，不能使用 <code>pandas</code></p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> csv</span><br><span class="line">path = <span class="string">"white_wine.csv"</span></span><br><span class="line">file = open(path, <span class="string">'r'</span>)</span><br><span class="line">content = list(csv.reader(file))</span><br><span class="line">content[<span class="number">0</span>:<span class="number">5</span>]</span><br></pre></td></tr></table></figure><p>注意一下 <code>csv</code> 模块和 <code>pandas</code> 模块读取数据的区别</p><ul><li>使用<code>pandas</code>读取数据会默认将第一行数据作为列名，<code>csv</code> 则不会</li><li><code>pandas</code>可以使用 <code>read_csv(path, header=None)</code> 来修改默认格式，将使用数字作为列名</li></ul></li></ol><h2 id="二、数据处理"><a href="#二、数据处理" class="headerlink" title="二、数据处理"></a>二、数据处理</h2><ol><li><p>数据处理</p><p><code>B</code></p></li><li><p>回归模型</p><p>使用 <code>sklearn.linear_model</code> 中的 <code>LinearRegression</code></p><p>训练模型都是使用 <code>fit()</code></p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> LinearRegression <span class="keyword">as</span> lr</span><br><span class="line">model = lr().fit(df_trainx, df_trainy)</span><br><span class="line">predict_value = model.predict(df_testx)</span><br></pre></td></tr></table></figure></li><li><p>同上</p></li><li><p>同上</p></li></ol><h2 id="三、二分类问题模型评价"><a href="#三、二分类问题模型评价" class="headerlink" title="三、二分类问题模型评价"></a>三、二分类问题模型评价</h2><ol><li><p>正确率</p><p>常见的评价指标，分类正确的样本占总样本的比例</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> accuracy_score</span><br><span class="line"></span><br><span class="line">accuracy_rate = accuracy_score(y_true, y_pred)</span><br></pre></td></tr></table></figure><p>注意一下，这类评价函数都是第一个放 <code>y_true</code> ，第二个放 <code>y_pred</code> ，正确值放前面， 预测值放后面</p></li><li><p>召回率</p><p>需介绍混淆矩阵，二分类情况下，准确值和预测值的组合有四种，多分类会有更多的组合</p><p>将四种组合分为四种类型</p></li></ol><div class="table-container"><table><thead><tr><th></th><th>预测 $ 0 $</th><th>预测 $ 1 $</th></tr></thead><tbody><tr><td>真实 $ 0 $</td><td><code>tn</code></td><td><code>fp</code></td></tr><tr><td>真实 $ 1 $</td><td><code>fn</code></td><td><code>tp</code></td></tr></tbody></table></div><p>​</p><p> <code>tn</code> ：真负类，实际为负，预测为负</p><p> <code>tp</code> ：真正类，实际为正，预测为正</p><p> <code>fp</code> ：假正类，实际为负，预测为正</p><p> <code>tn</code> ：假负类，实际为正，预测为负</p><p> 四种类型没有交集，总和为样本总数，<code>tp + tn =</code> 预测正确的样本，<code>fp + fn</code> 为预测错误的样本</p><p> 精准率：</p><ul><li>表示预测出来的样本中，正确的样本所占比例</li><li>显然需要预测出来，即预测值为 <code>1</code> 中正确的比例</li><li><p>$ p = \frac{TP}{FP + TP} $</p><p>召回率：</p></li><li><p>又称为查全率，即预测出来的占该类总数的比例</p></li><li>显然分子为 <code>tp</code> ，分母则为该类的全体，为 <code>fn + tp</code></li><li><p>$ R = \frac{TP}{TP + FN} $</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> recall_score, accuracy_score</span><br><span class="line"></span><br><span class="line">rec_rate = round(recall_score(y_true, y_pred), <span class="number">2</span>) <span class="comment"># 5留双</span></span><br></pre></td></tr></table></figure></li></ul><ol><li><p>特异度</p><p>即负样本的召回率，查全率</p><p>显然 $ P = \frac{TN}{TN + FP} $</p><p>注意返回矩阵类型是 <code>ndarray</code> ，所以实际内容和上面的表格一样</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> confusion_matrix</span><br><span class="line">a = confusion_matrix(y_true, y_pred)</span><br><span class="line">tn = a[<span class="number">0</span>][<span class="number">0</span>]</span><br><span class="line">fp = a[<span class="number">0</span>][<span class="number">1</span>]</span><br><span class="line">spe_value = round(tn / (tn + fp), <span class="number">2</span>)</span><br></pre></td></tr></table></figure></li><li><p><code>kappa</code> 值</p><p>（😂，这个不是背靠背品牌</p><p><code>Kappa</code>是用于计算分类精度和评价一致性的指标。</p><script type="math/tex;mode=display">
+\text{Kappa} = \frac{p_{o} - p_{e}}{1 - p_{e}} = 1 - \frac{1 - p_{o}}    {1 - p_{e}}</script><p>其中， $ P_o $ 为准确率，表明实际一致率，即混淆矩阵中对角线单元格中所有值的总和所占的比例； $ p_e $ 为正确预测的各分类数值的期望，表明理论一致率。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20210419235045.png" alt="image-20210419235045566"></p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20210419235057.png" alt="image-20210419235056935"></p><p><code>sklearn</code> 里面已经实现过了</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> cohen_kappa_score</span><br><span class="line">kappa_score=round(cohen_kappa_score(y_true, y_pred), <span class="number">2</span>)</span><br></pre></td></tr></table></figure></li><li><p><code>AUC</code>值</p><p> <code>AUC</code> 被定义为 <code>ROC</code> 曲线下的面积</p><blockquote><p>受试者工作特征曲线 （receiver operating characteristic curve，简称ROC曲线），又称为<a href="https://link.zhihu.com/?target=https%3A//baike.baidu.com/item/%E6%84%9F%E5%8F%97%E6%80%A7">感受性</a>曲线（sensitivity curve）。得此名的原因在于曲线上各点反映着相同的感受性，它们都是对同一<a href="https://link.zhihu.com/?target=https%3A//baike.baidu.com/item/%E4%BF%A1%E5%8F%B7%E5%88%BA%E6%BF%80/9824407">信号刺激</a>的反应，只不过是在两种不同的判定标准下所得的结果而已。受试者工作特征曲线就是以假阳性概率（False positive rate）为<a href="https://link.zhihu.com/?target=https%3A//baike.baidu.com/item/%E6%A8%AA%E8%BD%B4/9910927">横轴</a>，真阳性（True positive rate）为纵轴所组成的坐标图，和受试者在特定刺激条件下由于采用不同的判断标准得出的不同结果画出的曲线。<br>ROC曲线是根据一系列不同的二分类方式（分界值或决定阈），以真阳性率（灵敏度）为纵坐标，假阳性率（1-特异度）为横坐标绘制的曲线。传统的诊断试验评价方法有一个共同的特点，必须将试验结果分为两类，再进行统计分析。ROC曲线的评价方法与传统的评价方法不同，无须此限制，而是根据实际情况，允许有中间状态，可以把试验结果划分为多个有序分类，如正常、大致正常、可疑、大致异常和异常五个等级再进行统计分析。因此，ROC<a href="https://link.zhihu.com/?target=https%3A//baike.baidu.com/item/%E6%9B%B2%E7%BA%BF/92103">曲线</a>评价方法适用的范围更为广泛<br>— 百度百科</p></blockquote><p> <code>ROC</code>曲线的坐标，纵坐标为真正例率<code>（True Positive Rate,TPR）</code>，横坐标为假正例率<code>（False Positive Rate,FPR）</code></p><p> 其中</p><script type="math/tex;mode=display">
+\text{TPR} = \frac{\text{TP}}{\text{TP} + \text{FN}} \\
+ \text{FPR} = \frac{\text{FP}}{\text{TN} + \text{FP}} \\</script><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> roc_auc_score</span><br><span class="line">auc_value=round(roc_auc_score(y_true, y_prob), <span class="number">2</span>)</span><br></pre></td></tr></table></figure></li></ol><p>​</p><ol><li>回归问题的平均绝对误差 <code>MAE</code><script type="math/tex;mode=display">
+\text{MAE} = \frac{1}{n} \times \sum_{i = 1}^{n} |y_i - y_i^-|</script></li></ol><pre><code><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> mean_absolute_error <span class="keyword">as</span> mae</span><br><span class="line">mae_value = round(mae(y_true, y_pred), <span class="number">2</span>)</span><br></pre></td></tr></table></figure></code></pre><ol><li><p>回归问题的均方误差 <code>MSE</code></p><p> 平方误差的期望，顾名思义可得:</p><script type="math/tex;mode=display">
+\text{MSE} = \frac{1}{n} \times \sum_{i = 1}^n (y_i - y _i)^2</script><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> mean_squared_error <span class="keyword">as</span> mse</span><br><span class="line">mse_value=round(mse(y_true, y_pred), <span class="number">2</span>)</span><br></pre></td></tr></table></figure></li><li><p>回归问题的均方根误差 <code>MSE</code></p><p> 就是 <code>MSE</code> 的方根</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> mean_squared_error <span class="keyword">as</span> mse</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line">rmse_value=round(math.sqrt(mse(y_true, y_pred)), <span class="number">2</span>)</span><br></pre></td></tr></table></figure></li></ol><ol><li><p>回归问题的 $ R^2 $ 系数</p><p> 可以用来度量模型的拟合程度</p><p> 在评判回归模型优劣的指标中，决定系数 $ R2 $ 指的是回归平方和占总误差平方和的比例。它是表征回归方程在多大程度上解释了因变量的变化，或者说方程对观测值的拟合程度如何。 $ R2 $ 越趋近于 $ 1 $ ，说明回归方程拟合的越好， $ R2 $ 越趋近于 $ 0 $ ，说明回归方程拟合的越差。</p><p>$ R2 $ 的有效性通常要求： $ \frac{\text{自变量个数}}{\text{样本数}} \gt \frac{1}{10} $</p><p> 需要注意的是 $ R2 $ 仅适用于线性回归模型的评价。</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> r2_score</span><br><span class="line">r_square_value=round(r2_score(y_true, y_pred), <span class="number">2</span>)</span><br></pre></td></tr></table></figure></li></ol><p>​</p><ol><li><p>信息熵</p><p>信息熵，物理中出现过这个概念，计算公式为 $ H = -x\log{x} $</p><p>在信息论与概率论中，熵是表示随机变量不确定性的度量，设 $ Y $ 是一个取有限个值的离散随机变量，其概率分布为： $ P(Y=y_i) = p_i, \quad i = 1,2,\cdots, n $</p><p>则随机变量 $ Y $ 的熵定义为: $ H(Y) = -\sum_{i=1}^n p_i \ \textbf{log} \ p_i $</p><p>上式中，若 $ p_i = 0 $ ，则定义 $ 0\ \textbf{log} \ 0 = 0 $ ，计算的时候对数以 $ 2 $ 底，这时熵的单位称作比特(bit)。由定义可知，熵只依赖于 $ Y $ 的分布，而与 $ Y $ 的具体取值无关。所以也可将 $ Y $ 的熵记作 $ H(p) $ ，即 $ H(p) = -\sum_{i=1}^n p_i \ \textbf{log} \ p_i $</p><p>注意需要首先计算出概率分布</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">from</span> scipy <span class="keyword">import</span> log2</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">sum = <span class="number">0</span></span><br><span class="line">mp = &#123;&#125;</span><br><span class="line">row = y.shape[<span class="number">0</span>]</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(row):</span><br><span class="line">    tmp = y.iloc[i, <span class="number">0</span>]</span><br><span class="line">    <span class="keyword">if</span> mp.get(tmp) == <span class="literal">None</span>:</span><br><span class="line">        mp[tmp] = <span class="number">1</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        mp[tmp] = mp[tmp] + <span class="number">1</span></span><br><span class="line"><span class="keyword">for</span> key <span class="keyword">in</span> mp:</span><br><span class="line">    p = mp[key] / row</span><br><span class="line">    <span class="keyword">if</span> p != <span class="number">0</span>:</span><br><span class="line">        sum = sum - p * log2(p)</span><br><span class="line">entropy_value = round(sum, <span class="number">2</span>)</span><br></pre></td></tr></table></figure></li></ol><h2 id="四、距离"><a href="#四、距离" class="headerlink" title="四、距离"></a>四、距离</h2><ol><li>欧几里得距离<script type="math/tex;mode=display">
+Distance(\vec x, \vec y) = \sqrt{(\vec x - \vec y)^T \cdot (\vec x - \vec y)} = \sqrt{(x_1-y_1)^2+(x_2-y_2)^2+\cdots + (x_n-y_n)^2}</script></li></ol><p>​<br>​<br>​<br>​ <del>~ python<br>​ import numpy as np<br>​ from math import sqrt<br>​ dis = round(np.sqrt(np.dot((x1 - x2).T, (x1 - x2))), 2)<br>​ ~</del></p><ol><li><p>余弦相似度</p><p> 夹角</p><script type="math/tex;mode=display">
+cos(\vec x, \vec y) = \frac{\vec x \cdot \vec y}{\Vert \vec x \Vert \Vert \vec y \Vert}</script><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> numpy.linalg <span class="keyword">import</span> norm</span><br><span class="line">cos_value = round(np.dot(x1, x2) / np.linalg.norm(x1) / np.linalg.norm(x2), <span class="number">2</span>)</span><br></pre></td></tr></table></figure></li><li><p><code>Jaccard</code> 距离</p><p> <code>Jaccard</code>距离（或相似度）通常用作衡量两个集合之间的相似度——比如<code>Cathy</code>的朋友集合表示为<code>AKahn,Mark,Laura,⋯AKahn,Mark,Laura,⋯，Rachel</code> 的朋友集合表示为<code>BMladen,Kahn,Mark,⋯BMladen,Kahn,Mark,⋯</code>，那么两个朋友集合的 <code>Jaccard</code> 相似度为:</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">inter = len(np.intersect1d(x1, x2))</span><br><span class="line">uni = len(np.union1d(x1, x2))</span><br><span class="line">jaccard_dis = round(<span class="number">1</span> - inter / uni, <span class="number">2</span>)</span><br></pre></td></tr></table></figure></li></ol><ol><li><p><code>Hamming</code> 距离</p><p> 在信息论中，两个等长字符串之间的汉明距离<code>（Hamming distance）</code>是两个字符串对应位置的不同字符的个数。<code>Hamming</code>距离主要用于衡量两个字符串，字组或者具有相同长度的<code>DNA</code>序列之间的相似程度。比如单词<code>olive</code>和<code>ocean</code>的<code>Hamming</code>距离为<code>4</code>，因为除了第一个字母<code>o</code>相同之外，这两个单词包含的其他四个字母都不相同。因此<code>Hamming</code>距离的计算方式其实十分简单，按照位置顺序，比对两个单词（或者字符串）字母之间是否相同，每个位置上字母不同的，相应<code>Hamming</code>距离的值增加<code>1</code>。</p><p> <code>Hamming</code>距离是以<code>Richard Wesley Hamming</code>的名字命名的，<code>Hamming</code>在误差检测与校正码的基础性论文中首次引入这个概念。在通信中累计定长二进制字中发生翻转的错误数据位，所以它也被称为信号距离。<code>Hamming</code>重量分析在包括信息论、编码理论、密码学等领域都有应用。</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">hamming_dis = <span class="literal">None</span></span><br><span class="line">l1 = min(len(x1), len(x2))</span><br><span class="line">ans = <span class="number">0</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(l1):</span><br><span class="line">    <span class="keyword">if</span> x1[i] != x2[i]:</span><br><span class="line">        ans = ans + <span class="number">1</span></span><br><span class="line">hamming_dis = max(len(x1), len(x2)) - l1 + ans</span><br></pre></td></tr></table></figure></li><li><p>曼哈顿距离</p><script type="math/tex;mode=display">
+ d(x_1, x_2) = \sum_{n=1}^{N}\left|x_{1n} - x_{2n}\right|</script><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> math</span><br><span class="line">manhattan_dis = <span class="literal">None</span></span><br><span class="line">l = len(x1)</span><br><span class="line">ans = <span class="number">0</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(l):</span><br><span class="line">    ans = ans + abs(x1[i] - x2[i])</span><br><span class="line">    manhattan_dis = round(ans, <span class="number">2</span>)</span><br></pre></td></tr></table></figure></li></ol></div><div><ul class="post-copyright"><li class="post-copyright-author"> <strong>本文作者：</strong> luobuyu</li><li class="post-copyright-link"> <strong>本文链接：</strong> <a href="https://www.luobuyu.site/2021/regression-classification-homeword/" title="回归和分类作业">https://www.luobuyu.site/2021/regression-classification-homeword/</a></li><li class="post-copyright-license"> <strong>版权声明：</strong> 本博客所有文章除特别声明外，均采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i> BY-NC-SA</a> 许可协议。转载请注明出处！</li></ul></div><footer class="post-footer"><div class="post-tags"><a href="/tags/%E5%88%86%E7%B1%BB/" rel="tag"><i class="fa fa-tag"></i> 分类</a><a href="/tags/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E5%AF%BC%E8%AE%BA/" rel="tag"><i class="fa fa-tag"></i> 数据科学导论</a><a href="/tags/%E5%9B%9E%E5%BD%92/" rel="tag"><i class="fa fa-tag"></i> 回归</a></div><div class="post-nav"><div class="post-nav-item"><a href="/2021/lanqiao2019-B/" rel="prev" title="2019B组-J.灵能传输"><i class="fa fa-chevron-left"></i> 2019B组-J.灵能传输</a></div><div class="post-nav-item"> <a href="/2021/decisionTreeClassifier/" rel="next" title="决策树DecisionTreeClassifier参数">决策树DecisionTreeClassifier参数<i class="fa fa-chevron-right"></i></a></div></div></footer></article></div><div class="comments" id="valine-comments"></div><script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script></div><div class="toggle sidebar-toggle"><span class="toggle-line toggle-line-first"></span><span class="toggle-line toggle-line-middle"></span><span class="toggle-line toggle-line-last"></span></div><aside class="sidebar"><div class="sidebar-inner"><ul class="sidebar-nav motion-element"><li class="sidebar-nav-toc"> 文章目录</li><li class="sidebar-nav-overview"> 站点概览</li></ul><div class="post-toc-wrap sidebar-panel"><div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、文件读取"><span class="nav-number">1.</span> <span class="nav-text">一、文件读取</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、数据处理"><span class="nav-number">2.</span> <span class="nav-text">二、数据处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、二分类问题模型评价"><span class="nav-number">3.</span> <span class="nav-text">三、二分类问题模型评价</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、距离"><span class="nav-number">4.</span> <span class="nav-text">四、距离</span></a></li></ol></div></div><div class="site-overview-wrap sidebar-panel"><div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person"> <a href="/"><img class="site-author-image" itemprop="image" alt="luobuyu" src="/images/avatar.png"></a><p class="site-author-name" itemprop="name">luobuyu</p><div class="site-description" itemprop="description"></div></div><div class="site-state-wrap motion-element"><nav class="site-state"><div class="site-state-item site-state-posts"> <a href="/archives/"><span class="site-state-item-count">362</span> <span class="site-state-item-name">日志</span></a></div><div class="site-state-item site-state-categories"> <a href="/categories/"><span class="site-state-item-count">66</span> <span class="site-state-item-name">分类</span></a></div><div class="site-state-item site-state-tags"> <a href="/tags/"><span class="site-state-item-count">274</span> <span class="site-state-item-name">标签</span></a></div></nav></div><div class="links-of-author motion-element"><span class="links-of-author-item"><a href="https://github.com/luobuyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;luobuyu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i> GitHub</a></span><span class="links-of-author-item"><a href="mailto:1528751774@qq.com" title="E-Mail → mailto:1528751774@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i> E-Mail</a></span><span class="links-of-author-item"><a href="https://valine.luobuyu.site/" title="Comments → https:&#x2F;&#x2F;valine.luobuyu.site" rel="noopener" target="_blank"><i class="fas fa-comments fa-fw"></i> Comments</a></span></div></div></div></aside><div id="sidebar-dimmer"></div></div></main><footer class="footer"><div class="footer-inner"><div id="aplayer-ukhYMhCo" class="aplayer aplayer-tag-marker meting-tag-marker" data-id="7289878554" data-server="netease" data-type="playlist" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#FF4081" data-listfolded="true"></div><div class="copyright"> &copy; 2020 – <span itemprop="copyrightYear">2024</span><span class="with-love"><i class="fa fa-heartbeat"></i></span> <span class="author" itemprop="copyrightHolder">luobuyu</span><br><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span class="post-meta-divider"></span><span class="post-meta-item-icon"><i class="fa fa-chart-area"></i></span> <span class="post-meta-item-text">站点总字数：</span> <span title="站点总字数">938k</span> <span class="post-meta-divider">|</span><span class="post-meta-item-icon"><i class="fa fa-coffee"></i></span> <span class="post-meta-item-text">站点阅读时长 &asymp;</span> <span title="站点阅读时长">14:13</span></div> <span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span><script>var now=new Date;function createtime(){var n=new Date("07/20/2020 12:00:00");now.setTime(now.getTime()+250),days=(now-n)/1e3/60/60/24,dnum=Math.floor(days),hours=(now-n)/1e3/60/60-24*dnum,hnum=Math.floor(hours),1==String(hnum).length&&(hnum="0"+hnum),minutes=(now-n)/1e3/60-1440*dnum-60*hnum,mnum=Math.floor(minutes),1==String(mnum).length&&(mnum="0"+mnum),seconds=(now-n)/1e3-86400*dnum-3600*hnum-60*mnum,snum=Math.round(seconds),1==String(snum).length&&(snum="0"+snum),document.getElementById("timeDate").innerHTML="luobuyuの个人博客，已经勉强存活了 "+dnum+" 天 ",document.getElementById("times").innerHTML=hnum+" 小时 "+mnum+" 分 "+snum+" 秒"}setInterval("createtime()",250)</script><div class="busuanzi-count"><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span class="post-meta-item" id="busuanzi_container_site_uv" style="display:none"></span><span class="post-meta-item-icon"><i class="fa fa-user"></i></span> <span class="site-uv" title="总访客量">访问人数<span id="busuanzi_value_site_uv"></span></span> <span class="post-meta-divider">|</span><span class="post-meta-item" id="busuanzi_container_site_pv" style="display:none"></span><span class="post-meta-item-icon"><i class="fa fa-eye"></i></span> <span class="site-pv" title="总访问量">总访问量<span id="busuanzi_value_site_pv"></span></span></div></div></footer></div><script src="/lib/anime.min.js"></script><script src="/lib/velocity/velocity.min.js"></script><script src="/lib/velocity/velocity.ui.min.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/pisces.js"></script><script src="/js/next-boot.js"></script><script>!function(){var o,n,e=document.getElementsByTagName("link");if(0<e.length)for(i=0;i<e.length;i++)"canonical"==e[i].rel.toLowerCase()&&e[i].href&&(o=e[i].href);n=o?o.split(":")[0]:window.location.protocol.split(":")[0],o||(o=window.location.href),function(){var e=o,i=document.referrer;if(!/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi.test(e)){var t="https"===String(n).toLowerCase()?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";i?(t+="?r="+encodeURIComponent(document.referrer),e&&(t+="&l="+e)):e&&(t+="?l="+e),(new Image).src=t}}(window)}()</script><script src="/js/local-search.js"></script><script type="text/x-mathjax-config">
+    MathJax.Ajax.config.path['mhchem'] = '//cdn.jsdelivr.net/npm/mathjax-mhchem@3';
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        extensions: ['[mhchem]/mhchem.js'],
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script><script>
+  NexT.utils.getScript('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/GamerNoTitle/Picture-repo-v1@master/css/Valine-Emotion.css"><style>.v[data-class=v] .veditor{background-image:url(https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220325200442.gif);background-size:contain;background-repeat:no-repeat;background-position:right}</style><script>
+
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/valine@1.5.1/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+
+    var requiredFields = ['nick', 'mail', 'link'];
+    var requiredField = 'nick,mail';
+    requiredField = requiredField.split(',').filter(item => {
+      return requiredFields.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'GqF4f53ddiLc4MvB6rAMxrM6-MdYXbMMI',
+      appKey     : 'rn6pv6g3Qzu4mcbqhI7qWEk5',
+      emojiCDN: 'https://valinecdn.bili33.top/',
+      emojiMaps: {
+        "bilibiliHotKey1": "bilibiliHotKey/1.jpg",
+        "bilibiliHotKey2": "bilibiliHotKey/10.jpg",
+        "bilibiliHotKey3": "bilibiliHotKey/11.jpg",
+        "bilibiliHotKey4": "bilibiliHotKey/12.jpg",
+        "bilibiliHotKey5": "bilibiliHotKey/13.jpg",
+        "bilibiliHotKey6": "bilibiliHotKey/14.jpg",
+        "bilibiliHotKey7": "bilibiliHotKey/15.jpg",
+        "bilibiliHotKey8": "bilibiliHotKey/16.jpg",
+        "bilibiliHotKey9": "bilibiliHotKey/17.jpg",
+        "bilibiliHotKey10": "bilibiliHotKey/18.jpg",
+        "bilibiliHotKey11": "bilibiliHotKey/19.jpg",
+        "bilibiliHotKey12": "bilibiliHotKey/2.jpg",
+        "bilibiliHotKey13": "bilibiliHotKey/20.jpg",
+        "bilibiliHotKey14": "bilibiliHotKey/21.jpg",
+        "bilibiliHotKey15": "bilibiliHotKey/22.jpg",
+        "bilibiliHotKey16": "bilibiliHotKey/23.jpg",
+        "bilibiliHotKey17": "bilibiliHotKey/24.jpg",
+        "bilibiliHotKey18": "bilibiliHotKey/25.jpg",
+        "bilibiliHotKey19": "bilibiliHotKey/26.jpg",
+        "bilibiliHotKey20": "bilibiliHotKey/27.jpg",
+        "bilibiliHotKey21": "bilibiliHotKey/28.jpg",
+        "bilibiliHotKey22": "bilibiliHotKey/29.jpg",
+        "bilibiliHotKey23": "bilibiliHotKey/3.jpg",
+        "bilibiliHotKey24": "bilibiliHotKey/30.jpg",
+        "bilibiliHotKey25": "bilibiliHotKey/31.jpg",
+        "bilibiliHotKey26": "bilibiliHotKey/32.jpg",
+        "bilibiliHotKey27": "bilibiliHotKey/4.jpg",
+        "bilibiliHotKey28": "bilibiliHotKey/5.jpg",
+        "bilibiliHotKey29": "bilibiliHotKey/6.jpg",
+        "bilibiliHotKey30": "bilibiliHotKey/7.jpg",
+        "bilibiliHotKey31": "bilibiliHotKey/8.jpg",
+        "bilibiliHotKey32": "bilibiliHotKey/9.jpg",
+        "KeQing1": "KeQing/1MtdPr4y.png",
+        "KeQing2": "KeQing/29E353B37F06F48D0D32B896A555AB10.jpg",
+        "KeQing3": "KeQing/5q8iVluo.png",
+        "KeQing4": "KeQing/6Bo9DvjS.png",
+        "KeQing5": "KeQing/8uRU02Qn.png",
+        "KeQing6": "KeQing/a7Xxm0ou.png",
+        "KeQing7": "KeQing/aEhyb3F5.png",
+        "KeQing8": "KeQing/alT6XmFj.png",
+        "KeQing9": "KeQing/b4l6cyUT.png",
+        "KeQing10": "KeQing/BWYIgTtC.png",
+        "KeQing11": "KeQing/c1ZrqNaX.png",
+        "KeQing12": "KeQing/c7yp9Ewx.png",
+        "KeQing13": "KeQing/CeZsrXIq.png",
+        "KeQing14": "KeQing/CJRTKlGP.png",
+        "KeQing15": "KeQing/COMie4xg.png",
+        "KeQing16": "KeQing/D4G8UsxH.png",
+        "KeQing17": "KeQing/D80028AB4478C5C3986FE1A9FEEFEB35.gif",
+        "KeQing18": "KeQing/e01OVkHC.png",
+        "KeQing19": "KeQing/ELmIkgpZ.png",
+        "KeQing20": "KeQing/fbR6FSd3.png",
+        "KeQing21": "KeQing/Fh58COx7.png",
+        "KeQing22": "KeQing/FM1l6d9h.png",
+        "KeQing23": "KeQing/ghCViEvU.png",
+        "KeQing24": "KeQing/ivmGU68a.png",
+        "KeQing25": "KeQing/JmyRiSt1.png",
+        "KeQing26": "KeQing/jvI8Wa35.png",
+        "KeQing27": "KeQing/lHQhDR71.png",
+        "KeQing28": "KeQing/lxfPMp5I.png",
+        "KeQing29": "KeQing/nK5k6fHL.png",
+        "KeQing30": "KeQing/OsVSotEn.png",
+        "KeQing31": "KeQing/R4QdmJb1.png",
+        "KeQing32": "KeQing/rADUyouz.png",
+        "KeQing33": "KeQing/Rex3GWlg.png",
+        "KeQing34": "KeQing/RkHtnfyU.png",
+        "KeQing35": "KeQing/RrXmaHeb.png",
+        "KeQing36": "KeQing/sJ58YlzP.png",
+        "KeQing37": "KeQing/tjJGYOVF.png",
+        "KeQing38": "KeQing/tTnXvgZH.png",
+        "KeQing39": "KeQing/w37qQAel.png",
+        "KeQing40": "KeQing/W6y0ReEh.png",
+        "KeQing41": "KeQing/xDIO54sg.png",
+        "KeQing42": "KeQing/Xy8BbkcP.png",
+        "KeQing43": "KeQing/YCL13G5e.png",
+        "KeQing44": "KeQing/yG7MulxF.png",
+        "KeQing45": "KeQing/ZDI38NMK.png",
+        "KeQing46": "KeQing/Zl9NR6It.png",
+        "Snow-Miku1": "Snow-Miku/3583066@2x.png",
+        "Snow-Miku2": "Snow-Miku/3583067@2x.png",
+        "Snow-Miku3": "Snow-Miku/3583068@2x.png",
+        "Snow-Miku4": "Snow-Miku/3583069@2x.png",
+        "Snow-Miku5": "Snow-Miku/3583070@2x.png",
+        "Snow-Miku6": "Snow-Miku/3583071@2x.png",
+        "Snow-Miku7": "Snow-Miku/3583072@2x.png",
+        "Snow-Miku8": "Snow-Miku/3583073@2x.png",
+        "Snow-Miku9": "Snow-Miku/3583074@2x.png",
+        "Snow-Miku10": "Snow-Miku/3583075@2x.png",
+        "Snow-Miku11": "Snow-Miku/3583076@2x.png",
+        "Snow-Miku12": "Snow-Miku/3583077@2x.png",
+        "Snow-Miku13": "Snow-Miku/3583078@2x.png",
+        "Snow-Miku14": "Snow-Miku/3583079@2x.png",
+        "Snow-Miku15": "Snow-Miku/3583080@2x.png",
+        "Snow-Miku16": "Snow-Miku/3583081@2x.png",
+        "Snow-Miku17": "Snow-Miku/3583082@2x.png",
+        "Snow-Miku18": "Snow-Miku/3583083@2x.png",
+        "Snow-Miku19": "Snow-Miku/3583084@2x.png",
+        "Snow-Miku20": "Snow-Miku/3583085@2x.png",
+        "Snow-Miku21": "Snow-Miku/3583086@2x.png",
+        "Snow-Miku22": "Snow-Miku/3583087@2x.png",
+        "Snow-Miku23": "Snow-Miku/3583088@2x.png",
+        "Snow-Miku24": "Snow-Miku/3583089@2x.png",
+        "Snow-Miku25": "Snow-Miku/3583090@2x.png",
+        "Snow-Miku26": "Snow-Miku/3583091@2x.png",
+        "Snow-Miku27": "Snow-Miku/3583092@2x.png",
+        "Snow-Miku28": "Snow-Miku/3583093@2x.png",
+        "Snow-Miku29": "Snow-Miku/3583094@2x.png",
+        "Snow-Miku30": "Snow-Miku/3583095@2x.png",
+        "Snow-Miku31": "Snow-Miku/3583096@2x.png",
+        "Snow-Miku32": "Snow-Miku/3583097@2x.png",
+        "Snow-Miku33": "Snow-Miku/3583098@2x.png",
+        "Snow-Miku34": "Snow-Miku/3583099@2x.png",
+        "Snow-Miku35": "Snow-Miku/3583100@2x.png",
+        "Snow-Miku36": "Snow-Miku/3583101@2x.png",
+        "Snow-Miku37": "Snow-Miku/3583102@2x.png",
+        "Snow-Miku38": "Snow-Miku/3583103@2x.png",
+        "Snow-Miku39": "Snow-Miku/3583104@2x.png",
+        "Snow-Miku40": "Snow-Miku/3583105@2x.png",
+        "bilibilitv2": "bilibilitv/[tv_doge].png",
+        "bilibilitv3": "bilibilitv/[tv_亲亲].png",
+        "bilibilitv4": "bilibilitv/[tv_偷笑].png",
+        "bilibilitv5": "bilibilitv/[tv_再见].png",
+        "bilibilitv6": "bilibilitv/[tv_冷漠].png",
+        "bilibilitv7": "bilibilitv/[tv_发怒].png",
+        "bilibilitv8": "bilibilitv/[tv_发财].png",
+        "bilibilitv9": "bilibilitv/[tv_可爱].png",
+        "bilibilitv10": "bilibilitv/[tv_吐血].png",
+        "bilibilitv11": "bilibilitv/[tv_呆].png",
+        "bilibilitv12": "bilibilitv/[tv_呕吐].png",
+        "bilibilitv13": "bilibilitv/[tv_困].png",
+        "bilibilitv14": "bilibilitv/[tv_坏笑].png",
+        "bilibilitv15": "bilibilitv/[tv_大佬].png",
+        "bilibilitv16": "bilibilitv/[tv_大哭].png",
+        "bilibilitv17": "bilibilitv/[tv_委屈].png",
+        "bilibilitv18": "bilibilitv/[tv_害羞].png",
+        "bilibilitv19": "bilibilitv/[tv_尴尬].png",
+        "bilibilitv20": "bilibilitv/[tv_微笑].png",
+        "bilibilitv21": "bilibilitv/[tv_思考].png",
+        "bilibilitv22": "bilibilitv/[tv_惊吓].png",
+        "bilibilitv23": "bilibilitv/[tv_打脸].png",
+        "bilibilitv24": "bilibilitv/[tv_抓狂].png",
+        "bilibilitv25": "bilibilitv/[tv_抠鼻].png",
+        "bilibilitv26": "bilibilitv/[tv_斜眼笑].png",
+        "bilibilitv27": "bilibilitv/[tv_无奈].png",
+        "bilibilitv28": "bilibilitv/[tv_晕].png",
+        "bilibilitv29": "bilibilitv/[tv_流汗].png",
+        "bilibilitv30": "bilibilitv/[tv_流泪].png",
+        "bilibilitv31": "bilibilitv/[tv_流鼻血].png",
+        "bilibilitv32": "bilibilitv/[tv_点赞].png",
+        "bilibilitv33": "bilibilitv/[tv_生气].png",
+        "bilibilitv34": "bilibilitv/[tv_生病].png",
+        "bilibilitv35": "bilibilitv/[tv_疑问].png",
+        "bilibilitv36": "bilibilitv/[tv_白眼].png",
+        "bilibilitv37": "bilibilitv/[tv_皱眉].png",
+        "bilibilitv38": "bilibilitv/[tv_目瞪口呆].png",
+        "bilibilitv39": "bilibilitv/[tv_睡着].png",
+        "bilibilitv40": "bilibilitv/[tv_笑哭].png",
+        "bilibilitv41": "bilibilitv/[tv_腼腆].png",
+        "bilibilitv42": "bilibilitv/[tv_色].png",
+        "bilibilitv43": "bilibilitv/[tv_调侃].png",
+        "bilibilitv44": "bilibilitv/[tv_调皮].png",
+        "bilibilitv45": "bilibilitv/[tv_鄙视].png",
+        "bilibilitv46": "bilibilitv/[tv_闭嘴].png",
+        "bilibilitv47": "bilibilitv/[tv_难过].png",
+        "bilibilitv48": "bilibilitv/[tv_馋].png",
+        "bilibilitv49": "bilibilitv/[tv_鬼脸].png",
+        "bilibilitv50": "bilibilitv/[tv_黑人问号].png",
+        "bilibilitv51": "bilibilitv/[tv_鼓掌].png",
+        "HONKAI3-MEI1": "HONKAI3-MEI/501ac209b259bb545dea898838c24229483fcfeb.gif",
+        "HONKAI3-MEI2": "HONKAI3-MEI/5baf4306d1f685bf47922fbae365ccfba7721beb.gif",
+        "HONKAI3-MEI3": "HONKAI3-MEI/624857651c863ea9571f5e557fca8516dd41e0fc.gif",
+        "HONKAI3-MEI4": "HONKAI3-MEI/680311714674014d0c17f757eb40c3071448222a.gif",
+        "HONKAI3-MEI5": "HONKAI3-MEI/bf68423446465d396d3cbd8856882b5e9fb1c0c7.gif",
+        "HONKAI3-MEI6": "HONKAI3-MEI/d3a2a9c6ad1e2a0b262dca9354ab8de736d81cdf.gif",
+        "HONKAI3-MEI7": "HONKAI3-MEI/dd0fd1f3668f4907c9f6fcd39c6138417ac0e1f5.gif"
+      },
+      placeholder: "Leave a comment now!",
+      avatar     : 'wavatar',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-CN' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://chat.luobuyu.site',
+      requiredFields: requiredField
+    });
+  }, window.Valine);
+});
+</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({pluginRootPath:"live2dw/",pluginJsPath:"lib/",pluginModelPath:"assets/",tagMode:!1,debug:!1,model:{jsonPath:"/live2dw/assets/assets/haru01.model.json"},display:{superSample:2,width:200,height:400,position:"right",hOffset:0,vOffset:-20},mobile:{show:!0,scale:.5},react:{opacityDefault:.7,opacityOnHover:.8},log:!1})</script></body></html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2"><meta name="theme-color" content="#222"><meta name="generator" content="Hexo 4.2.1"><link rel="apple-touch-icon" sizes="180x180" href="/images/favicon-1.png"><link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-1.png"><link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-1.png"><link rel="mask-icon" href="/images/favicon-1.png" color="#222"><meta name="google-site-verification" content="lkGKflS_fVXQNJnC_UXP0lqUEpV4NFx0b000PxRrX7g"><meta name="baidu-site-verification" content="codeva-Uj3syugSr3"><link rel="stylesheet" href="/css/main.css"><link rel="stylesheet" href="/lib/font-awesome/css/all.min.css"><link rel="stylesheet" href="//cdn.jsdelivr.net/npm/pace-js@1.2.4/themes/blue/pace-theme-minimal.css"><script src="//cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><script id="hexo-configurations">var NexT=window.NexT||{},CONFIG={hostname:"www.luobuyu.site",root:"/",scheme:"Gemini",version:"7.8.0",exturl:!1,sidebar:{position:"right",display:"post",padding:18,offset:12,onmobile:!1},copycode:{enable:!0,show_result:!1,style:null},back2top:{enable:!0,sidebar:!1,scrollpercent:!1},bookmark:{enable:!1,color:"#222",save:"auto"},fancybox:!1,mediumzoom:!1,lazyload:!1,pangu:!1,comments:{style:"tabs",active:null,storage:!0,lazyload:!1,nav:null},algolia:{hits:{per_page:10},labels:{input_placeholder:"Search for Posts",hits_empty:"We didn't find any results for the search: ${query}",hits_stats:"${hits} results found in ${time} ms"}},localsearch:{enable:!0,trigger:"auto",top_n_per_article:1,unescape:!1,preload:!1},motion:{enable:!0,async:!1,transition:{post_block:"fadeIn",post_header:"slideDownIn",post_body:"slideDownIn",coll_header:"slideLeftIn",sidebar:"slideUpIn"}},path:"search.xml"}</script><meta name="description" content="海量稀疏图中快速找到最小顶点覆盖。"><meta property="og:type" content="article"><meta property="og:title" content="海量稀疏图中最小顶点覆盖的动态阈值搜索"><meta property="og:url" content="https://www.luobuyu.site/2022/DTS-MVC/index.html"><meta property="og:site_name" content="Luobuyu&#39;s Blog"><meta property="og:description" content="海量稀疏图中快速找到最小顶点覆盖。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202207021651602.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202207031043099.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202207031045758.png"><meta property="article:published_time" content="2022-06-29T02:49:46.000Z"><meta property="article:modified_time" content="2024-10-30T14:47:37.480Z"><meta property="article:author" content="luobuyu"><meta property="article:tag" content="顶点覆盖"><meta property="article:tag" content="海量稀疏图"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202207021651602.png"><link rel="canonical" href="https://www.luobuyu.site/2022/DTS-MVC/"><script id="page-configurations">CONFIG.page={sidebar:"",isHome:!1,isPost:!0,lang:"zh-CN"}</script><title>海量稀疏图中最小顶点覆盖的动态阈值搜索 | Luobuyu's Blog</title><noscript><style>.sidebar-inner,.use-motion .brand,.use-motion .collection-header,.use-motion .comments,.use-motion .menu-item,.use-motion .pagination,.use-motion .post-block,.use-motion .post-body,.use-motion .post-header{opacity:initial}.use-motion .site-subtitle,.use-motion .site-title{opacity:initial;top:initial}.use-motion .logo-line-before i{left:initial}.use-motion .logo-line-after i{right:initial}</style></noscript><link rel="alternate" href="/atom.xml" title="Luobuyu's Blog" type="application/atom+xml"><link rel="stylesheet" href="/assets/css/APlayer.min.css" class="aplayer-style-marker"><script src="/assets/js/APlayer.min.js" class="aplayer-script-marker"></script><script>var meting_api="https://api.injahow.cn/meting/?server=:server&type=:type&id=:id&r=:r"</script><script src="/assets/js/Meting.min.js" class="meting-script-marker"></script></head><body itemscope itemtype="http://schema.org/WebPage"><div class="container use-motion"><div class="headband"></div><header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="header-inner"><div class="site-brand-container"><div class="site-nav-toggle"><div class="toggle" aria-label="切换导航栏"><span class="toggle-line toggle-line-first"></span><span class="toggle-line toggle-line-middle"></span><span class="toggle-line toggle-line-last"></span></div></div><div class="site-meta"><a href="/" class="brand" rel="start"><span class="logo-line-before"><i></i></span><h1 class="site-title">Luobuyu's Blog</h1><span class="logo-line-after"><i></i></span></a></div><div class="site-nav-right"><div class="toggle popup-trigger"><i class="fa fa-search fa-fw fa-lg"></i></div></div></div><nav class="site-nav"><ul id="menu" class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i> 首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i> 关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i> 标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i> 分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i> 归档</a></li><li class="menu-item menu-item-music"><a href="/music/" rel="section"><i class="fa fa-music fa-fw"></i> 歌单</a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i> 朋友</a></li><li class="menu-item menu-item-search"><a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i> 搜索</a></li></ul></nav><div class="search-pop-overlay"><div class="popup search-popup"><div class="search-header"><span class="search-icon"><i class="fa fa-search"></i></span><div class="search-input-container"> <input autocomplete="off" autocapitalize="off" placeholder="搜索..." spellcheck="false" type="search" class="search-input"></div><span class="popup-btn-close"><i class="fa fa-times-circle"></i></span></div><div id="search-result"><div id="no-result"><i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i></div></div></div></div></div></header><div class="back-to-top"><i class="fa fa-arrow-up"></i> <span>0%</span></div><main class="main"><div class="main-inner"><div class="content-wrap"><div class="content post posts-expand"><article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN"><link itemprop="mainEntityOfPage" href="https://www.luobuyu.site/2022/DTS-MVC/"><span hidden itemprop="author" itemscope itemtype="http://schema.org/Person"><meta itemprop="image" content="/images/avatar.png"><meta itemprop="name" content="luobuyu"><meta itemprop="description" content=""></span><span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization"><meta itemprop="name" content="Luobuyu's Blog"></span><header class="post-header"><h1 class="post-title" itemprop="name headline"> 海量稀疏图中最小顶点覆盖的动态阈值搜索</h1><div class="post-meta"><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar"></i></span> <span class="post-meta-item-text">发表于</span> <time title="创建时间：2022-06-29 10:49:46" itemprop="dateCreated datePublished" datetime="2022-06-29T10:49:46+08:00">2022-06-29</time></span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-folder"></i></span> <span class="post-meta-item-text">分类于</span> <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/%E8%AE%BA%E6%96%87/" itemprop="url" rel="index"><span itemprop="name">论文</span></a></span> ， <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/%E8%AE%BA%E6%96%87/%E9%A1%B6%E7%82%B9%E8%A6%86%E7%9B%96/" itemprop="url" rel="index"><span itemprop="name">顶点覆盖</span></a></span></span><span id="/2022/DTS-MVC/" class="post-meta-item leancloud_visitors" data-flag-title="海量稀疏图中最小顶点覆盖的动态阈值搜索" title="热度"><span class="post-meta-item-icon"><i class="fa fa-eye"></i></span> <span class="post-meta-item-text">热度：</span><span class="leancloud-visitors-count"></span> <span>℃</span></span><span class="post-meta-item" title="热度" id="busuanzi_container_page_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i></span> <span class="post-meta-item-text">热度：</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-comment"></i></span> <span class="post-meta-item-text">评论：</span><a title="valine" href="/2022/DTS-MVC/#valine-comments" itemprop="discussionUrl"><span class="post-comments-count valine-comment-count" data-xid="/2022/DTS-MVC/" itemprop="commentCount"></span></a></span><br><span class="post-meta-item" title="本文字数"><span class="post-meta-item-icon"><i class="far fa-file-word"></i></span> <span class="post-meta-item-text">本文字数：</span> <span>7.7k</span></span><span class="post-meta-item" title="阅读时长"><span class="post-meta-item-icon"><i class="far fa-clock"></i></span> <span class="post-meta-item-text">阅读时长 &asymp;</span> <span>7 分钟</span></span><div class="post-description">海量稀疏图中快速找到最小顶点覆盖。</div></div></header><div class="post-body" itemprop="articleBody"><h1 id="海量稀疏图中最小顶点覆盖的动态阈值搜索"><a href="#海量稀疏图中最小顶点覆盖的动态阈值搜索" class="headerlink" title="海量稀疏图中最小顶点覆盖的动态阈值搜索"></a>海量稀疏图中最小顶点覆盖的动态阈值搜索</h1><blockquote><p><strong>摘要：</strong></p><p>许多与复杂网络分析相关的重要应用需要在海量图中找到小顶点覆盖。本文提出了一种有效的随机局部搜索算法 DTS_MVC 来完成这一任务。依靠基于顶点的快速搜索策略，DTS_MVC通过在<strong>阈值搜索阶段</strong>和<strong>条件改进阶段</strong>之间交替进行有效地探索了搜索空间。</p><p><strong>阈值搜索阶段</strong>：该算法接受改进和非改进的解决方案，这些解决方案满足动态变化的质量阈值。</p><p><strong>条件改进阶段</strong>：只接受改进的解决方案。</p><p>引入了一种新型的<strong>非参数操作机制，以避免搜索循环</strong>。在86个大型现实世界基准图上进行的计算实验表明，通过发现7个改进的最著名结果（新的上限），DTS_MVC的性能非常出色。进行其他实验以阐明DTS_MVC的关键成分。</p><p><strong>关键词：</strong></p><p>顶点覆盖、低复杂性启发式算法、海量稀疏图</p></blockquote><h2 id="一、介绍"><a href="#一、介绍" class="headerlink" title="一、介绍"></a>一、介绍</h2><p>给定一个连通无向图 $ G = (V,E) $ 使用顶点集 $ 𝑉 $ 和边集 $ 𝐸 $ , 图 $ G $ 的顶点覆盖 $ 𝑆 $ 是 $ V $ 的子集 $ (𝑆 \subset 𝑉) $ ，<strong>图中的每条边至少有一个顶点属于 $ S $</strong> 。最小顶点覆盖（MVC）问题是确定最小基数的顶点覆盖。MVC问题等价于最大独立集（MIS）问题和最大团问题（MC）。因为给出图 $ G $ 的最小顶点覆盖 $ S $ ，那么 $ V\setminus S $ 就是图 $ G $ 的最大独立集，补图 $ \bar{G} $ 的最大团。除了许多常规应用之外，MVC及其等效模型在社会网络分析（Fortunato，2010）、生物信息学（Matsunaga et al.，2009）和经济学（Boginski et al.，2005；Wu和Hao，2015b）等重要领域也越来越受欢迎。</p><blockquote><p>独立集：给一无向图，找出一个点集，使得任意两点之间都没有连边，这个点集就是独立集。而点最多的独立集，就是最大独立集。</p><p>团：对应地，任意两点之间都有边，我们称之为团。同时也有最大团。</p><p>定理：无向图的最大团等于其补图的最大独立集，等于顶点数减去补图的最小顶点覆盖。</p><p>顶点覆盖：任意一条边都至少有一个顶点落入顶点覆盖中。反面是剩下的点都没有连边，就是独立集。</p><p>最小顶点覆盖的反面是最大独立集。</p><p>二分图中最小顶点覆盖等于最大匹配</p></blockquote><p>考虑到MVC的决策版本是NP完全的，在一般情况下求解MVC在计算上具有挑战性（Garey和Johnson，1979）。由于其NP困难性，大多数以前的MVC算法采用随机局部搜索（SLS）启发式（例如，Cai等人，2010、2013、2015；Shyu等人，2004；Richter等人，2007；Pullan，2009），以在合理的时间内寻求高质量的次优解。对于等效MC问题，还提出了几种基于一般分枝定界法的精确算法（例如，San Segundo et al.，2011；Li and Quan，2010；Östergård，2002；Tomita and Kameda，2007）。这些以前的算法被证明可以有效地从小型或中型的DIMACS和BHOSLIB基准集中求解传统图。</p><p>与此同时，互联网的快速增长和信息技术的最新进展产生了大量数据，这些数据的底层图表远远大于传统的基准。这些真实世界的图（如社交网络）通常是巨大的，有数千万个顶点，并且稀疏，边缘密度低，其中顶点的度数通常遵循幂律分布（Newman，2003）。这些庞大的图表对现有的解决方案方法构成了严重挑战（Pardalos和Rebennack，2010）。首先，由于图的矩阵表示，许多现有算法实现无法应用（Verma et al.，2015）。使用矩阵表示法，具有数百万个顶点的图形无法加载到计算机的工作内存中。其次，许多性能最好的SLS算法在尺度相关候选集上采用最佳改进（或基于算子）搜索策略进行解转换（例如，Pullan和Hoos，2006；Cai等人，2013；Jin和Hao，2015；Wu和Hao，2013）（见第3.3节）。这种策略会导致每次迭代算法的时间复杂度很高，并且在海量图上变得无效和不切实际。事实上，在设置海量图时，此策略的每次应用都需要数百万次评估操作，即使非常简单，也必然会导致计算效率非常低，并降低算法的速度。</p><p>近年来，为大规模图上的MVC及其等价问题开发合适的算法受到了越来越多的研究关注。Pattabiraman et al.（2013、2015）、Verma et al.（2015）和San Segundo et al.（2016）提出了精确算法，以优化求解等效MC。另一方面，由于大量稀疏图的大小和所考虑问题的难处理性，SLS代表了一种寻找高质量近似解的自然解决方法，但需要结合专门的设计才能有效。Abello等人（1999年）为MC引入了GRASP启发式算法，该算法集成了图分解方案和外部存储过程。有人注意到，将MC算法应用于MVC需要对高度密集和大量的补码图进行操作，这使得该算法不适合于解决MVC。最近，引入了一种称为FastVC的专用SLS算法，用于在海量图中查找小顶点颜色（Cai，2015），该算法基于NuMVC算法（Cai et al.，2013），包括用于初始解生成和解转换的特定启发式算法。另一种新的SLS算法LinCom（Fan等人，2015）采用了与FastVC相同的算法方案。LinCom通过集成用于解决方案初始化的简化规则和采用有效的数据结构来实现最佳改进启发式，从而将自己与FastVC区分开来。LinCom被证明能够在大量真实图形上与FastVC展开竞争。据我们所知，FastVC和LinCom是目前针对本工作中考虑的MVC问题性能最好的启发式算法，并将作为评估我们提出的算法的主要参考。</p><p>除了上述关于MVC的研究外，我们注意到一些最近致力于扩展基本MVC和派系模型的努力，例如具有不确定边缘失效的稳健派系问题（Yezerska et al.，2018），派系松弛问题（k-blocks和k-robust 2-clubs，Balasubramaniam和Butenko，2017），基于度的准派系问题（Pastukhov et al.，2018），最大准集团问题（Pinto等人，2018年）、最大s丛问题（Gao等人，2018年；Zhou和Hao，2017年）、最大平衡双液问题（Wang等人，2018年；Zhou和Hao，2018年）和最大诱导双液问题（Shahinpour等人，2017年）。这些扩展模型与经典的MVC和clique模型一起，为建模和分析海量图和复杂网络提供了有用的相关手段。设计能够有效处理海量图的这些问题的新方法是一个真正的兴趣，也是一个巨大的挑战。</p><p>在这项工作中，我们致力于解决大规模稀疏图上的MVC问题，并引入了一种快速有效的SLS启发式算法DTS_MVC（动态阈值搜索MVC）。DTS_MVC基本上在阈值搜索阶段和条件改进阶段交替进行，前者接受新的（改进的或非改进的）解决方案，后者受动态演化的质量阈值的约束，后者只寻求改进的解决方案。DTS_MVC的原始特性和这项工作的贡献如下所示。</p><ul><li><p>首先，DTS_MVC使用基于顶点度信息的随机贪婪过程来构建其初始解（顶点覆盖）。具有相同的复杂性 ( $ 𝑂(|𝐸|) $ ) 作为传统的随机构造过程，贪婪过程能够生成质量更好的初始解，有助于加快DTS_MVC的搜索过程。</p><blockquote><p>使用的贪婪算法生成初始解，复杂度和随机构造一样，但是生成的解的质量更好</p></blockquote></li><li><p>其次，阈值搜索阶段采用<strong>基于顶点的策略</strong>和<strong>无参数操作禁止机制</strong>进行解变换。<strong>基于顶点的策略</strong>将从一个小的候选算子集中提取的最佳算子应用于给定的顶点（随机选择），以变换现有解。从计算的角度来看，这种方法比传统的基于算子的策略要有效得多。传统的基于算子的策略需要在一个大的候选顶点集中确定应用给定变换算子的最佳顶点。</p><blockquote><p>随机选择的一个顶点，选择最佳的算子</p><p>传统的方式是选择一个算子，找最佳顶点</p></blockquote></li><li><p>第三，DTS_MVC使用随机“开关”控制每个阈值搜索阶段的输入，该阶段要么是爬山改进阶段的局部最优值，要么是最后一轮阈值搜索返回的解。这种设计自然地加强了搜索过程的强化和多样化之间的平衡。</p></li><li><p>第四，对86个海量真实图形的计算评估表明，DTS_MVC通过改进7个并匹配64个最著名的结果，与两个致力于海量图形的最先进MVC解决方案（FastVC和LinCom）进行了对比。</p></li><li><p>最后，所提出的基于顶点的策略和操作禁止机制本质上是独立于问题的，可以有利地用于设计其他图问题的搜索算法。考虑到这些技术有助于加速搜索过程和简化算法过程，当问题规模较大且允许的计算时间有限时，它们将特别有用和有前途</p></li></ul><p>论文的其余部分组织如下。在介绍了初步定义和符号（第2节）之后，我们将在第3节中描述所提出的算法及其组成部分。在第4节中，我们给出了计算结果，并与最先进的方法进行了比较，并分析了关键的算法组件。在最后一节中，我们得出结论，并对未来的研究提出一些想法。</p><h2 id="二、基本定义和符号"><a href="#二、基本定义和符号" class="headerlink" title="二、基本定义和符号"></a>二、基本定义和符号</h2><p>给出一个图 $ G(V,E) $ ：</p><ul><li>$ N(v) = \{u \in V:(u,v)\in E\} $ 表示 $ v $ 的邻居节点。</li><li>$ deg(v) $ 表示节点 $ v $ 的度。</li><li>$ avgDeg = \sum_{v\in V} deg(v)/n $ 表示图 $ G $ 的平均度。</li></ul><p>使用 $ S $ 表示解，定义以下变量用于算法表述：</p><ul><li>扩展邻域 $ N^E(v) $ 表示 $ (u,v) $ ，其中 $ v \in S, u \in V \setminus S $ ，就是非解中的邻居节点。</li><li>映射邻域 $ N^M(v) $ 表示 $ v \in V \setminus S $ ， $ N^M(v) = \{u \in S : (u,v)\in E,|N^E(u) = 1|\} $ 。即表示 $ v $ 是解中点 $ u $ 的唯一一个非解邻居节点。</li><li>提升邻域 $ N_I(S) = \{v \in S : |N^E(v)| = 0\} $ 也就是 $ v $ 不存在非解邻居节点，只存在解内部的边。那么可以直接把 $ N_I(S) $ 中的点删除，可以得到一个更好的解。</li></ul><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202207021651602.png" alt="image-20220702165155555"></p><h2 id="三、DTS-MVC算法"><a href="#三、DTS-MVC算法" class="headerlink" title="三、DTS_MVC算法"></a>三、DTS_MVC算法</h2><h3 id="3-1-框架"><a href="#3-1-框架" class="headerlink" title="3.1 框架"></a>3.1 框架</h3><p>首先使用 <strong>贪心构造算法</strong> 生成一个初始解。然后在<strong>阈值搜索阶段</strong>和<strong>条件改进阶段</strong>之间交替进行，找到更优的解。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202207031043099.png" alt="image-20220703104351006"></p><p><strong>阈值搜索阶段：</strong></p><p>使用基于顶点的策略。按照随机顺序扫描所有顶点，针对每个顶点从三种算子 DROP、ADD、SWAP中选择一种算子或者直接执行移动操作。</p><blockquote><p>DROP从解中删除顶点，ADD将顶点加入解中</p></blockquote><p>确切地说，在挑选出一个顶点后，该算法以特定的顺序检查<strong>两个相关的运算符</strong>（{DROP, SWAP}或{SWAP, ADD}，<strong>取决于该顶点是在当前顶点覆盖范围内还是在范围外</strong>）（确保最合适的运算符总是首先被应用），任何产生的满足质量阈值的相邻解决方案都被立即接受。</p><p>通过一种响应机制，质量阈值随着搜索过程中找到的最佳解而动态演变。这种<strong>基于顶点的快速策略</strong>有助于算法有效地访问大量解决方案，以进行给定的搜索工作。在这一阶段，该算法还使用操作禁止机制（无参数禁忌列表（Glover和Laguna，2013））来避免反转最近执行的动作。当所有顶点位于 $ 𝑉 $ 只检查过一次。由于基于顶点的策略和操作禁止机制，搜索过程有望探索搜索空间的各个区域，而不容易陷入局部最优。</p><blockquote><p>使用了禁忌策略</p></blockquote><p>作为阈值搜索阶段的补充，DTS_MVC 在条件改进阶段执行严格的爬山策略，以加强搜索（算法1的第28-39行）。爬山过程收缩当前顶点覆盖 $ 𝑆 $ ， 通过删除所有未连接到 $ 𝑉\setminus 𝑆 $ 的顶点。 该阶段被称为“条件”阶段，因为只有当随机开关（“开”或“关”）为“开”时，才接受爬山过程的局部最优解成为下一轮阈值搜索的起始解。</p><p>DTS_MVC迭代以上两个阶段，以寻求越来越更好的解决方案，直到达到算法的截止时间为止。在接下来的内容中，我们介绍了DTS_MVC算法的三个主要组成部分：贪婪构造过程，阈值搜索阶段和条件改进阶段。</p><h3 id="3-2-贪婪构造过程"><a href="#3-2-贪婪构造过程" class="headerlink" title="3.2 贪婪构造过程"></a>3.2 贪婪构造过程</h3><p>贪婪构造算法在时间复杂度和解的质量之间达到了平衡性。</p><p>贪心构造使用顶点的度作为启发式信息来构造解，有利于从当前解中派出度比较小的顶点。这种启发式背后的思想是，具有较小度数的顶点不太可能相互连接（他们比较可能连接的是其他顶点，没有相互进行连接），因此可能可以从解中排除更多此类顶点。</p><p>从包括所有顶点的解开始，贪心构造通过每次删除 $ N_I(S) $ 中的一个顶点，迭代收缩解的大小，直到 $ N_I(S) $ 为空。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202207031045758.png" alt="image-20220703104526713"></p><p>确定将顶点 $ u $ 从 $ S $ 中删除，根据 avgDeg 和 $ N_I(S) $ 的大小之间的关系分为两种情况。如果 avgDeg 小于 $ |N_I(S)| $ 则从 $ N_I(S) $ 中随机选择 avgDeg 个节点， $ u $ 为其中度数最小的节点；否则选择 $ N_I(S) $ 中度数最小的节点。</p><p><strong>定理1：</strong> 贪心构造算法的时间复杂度为 $ O(m) $</p><p><strong>证明：</strong> 略</p><h3 id="3-3-阈值搜索阶段"><a href="#3-3-阈值搜索阶段" class="headerlink" title="3.3 阈值搜索阶段"></a>3.3 阈值搜索阶段</h3><p>在阈值搜索阶段（算法1的第8-27行），通过组合使用三种不同的基本算子（DROP、ADD和SWAP），可以接受改进和非改进解。DROP将顶点踢出当前顶点覆盖；ADD添加通过包含新顶点来扩展当前顶点覆盖；SWAP交换顶点 $ 𝑣 $ 和 $ 𝑢 $ 。我们注意到，通过参考解质量阈值接受非改进解的思路来自于阈值搜索（Dueck和Scheuer，1990）。该阶段的主要创新包括<strong>基于顶点的探索策略</strong>和<strong>非参数操作禁止机制</strong>，其工作原理及其对问题解决的贡献详述如下。</p><p>以前用于MVC及其等价问题的<strong>SLS算法通常采用基于算子的策略</strong>，并结合最佳改进启发式（Jin和Hao，2015；Pullan和Hoos，2006；Cai等人，2013），其操作如下。给定当前解，该算法将变换算子应用于从顶点候选集中选择的最佳元素（顶点），该顶点候选集的大小与 $ 𝐺 $ 相关，并且随着问题规模的增加而增加。从这样的顶点候选集中识别最佳顶点需要大量比较操作，这非常耗时。尽管基于算子的策略适用于中小型图（多达数千个顶点），但它对于海量数据集来说是不可接受的。</p><p>与之前的方法不同，我们在阈值搜索阶段引入了一种低复杂度的搜索机制。DTS_MVC采用基于顶点的策略，<strong>对于给定顶点，从候选算子集中选择最优的算子对该顶点进行操作，而不是而不是为一个算子寻找最佳顶点</strong>。由于候选算子集很小（在我们的例子中，一个顶点只有两个可能的算子），并且与问题大小无关，因此该策略是有效的。基于顶点的策略的思想符合一种常见的直觉，即在大规模问题的SLS算法的背景下，最好执行许多相对简单但有效可计算的搜索步骤，而不是少数复杂的搜索步骤（Hoos和Stützle，2004）。由于基于顶点的策略，DTS_MVC能够访问许多不同的解决方案，并探索搜索空间的各个区域，以定位高质量的解决方案。</p><p>SLS算法的一个重要问题是防止搜索重新访问以前访问过的解决方案。为了解决这个问题，我们在阈值搜索阶段设计了一种新的<strong>非参数操作禁止</strong>（OP）机制。该机制的关键思想是<strong>确保适用于顶点的操作在一轮阈值搜索中最多应用一次</strong>。很明显，对于DROP和ADD，这个条件总是满足的。因此，OP机制用于确保对顶点的swap操作(𝑣,𝑢) 最多应用一次。</p><blockquote><p>$ v $ 移除， $ u $ 移入。设置禁忌期</p></blockquote><p>对每一个节点 $ u $ 设置一个 AGE 计数器，每次将 $ u $ 换入时，设置 $ AGE_u = round $ 。表示 $ u $ 十当前轮次新增的，不用管，避免在该轮次中移出来。只有 $ AGE &lt; round $ 的结点才可以进行 swap 操作。OP机制与每轮阈值搜索之前所有顶点的随机排列相结合（算法1的第7行），可以被视为一种无参数禁忌机制，每个执行的操作都具有随机禁忌保留期（Glover和Laguna，2013）。我们的经验表明，所有顶点的随机排列是一个重要的操作，极大地提高了DTS_MVC的性能。</p><p>DTS_MVC的阈值搜索阶段基于三种基本的移动算子，结合基于顶点的策略和操作禁止机制，对搜索空间进行平衡检查。对于该阶段的每一轮，该算法首先随机<strong>洗牌</strong>所有顶点 $ 𝑉 $ ，然后逐个访问顶点。<strong>对于每个顶点 $ 𝑣 $ 考虑到这一点，我们根据顶点是在顶点覆盖内还是在顶点覆盖外来定义其算子候选集𝑆.</strong></p><p><strong>情况1：</strong>如果 $ v \in S $ ，候选算子为DROP和SWAP。先使用DROP，因为DROP可以提高解的质量，SWAP对解的质量没有改变。如果二者都不能执行，算法就跳过节点 $ v $ 。</p><p>DROP算子使用情形：如果 $ v $ 的扩展邻域是空集，可以使用DROP（例如 $ v \in N_I(S) $ ）。</p><p>SWAP算子使用情形：（同时满足）</p><ul><li>$ v $ 未在本 round 参与 SWAP 操作</li><li>$ v $ 只连接到 $ V \setminus S $ 中的一个节点（即 $ |N^E(v)| = 1 $ ，该节点是唯一可以和 $ v $ 交换的节点）</li></ul><p><strong>情况2：</strong>如果 $ v\in V\setminus S $ ，候选算子为SWAP和ADD。先使用SWAP，因为SWAP不改变解的质量，ADD会使解的质量变差。如果二者都不能执行，算法就跳过节点 $ v $ 。</p><p>SWAP算子使用情形：（同时满足）</p><ul><li>$ v $ 未在本 round 参与 SWAP 操作</li><li>$ v $ 的映射邻域 $ N^M(v) $ 非空。从 $ N^M(v) $ 中随机选择一个节点 $ u\in S $ ，然后移入 $ v $ ，移出 $ u $ 。</li></ul><p>ADD算子使用情形：如果本次操作之后（ $ |S| + 1 $ ）仍然小于等于 $ Record + \delta $ （ $ Record $ 是最优解的顶点覆盖个数， $ \delta $ 是一个参数）</p><h3 id="3-4-条件改进阶段"><a href="#3-4-条件改进阶段" class="headerlink" title="3.4 条件改进阶段"></a>3.4 条件改进阶段</h3><p>增强和多样化之间的平衡是SLS算法的另一个重要问题。阈值搜索过程提供了一种多样化的形式，因为它同时接受非改进和恶化的解决方案。为了补充这一点，需要一个强化程序，以确保更集中和定向的搜索。为此，在条件改善阶段采用爬山程序（算法1的第28-39行）。爬山过程的目的是使用从由阈值搜索阶段返回的解 $ 𝑆 $ 开始，使用DROP算子得到一个局部最优解。具体做法是迭代随机从 $ N_I(S) $ 中选择一个顶点，并将其从解决方案中剔除，直到 $ 𝑁_𝐼(𝑆) $ 变为空。爬山过程的局部最优是有趣的，因为它可以更新记录的最佳解 $ 𝑆^\ast $ （第33-34行，算法1）。</p><p>然而，从搜索过程的长期角度来看，通过这种技术确定的局部最优值不一定是下一轮阈值搜索阶段的良好起点。因此，条件改进阶段使用随机开关（“开”或“关”）来确定其输出解，该输出解将作为下一轮阈值搜索的起始解。本文提出的这一机制旨在平衡搜索的集约化和多样化。当开关处于“开启”状态时，输出解为局部最优解；否则，它是上一轮阈值搜索返回的解。该设计基于以下考虑。虽然阈值搜索程序提供了一种受控的多样化形式，使搜索能够摆脱一些局部优化，但由于 $ \delta $ 值所固定的质量限制，它可能不足以摆脱深层的局部优化陷阱。该算法并不试图逃脱这种陷阱，而是偶尔跳过它们。另一方面，由于一些局部最优很容易逃脱，而另一些最优则很难摆脱，所以从爬坡程序的局部最优开始下一轮阈值搜索也可能是有益的。</p><p>在我们的实现中，条件改进阶段首先设置 $ 𝑅𝑒𝑐𝑜𝑟𝑑 $ 值为当前最小顶点覆盖 $ S^\ast $ 的大小，并将阈值搜索阶段返回的解存储在 $ 𝑆^\prime $ 。然后执行爬山程序以获得局部最优值 $ 𝑆 $ ，并使用它更新记录的最佳解决方案 $ 𝑆^\ast $ 如果需要。如果随机开始是开”on”，就接受局部最优解 $ S $ ，并且设置 $ Record $ ，否则的话就继续使用 $ S^\prime $ 。</p></div><div><ul class="post-copyright"><li class="post-copyright-author"> <strong>本文作者：</strong> luobuyu</li><li class="post-copyright-link"> <strong>本文链接：</strong> <a href="https://www.luobuyu.site/2022/DTS-MVC/" title="海量稀疏图中最小顶点覆盖的动态阈值搜索">https://www.luobuyu.site/2022/DTS-MVC/</a></li><li class="post-copyright-license"> <strong>版权声明：</strong> 本博客所有文章除特别声明外，均采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i> BY-NC-SA</a> 许可协议。转载请注明出处！</li></ul></div><footer class="post-footer"><div class="post-tags"><a href="/tags/%E9%A1%B6%E7%82%B9%E8%A6%86%E7%9B%96/" rel="tag"><i class="fa fa-tag"></i> 顶点覆盖</a><a href="/tags/%E6%B5%B7%E9%87%8F%E7%A8%80%E7%96%8F%E5%9B%BE/" rel="tag"><i class="fa fa-tag"></i> 海量稀疏图</a></div><div class="post-nav"><div class="post-nav-item"><a href="/2022/fjsp-jsp/" rel="prev" title="fjsp基础学习"><i class="fa fa-chevron-left"></i> fjsp基础学习</a></div><div class="post-nav-item"> <a href="/2022/max-chunks-to-make-sorted-ii/" rel="next" title="768.最多能完成排序的块2">768.最多能完成排序的块2<i class="fa fa-chevron-right"></i></a></div></div></footer></article></div><div class="comments" id="valine-comments"></div><script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script></div><div class="toggle sidebar-toggle"><span class="toggle-line toggle-line-first"></span><span class="toggle-line toggle-line-middle"></span><span class="toggle-line toggle-line-last"></span></div><aside class="sidebar"><div class="sidebar-inner"><ul class="sidebar-nav motion-element"><li class="sidebar-nav-toc"> 文章目录</li><li class="sidebar-nav-overview"> 站点概览</li></ul><div class="post-toc-wrap sidebar-panel"><div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#海量稀疏图中最小顶点覆盖的动态阈值搜索"><span class="nav-number">1.</span> <span class="nav-text">海量稀疏图中最小顶点覆盖的动态阈值搜索</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、介绍"><span class="nav-number">1.1.</span> <span class="nav-text">一、介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、基本定义和符号"><span class="nav-number">1.2.</span> <span class="nav-text">二、基本定义和符号</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、DTS-MVC算法"><span class="nav-number">1.3.</span> <span class="nav-text">三、DTS_MVC算法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-框架"><span class="nav-number">1.3.1.</span> <span class="nav-text">3.1 框架</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-贪婪构造过程"><span class="nav-number">1.3.2.</span> <span class="nav-text">3.2 贪婪构造过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-阈值搜索阶段"><span class="nav-number">1.3.3.</span> <span class="nav-text">3.3 阈值搜索阶段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-条件改进阶段"><span class="nav-number">1.3.4.</span> <span class="nav-text">3.4 条件改进阶段</span></a></li></ol></li></ol></li></ol></div></div><div class="site-overview-wrap sidebar-panel"><div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person"> <a href="/"><img class="site-author-image" itemprop="image" alt="luobuyu" src="/images/avatar.png"></a><p class="site-author-name" itemprop="name">luobuyu</p><div class="site-description" itemprop="description"></div></div><div class="site-state-wrap motion-element"><nav class="site-state"><div class="site-state-item site-state-posts"> <a href="/archives/"><span class="site-state-item-count">362</span> <span class="site-state-item-name">日志</span></a></div><div class="site-state-item site-state-categories"> <a href="/categories/"><span class="site-state-item-count">66</span> <span class="site-state-item-name">分类</span></a></div><div class="site-state-item site-state-tags"> <a href="/tags/"><span class="site-state-item-count">274</span> <span class="site-state-item-name">标签</span></a></div></nav></div><div class="links-of-author motion-element"><span class="links-of-author-item"><a href="https://github.com/luobuyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;luobuyu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i> GitHub</a></span><span class="links-of-author-item"><a href="mailto:1528751774@qq.com" title="E-Mail → mailto:1528751774@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i> E-Mail</a></span><span class="links-of-author-item"><a href="https://valine.luobuyu.site/" title="Comments → https:&#x2F;&#x2F;valine.luobuyu.site" rel="noopener" target="_blank"><i class="fas fa-comments fa-fw"></i> Comments</a></span></div></div></div></aside><div id="sidebar-dimmer"></div></div></main><footer class="footer"><div class="footer-inner"><div id="aplayer-ukhYMhCo" class="aplayer aplayer-tag-marker meting-tag-marker" data-id="7289878554" data-server="netease" data-type="playlist" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#FF4081" data-listfolded="true"></div><div class="copyright"> &copy; 2020 – <span itemprop="copyrightYear">2024</span><span class="with-love"><i class="fa fa-heartbeat"></i></span> <span class="author" itemprop="copyrightHolder">luobuyu</span><br><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span class="post-meta-divider"></span><span class="post-meta-item-icon"><i class="fa fa-chart-area"></i></span> <span class="post-meta-item-text">站点总字数：</span> <span title="站点总字数">938k</span> <span class="post-meta-divider">|</span><span class="post-meta-item-icon"><i class="fa fa-coffee"></i></span> <span class="post-meta-item-text">站点阅读时长 &asymp;</span> <span title="站点阅读时长">14:13</span></div> <span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span><script>var now=new Date;function createtime(){var n=new Date("07/20/2020 12:00:00");now.setTime(now.getTime()+250),days=(now-n)/1e3/60/60/24,dnum=Math.floor(days),hours=(now-n)/1e3/60/60-24*dnum,hnum=Math.floor(hours),1==String(hnum).length&&(hnum="0"+hnum),minutes=(now-n)/1e3/60-1440*dnum-60*hnum,mnum=Math.floor(minutes),1==String(mnum).length&&(mnum="0"+mnum),seconds=(now-n)/1e3-86400*dnum-3600*hnum-60*mnum,snum=Math.round(seconds),1==String(snum).length&&(snum="0"+snum),document.getElementById("timeDate").innerHTML="luobuyuの个人博客，已经勉强存活了 "+dnum+" 天 ",document.getElementById("times").innerHTML=hnum+" 小时 "+mnum+" 分 "+snum+" 秒"}setInterval("createtime()",250)</script><div class="busuanzi-count"><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span class="post-meta-item" id="busuanzi_container_site_uv" style="display:none"></span><span class="post-meta-item-icon"><i class="fa fa-user"></i></span> <span class="site-uv" title="总访客量">访问人数<span id="busuanzi_value_site_uv"></span></span> <span class="post-meta-divider">|</span><span class="post-meta-item" id="busuanzi_container_site_pv" style="display:none"></span><span class="post-meta-item-icon"><i class="fa fa-eye"></i></span> <span class="site-pv" title="总访问量">总访问量<span id="busuanzi_value_site_pv"></span></span></div></div></footer></div><script src="/lib/anime.min.js"></script><script src="/lib/velocity/velocity.min.js"></script><script src="/lib/velocity/velocity.ui.min.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/pisces.js"></script><script src="/js/next-boot.js"></script><script>!function(){var o,n,e=document.getElementsByTagName("link");if(0<e.length)for(i=0;i<e.length;i++)"canonical"==e[i].rel.toLowerCase()&&e[i].href&&(o=e[i].href);n=o?o.split(":")[0]:window.location.protocol.split(":")[0],o||(o=window.location.href),function(){var e=o,i=document.referrer;if(!/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi.test(e)){var t="https"===String(n).toLowerCase()?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";i?(t+="?r="+encodeURIComponent(document.referrer),e&&(t+="&l="+e)):e&&(t+="?l="+e),(new Image).src=t}}(window)}()</script><script src="/js/local-search.js"></script><script type="text/x-mathjax-config">
+    MathJax.Ajax.config.path['mhchem'] = '//cdn.jsdelivr.net/npm/mathjax-mhchem@3';
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        extensions: ['[mhchem]/mhchem.js'],
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script><script>
+  NexT.utils.getScript('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/GamerNoTitle/Picture-repo-v1@master/css/Valine-Emotion.css"><style>.v[data-class=v] .veditor{background-image:url(https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220325200442.gif);background-size:contain;background-repeat:no-repeat;background-position:right}</style><script>
+
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/valine@1.5.1/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+
+    var requiredFields = ['nick', 'mail', 'link'];
+    var requiredField = 'nick,mail';
+    requiredField = requiredField.split(',').filter(item => {
+      return requiredFields.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'GqF4f53ddiLc4MvB6rAMxrM6-MdYXbMMI',
+      appKey     : 'rn6pv6g3Qzu4mcbqhI7qWEk5',
+      emojiCDN: 'https://valinecdn.bili33.top/',
+      emojiMaps: {
+        "bilibiliHotKey1": "bilibiliHotKey/1.jpg",
+        "bilibiliHotKey2": "bilibiliHotKey/10.jpg",
+        "bilibiliHotKey3": "bilibiliHotKey/11.jpg",
+        "bilibiliHotKey4": "bilibiliHotKey/12.jpg",
+        "bilibiliHotKey5": "bilibiliHotKey/13.jpg",
+        "bilibiliHotKey6": "bilibiliHotKey/14.jpg",
+        "bilibiliHotKey7": "bilibiliHotKey/15.jpg",
+        "bilibiliHotKey8": "bilibiliHotKey/16.jpg",
+        "bilibiliHotKey9": "bilibiliHotKey/17.jpg",
+        "bilibiliHotKey10": "bilibiliHotKey/18.jpg",
+        "bilibiliHotKey11": "bilibiliHotKey/19.jpg",
+        "bilibiliHotKey12": "bilibiliHotKey/2.jpg",
+        "bilibiliHotKey13": "bilibiliHotKey/20.jpg",
+        "bilibiliHotKey14": "bilibiliHotKey/21.jpg",
+        "bilibiliHotKey15": "bilibiliHotKey/22.jpg",
+        "bilibiliHotKey16": "bilibiliHotKey/23.jpg",
+        "bilibiliHotKey17": "bilibiliHotKey/24.jpg",
+        "bilibiliHotKey18": "bilibiliHotKey/25.jpg",
+        "bilibiliHotKey19": "bilibiliHotKey/26.jpg",
+        "bilibiliHotKey20": "bilibiliHotKey/27.jpg",
+        "bilibiliHotKey21": "bilibiliHotKey/28.jpg",
+        "bilibiliHotKey22": "bilibiliHotKey/29.jpg",
+        "bilibiliHotKey23": "bilibiliHotKey/3.jpg",
+        "bilibiliHotKey24": "bilibiliHotKey/30.jpg",
+        "bilibiliHotKey25": "bilibiliHotKey/31.jpg",
+        "bilibiliHotKey26": "bilibiliHotKey/32.jpg",
+        "bilibiliHotKey27": "bilibiliHotKey/4.jpg",
+        "bilibiliHotKey28": "bilibiliHotKey/5.jpg",
+        "bilibiliHotKey29": "bilibiliHotKey/6.jpg",
+        "bilibiliHotKey30": "bilibiliHotKey/7.jpg",
+        "bilibiliHotKey31": "bilibiliHotKey/8.jpg",
+        "bilibiliHotKey32": "bilibiliHotKey/9.jpg",
+        "KeQing1": "KeQing/1MtdPr4y.png",
+        "KeQing2": "KeQing/29E353B37F06F48D0D32B896A555AB10.jpg",
+        "KeQing3": "KeQing/5q8iVluo.png",
+        "KeQing4": "KeQing/6Bo9DvjS.png",
+        "KeQing5": "KeQing/8uRU02Qn.png",
+        "KeQing6": "KeQing/a7Xxm0ou.png",
+        "KeQing7": "KeQing/aEhyb3F5.png",
+        "KeQing8": "KeQing/alT6XmFj.png",
+        "KeQing9": "KeQing/b4l6cyUT.png",
+        "KeQing10": "KeQing/BWYIgTtC.png",
+        "KeQing11": "KeQing/c1ZrqNaX.png",
+        "KeQing12": "KeQing/c7yp9Ewx.png",
+        "KeQing13": "KeQing/CeZsrXIq.png",
+        "KeQing14": "KeQing/CJRTKlGP.png",
+        "KeQing15": "KeQing/COMie4xg.png",
+        "KeQing16": "KeQing/D4G8UsxH.png",
+        "KeQing17": "KeQing/D80028AB4478C5C3986FE1A9FEEFEB35.gif",
+        "KeQing18": "KeQing/e01OVkHC.png",
+        "KeQing19": "KeQing/ELmIkgpZ.png",
+        "KeQing20": "KeQing/fbR6FSd3.png",
+        "KeQing21": "KeQing/Fh58COx7.png",
+        "KeQing22": "KeQing/FM1l6d9h.png",
+        "KeQing23": "KeQing/ghCViEvU.png",
+        "KeQing24": "KeQing/ivmGU68a.png",
+        "KeQing25": "KeQing/JmyRiSt1.png",
+        "KeQing26": "KeQing/jvI8Wa35.png",
+        "KeQing27": "KeQing/lHQhDR71.png",
+        "KeQing28": "KeQing/lxfPMp5I.png",
+        "KeQing29": "KeQing/nK5k6fHL.png",
+        "KeQing30": "KeQing/OsVSotEn.png",
+        "KeQing31": "KeQing/R4QdmJb1.png",
+        "KeQing32": "KeQing/rADUyouz.png",
+        "KeQing33": "KeQing/Rex3GWlg.png",
+        "KeQing34": "KeQing/RkHtnfyU.png",
+        "KeQing35": "KeQing/RrXmaHeb.png",
+        "KeQing36": "KeQing/sJ58YlzP.png",
+        "KeQing37": "KeQing/tjJGYOVF.png",
+        "KeQing38": "KeQing/tTnXvgZH.png",
+        "KeQing39": "KeQing/w37qQAel.png",
+        "KeQing40": "KeQing/W6y0ReEh.png",
+        "KeQing41": "KeQing/xDIO54sg.png",
+        "KeQing42": "KeQing/Xy8BbkcP.png",
+        "KeQing43": "KeQing/YCL13G5e.png",
+        "KeQing44": "KeQing/yG7MulxF.png",
+        "KeQing45": "KeQing/ZDI38NMK.png",
+        "KeQing46": "KeQing/Zl9NR6It.png",
+        "Snow-Miku1": "Snow-Miku/3583066@2x.png",
+        "Snow-Miku2": "Snow-Miku/3583067@2x.png",
+        "Snow-Miku3": "Snow-Miku/3583068@2x.png",
+        "Snow-Miku4": "Snow-Miku/3583069@2x.png",
+        "Snow-Miku5": "Snow-Miku/3583070@2x.png",
+        "Snow-Miku6": "Snow-Miku/3583071@2x.png",
+        "Snow-Miku7": "Snow-Miku/3583072@2x.png",
+        "Snow-Miku8": "Snow-Miku/3583073@2x.png",
+        "Snow-Miku9": "Snow-Miku/3583074@2x.png",
+        "Snow-Miku10": "Snow-Miku/3583075@2x.png",
+        "Snow-Miku11": "Snow-Miku/3583076@2x.png",
+        "Snow-Miku12": "Snow-Miku/3583077@2x.png",
+        "Snow-Miku13": "Snow-Miku/3583078@2x.png",
+        "Snow-Miku14": "Snow-Miku/3583079@2x.png",
+        "Snow-Miku15": "Snow-Miku/3583080@2x.png",
+        "Snow-Miku16": "Snow-Miku/3583081@2x.png",
+        "Snow-Miku17": "Snow-Miku/3583082@2x.png",
+        "Snow-Miku18": "Snow-Miku/3583083@2x.png",
+        "Snow-Miku19": "Snow-Miku/3583084@2x.png",
+        "Snow-Miku20": "Snow-Miku/3583085@2x.png",
+        "Snow-Miku21": "Snow-Miku/3583086@2x.png",
+        "Snow-Miku22": "Snow-Miku/3583087@2x.png",
+        "Snow-Miku23": "Snow-Miku/3583088@2x.png",
+        "Snow-Miku24": "Snow-Miku/3583089@2x.png",
+        "Snow-Miku25": "Snow-Miku/3583090@2x.png",
+        "Snow-Miku26": "Snow-Miku/3583091@2x.png",
+        "Snow-Miku27": "Snow-Miku/3583092@2x.png",
+        "Snow-Miku28": "Snow-Miku/3583093@2x.png",
+        "Snow-Miku29": "Snow-Miku/3583094@2x.png",
+        "Snow-Miku30": "Snow-Miku/3583095@2x.png",
+        "Snow-Miku31": "Snow-Miku/3583096@2x.png",
+        "Snow-Miku32": "Snow-Miku/3583097@2x.png",
+        "Snow-Miku33": "Snow-Miku/3583098@2x.png",
+        "Snow-Miku34": "Snow-Miku/3583099@2x.png",
+        "Snow-Miku35": "Snow-Miku/3583100@2x.png",
+        "Snow-Miku36": "Snow-Miku/3583101@2x.png",
+        "Snow-Miku37": "Snow-Miku/3583102@2x.png",
+        "Snow-Miku38": "Snow-Miku/3583103@2x.png",
+        "Snow-Miku39": "Snow-Miku/3583104@2x.png",
+        "Snow-Miku40": "Snow-Miku/3583105@2x.png",
+        "bilibilitv2": "bilibilitv/[tv_doge].png",
+        "bilibilitv3": "bilibilitv/[tv_亲亲].png",
+        "bilibilitv4": "bilibilitv/[tv_偷笑].png",
+        "bilibilitv5": "bilibilitv/[tv_再见].png",
+        "bilibilitv6": "bilibilitv/[tv_冷漠].png",
+        "bilibilitv7": "bilibilitv/[tv_发怒].png",
+        "bilibilitv8": "bilibilitv/[tv_发财].png",
+        "bilibilitv9": "bilibilitv/[tv_可爱].png",
+        "bilibilitv10": "bilibilitv/[tv_吐血].png",
+        "bilibilitv11": "bilibilitv/[tv_呆].png",
+        "bilibilitv12": "bilibilitv/[tv_呕吐].png",
+        "bilibilitv13": "bilibilitv/[tv_困].png",
+        "bilibilitv14": "bilibilitv/[tv_坏笑].png",
+        "bilibilitv15": "bilibilitv/[tv_大佬].png",
+        "bilibilitv16": "bilibilitv/[tv_大哭].png",
+        "bilibilitv17": "bilibilitv/[tv_委屈].png",
+        "bilibilitv18": "bilibilitv/[tv_害羞].png",
+        "bilibilitv19": "bilibilitv/[tv_尴尬].png",
+        "bilibilitv20": "bilibilitv/[tv_微笑].png",
+        "bilibilitv21": "bilibilitv/[tv_思考].png",
+        "bilibilitv22": "bilibilitv/[tv_惊吓].png",
+        "bilibilitv23": "bilibilitv/[tv_打脸].png",
+        "bilibilitv24": "bilibilitv/[tv_抓狂].png",
+        "bilibilitv25": "bilibilitv/[tv_抠鼻].png",
+        "bilibilitv26": "bilibilitv/[tv_斜眼笑].png",
+        "bilibilitv27": "bilibilitv/[tv_无奈].png",
+        "bilibilitv28": "bilibilitv/[tv_晕].png",
+        "bilibilitv29": "bilibilitv/[tv_流汗].png",
+        "bilibilitv30": "bilibilitv/[tv_流泪].png",
+        "bilibilitv31": "bilibilitv/[tv_流鼻血].png",
+        "bilibilitv32": "bilibilitv/[tv_点赞].png",
+        "bilibilitv33": "bilibilitv/[tv_生气].png",
+        "bilibilitv34": "bilibilitv/[tv_生病].png",
+        "bilibilitv35": "bilibilitv/[tv_疑问].png",
+        "bilibilitv36": "bilibilitv/[tv_白眼].png",
+        "bilibilitv37": "bilibilitv/[tv_皱眉].png",
+        "bilibilitv38": "bilibilitv/[tv_目瞪口呆].png",
+        "bilibilitv39": "bilibilitv/[tv_睡着].png",
+        "bilibilitv40": "bilibilitv/[tv_笑哭].png",
+        "bilibilitv41": "bilibilitv/[tv_腼腆].png",
+        "bilibilitv42": "bilibilitv/[tv_色].png",
+        "bilibilitv43": "bilibilitv/[tv_调侃].png",
+        "bilibilitv44": "bilibilitv/[tv_调皮].png",
+        "bilibilitv45": "bilibilitv/[tv_鄙视].png",
+        "bilibilitv46": "bilibilitv/[tv_闭嘴].png",
+        "bilibilitv47": "bilibilitv/[tv_难过].png",
+        "bilibilitv48": "bilibilitv/[tv_馋].png",
+        "bilibilitv49": "bilibilitv/[tv_鬼脸].png",
+        "bilibilitv50": "bilibilitv/[tv_黑人问号].png",
+        "bilibilitv51": "bilibilitv/[tv_鼓掌].png",
+        "HONKAI3-MEI1": "HONKAI3-MEI/501ac209b259bb545dea898838c24229483fcfeb.gif",
+        "HONKAI3-MEI2": "HONKAI3-MEI/5baf4306d1f685bf47922fbae365ccfba7721beb.gif",
+        "HONKAI3-MEI3": "HONKAI3-MEI/624857651c863ea9571f5e557fca8516dd41e0fc.gif",
+        "HONKAI3-MEI4": "HONKAI3-MEI/680311714674014d0c17f757eb40c3071448222a.gif",
+        "HONKAI3-MEI5": "HONKAI3-MEI/bf68423446465d396d3cbd8856882b5e9fb1c0c7.gif",
+        "HONKAI3-MEI6": "HONKAI3-MEI/d3a2a9c6ad1e2a0b262dca9354ab8de736d81cdf.gif",
+        "HONKAI3-MEI7": "HONKAI3-MEI/dd0fd1f3668f4907c9f6fcd39c6138417ac0e1f5.gif"
+      },
+      placeholder: "Leave a comment now!",
+      avatar     : 'wavatar',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-CN' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://chat.luobuyu.site',
+      requiredFields: requiredField
+    });
+  }, window.Valine);
+});
+</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({pluginRootPath:"live2dw/",pluginJsPath:"lib/",pluginModelPath:"assets/",tagMode:!1,debug:!1,model:{jsonPath:"/live2dw/assets/assets/haru01.model.json"},display:{superSample:2,width:200,height:400,position:"right",hOffset:0,vOffset:-20},mobile:{show:!0,scale:.5},react:{opacityDefault:.7,opacityOnHover:.8},log:!1})</script></body></html>

@@ -1,0 +1,296 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2"><meta name="theme-color" content="#222"><meta name="generator" content="Hexo 4.2.1"><link rel="apple-touch-icon" sizes="180x180" href="/images/favicon-1.png"><link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-1.png"><link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-1.png"><link rel="mask-icon" href="/images/favicon-1.png" color="#222"><meta name="google-site-verification" content="lkGKflS_fVXQNJnC_UXP0lqUEpV4NFx0b000PxRrX7g"><meta name="baidu-site-verification" content="codeva-Uj3syugSr3"><link rel="stylesheet" href="/css/main.css"><link rel="stylesheet" href="/lib/font-awesome/css/all.min.css"><link rel="stylesheet" href="//cdn.jsdelivr.net/npm/pace-js@1.2.4/themes/blue/pace-theme-minimal.css"><script src="//cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><script id="hexo-configurations">var NexT=window.NexT||{},CONFIG={hostname:"www.luobuyu.site",root:"/",scheme:"Gemini",version:"7.8.0",exturl:!1,sidebar:{position:"right",display:"post",padding:18,offset:12,onmobile:!1},copycode:{enable:!0,show_result:!1,style:null},back2top:{enable:!0,sidebar:!1,scrollpercent:!1},bookmark:{enable:!1,color:"#222",save:"auto"},fancybox:!1,mediumzoom:!1,lazyload:!1,pangu:!1,comments:{style:"tabs",active:null,storage:!0,lazyload:!1,nav:null},algolia:{hits:{per_page:10},labels:{input_placeholder:"Search for Posts",hits_empty:"We didn't find any results for the search: ${query}",hits_stats:"${hits} results found in ${time} ms"}},localsearch:{enable:!0,trigger:"auto",top_n_per_article:1,unescape:!1,preload:!1},motion:{enable:!0,async:!1,transition:{post_block:"fadeIn",post_header:"slideDownIn",post_body:"slideDownIn",coll_header:"slideLeftIn",sidebar:"slideUpIn"}},path:"search.xml"}</script><meta name="description" content="之前使用过决策树模型进行个人信用评估，这次使用朴素贝叶斯模型进行评估，可以相互对照。"><meta property="og:type" content="article"><meta property="og:title" content="基于朴素贝叶斯的个人信用评估模型"><meta property="og:url" content="https://www.luobuyu.site/2021/Plain-Bayesian-based-personal-credit-assessment/index.html"><meta property="og:site_name" content="Luobuyu&#39;s Blog"><meta property="og:description" content="之前使用过决策树模型进行个人信用评估，这次使用朴素贝叶斯模型进行评估，可以相互对照。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20210430142146.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20210430143043.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20210430144851.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20210430145430.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20210430151455.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20210430151841.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20210430151921.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20210430151918.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20210430152524.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20210430152606.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20210430153231.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20210430155223.png"><meta property="article:published_time" content="2021-04-28T14:41:07.000Z"><meta property="article:modified_time" content="2024-10-30T14:47:37.480Z"><meta property="article:author" content="luobuyu"><meta property="article:tag" content="朴素贝叶斯"><meta property="article:tag" content="多项式模型"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20210430142146.png"><link rel="canonical" href="https://www.luobuyu.site/2021/Plain-Bayesian-based-personal-credit-assessment/"><script id="page-configurations">CONFIG.page={sidebar:"",isHome:!1,isPost:!0,lang:"zh-CN"}</script><title>基于朴素贝叶斯的个人信用评估模型 | Luobuyu's Blog</title><noscript><style>.sidebar-inner,.use-motion .brand,.use-motion .collection-header,.use-motion .comments,.use-motion .menu-item,.use-motion .pagination,.use-motion .post-block,.use-motion .post-body,.use-motion .post-header{opacity:initial}.use-motion .site-subtitle,.use-motion .site-title{opacity:initial;top:initial}.use-motion .logo-line-before i{left:initial}.use-motion .logo-line-after i{right:initial}</style></noscript><link rel="alternate" href="/atom.xml" title="Luobuyu's Blog" type="application/atom+xml"><link rel="stylesheet" href="/assets/css/APlayer.min.css" class="aplayer-style-marker"><script src="/assets/js/APlayer.min.js" class="aplayer-script-marker"></script><script>var meting_api="https://api.injahow.cn/meting/?server=:server&type=:type&id=:id&r=:r"</script><script src="/assets/js/Meting.min.js" class="meting-script-marker"></script></head><body itemscope itemtype="http://schema.org/WebPage"><div class="container use-motion"><div class="headband"></div><header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="header-inner"><div class="site-brand-container"><div class="site-nav-toggle"><div class="toggle" aria-label="切换导航栏"><span class="toggle-line toggle-line-first"></span><span class="toggle-line toggle-line-middle"></span><span class="toggle-line toggle-line-last"></span></div></div><div class="site-meta"><a href="/" class="brand" rel="start"><span class="logo-line-before"><i></i></span><h1 class="site-title">Luobuyu's Blog</h1><span class="logo-line-after"><i></i></span></a></div><div class="site-nav-right"><div class="toggle popup-trigger"><i class="fa fa-search fa-fw fa-lg"></i></div></div></div><nav class="site-nav"><ul id="menu" class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i> 首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i> 关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i> 标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i> 分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i> 归档</a></li><li class="menu-item menu-item-music"><a href="/music/" rel="section"><i class="fa fa-music fa-fw"></i> 歌单</a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i> 朋友</a></li><li class="menu-item menu-item-search"><a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i> 搜索</a></li></ul></nav><div class="search-pop-overlay"><div class="popup search-popup"><div class="search-header"><span class="search-icon"><i class="fa fa-search"></i></span><div class="search-input-container"> <input autocomplete="off" autocapitalize="off" placeholder="搜索..." spellcheck="false" type="search" class="search-input"></div><span class="popup-btn-close"><i class="fa fa-times-circle"></i></span></div><div id="search-result"><div id="no-result"><i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i></div></div></div></div></div></header><div class="back-to-top"><i class="fa fa-arrow-up"></i> <span>0%</span></div><main class="main"><div class="main-inner"><div class="content-wrap"><div class="content post posts-expand"><article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN"><link itemprop="mainEntityOfPage" href="https://www.luobuyu.site/2021/Plain-Bayesian-based-personal-credit-assessment/"><span hidden itemprop="author" itemscope itemtype="http://schema.org/Person"><meta itemprop="image" content="/images/avatar.png"><meta itemprop="name" content="luobuyu"><meta itemprop="description" content=""></span><span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization"><meta itemprop="name" content="Luobuyu's Blog"></span><header class="post-header"><h1 class="post-title" itemprop="name headline"> 基于朴素贝叶斯的个人信用评估模型</h1><div class="post-meta"><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar"></i></span> <span class="post-meta-item-text">发表于</span> <time title="创建时间：2021-04-28 22:41:07" itemprop="dateCreated datePublished" datetime="2021-04-28T22:41:07+08:00">2021-04-28</time></span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-folder"></i></span> <span class="post-meta-item-text">分类于</span> <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/%E6%95%B0%E6%8D%AE%E7%A7%91%E5%AD%A6%E5%AF%BC%E8%AE%BA/" itemprop="url" rel="index"><span itemprop="name">数据科学导论</span></a></span></span><span id="/2021/Plain-Bayesian-based-personal-credit-assessment/" class="post-meta-item leancloud_visitors" data-flag-title="基于朴素贝叶斯的个人信用评估模型" title="热度"><span class="post-meta-item-icon"><i class="fa fa-eye"></i></span> <span class="post-meta-item-text">热度：</span><span class="leancloud-visitors-count"></span> <span>℃</span></span><span class="post-meta-item" title="热度" id="busuanzi_container_page_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i></span> <span class="post-meta-item-text">热度：</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-comment"></i></span> <span class="post-meta-item-text">评论：</span><a title="valine" href="/2021/Plain-Bayesian-based-personal-credit-assessment/#valine-comments" itemprop="discussionUrl"><span class="post-comments-count valine-comment-count" data-xid="/2021/Plain-Bayesian-based-personal-credit-assessment/" itemprop="commentCount"></span></a></span><br><span class="post-meta-item" title="本文字数"><span class="post-meta-item-icon"><i class="far fa-file-word"></i></span> <span class="post-meta-item-text">本文字数：</span> <span>8.8k</span></span><span class="post-meta-item" title="阅读时长"><span class="post-meta-item-icon"><i class="far fa-clock"></i></span> <span class="post-meta-item-text">阅读时长 &asymp;</span> <span>8 分钟</span></span><div class="post-description">之前使用过决策树模型进行个人信用评估，这次使用朴素贝叶斯模型进行评估，可以相互对照。</div></div></header><div class="post-body" itemprop="articleBody"><h1 id="基于朴素贝叶斯的个人信用评估"><a href="#基于朴素贝叶斯的个人信用评估" class="headerlink" title="基于朴素贝叶斯的个人信用评估"></a>基于朴素贝叶斯的个人信用评估</h1><h2 id="一、实验环境"><a href="#一、实验环境" class="headerlink" title="一、实验环境"></a>一、实验环境</h2><p>下载数据集，使用本地 <code>jupyter notebook, python3</code> 完成实验。将 <code>jupyter notebook</code> 导出为 <code>markdown</code> ，编辑之后使用 <code>pandoc</code> 直接转为 <code>word</code></p><h2 id="二、数据预处理"><a href="#二、数据预处理" class="headerlink" title="二、数据预处理"></a>二、数据预处理</h2><ol><li><p>使用 <code>pandas</code> 数据读取</p><p>读取数据</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line">credit = pd.read_csv(<span class="string">'./input/credit.csv'</span>)</span><br><span class="line">credit.head(<span class="number">5</span>)</span><br></pre></td></tr></table></figure><p>显示数据</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20210430142146.png" alt="image-20210430142133265"></p></li></ol><ol><li><p>查看数据规模</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">credit.shape</span><br></pre></td></tr></table></figure><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(1000, 21)</span><br></pre></td></tr></table></figure></li><li><p>查看数据种类</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">credit.dtypes.value_counts()</span><br></pre></td></tr></table></figure><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">object    13</span><br><span class="line">int64      8</span><br><span class="line">dtype: int64</span><br></pre></td></tr></table></figure><p>可见非数值列有 $ 13 $ 列，数值列有 $ 8 $ 列</p></li><li><p>非数值型数据处理</p><p>对数值型数据进行描述性统计</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">credit.select_dtypes(<span class="string">'object'</span>).describe()</span><br></pre></td></tr></table></figure><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20210430143043.png" alt="image-20210430143032869"></p></li></ol><p> 查看非数值型特征的缺失情况</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">credit.select_dtypes(<span class="string">'object'</span>).isnull().sum()</span><br></pre></td></tr></table></figure><pre><code>   checking_balance     0
+   credit_history       0
+   purpose              0
+   savings_balance      0
+   employment_length    0
+   personal_status      0
+   other_debtors        0
+   property             0
+   installment_plan     0
+   housing              0
+   job                  0
+   telephone            0
+   foreign_worker       0
+   dtype: int64
+
+可以看到没有缺失值，缺失个数都是 $ 0 $ 
+</code></pre><p> 查看非数值列的数据种类信息</p><pre><code><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> col <span class="keyword">in</span> credit.select_dtypes(<span class="string">'object'</span>):    print(<span class="string">'-'</span> * <span class="number">50</span>)    print(credit[col].value_counts())</span><br></pre></td></tr></table></figure> --------------------------------------------------unknown 394&lt; 0 DM 2741 - 200 DM 269&gt; 200 DM 63Name: checking_balance, dtype: int64--------------------------------------------------repaid 530critical 293delayed 88fully repaid this bank 49fully repaid 40Name: credit_history, dtype: int64--------------------------------------------------radio/tv 280car (new) 234furniture 181car (used) 103business 97education 50repairs 22others 12domestic appliances 12retraining 9Name: purpose, dtype: int64--------------------------------------------------&lt; 100 DM 603unknown 183101 - 500 DM 103501 - 1000 DM 63&gt; 1000 DM 48Name: savings_balance, dtype: int64--------------------------------------------------1 - 4 yrs 339&gt; 7 yrs 2534 - 7 yrs 1740 - 1 yrs 172unemployed 62Name: employment_length, dtype: int64--------------------------------------------------single male 548female 310married male 92divorced male 50Name: personal_status, dtype: int64--------------------------------------------------none 907guarantor 52co-applicant 41Name: other_debtors, dtype: int64--------------------------------------------------other 332real estate 282building society savings 232unknown/none 154Name: property, dtype: int64--------------------------------------------------none 814bank 139stores 47Name: installment_plan, dtype: int64--------------------------------------------------own 713rent 179for free 108Name: housing, dtype: int64--------------------------------------------------skilled employee 630unskilled resident 200mangement self-employed 148unemployed non-resident 22Name: job, dtype: int64--------------------------------------------------none 596yes 404Name: telephone, dtype: int64--------------------------------------------------yes 963no 37Name: foreign_worker, dtype: int64</code></pre><p> 可以发现出现了许多的 <code>unknown</code> ，应该是原数据的 <code>Nan</code> 已经通过哑变量的方法替换为了 <code>unknown</code></p><p> 查看非数值列数据种类数</p><pre><code><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> col <span class="keyword">in</span> credit.select_dtypes(<span class="string">'object'</span>):    print(<span class="string">"列名："</span> + col + <span class="string">", 有"</span>, credit[col].value_counts().shape[<span class="number">0</span>], <span class="string">"种类型"</span>)</span><br></pre></td></tr></table></figure></code></pre><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">列名：checking_balance, 有 4 种类型列名：credit_history, 有 5 种类型列名：purpose, 有 10 种类型列名：savings_balance, 有 5 种类型列名：employment_length, 有 5 种类型列名：personal_status, 有 4 种类型列名：other_debtors, 有 3 种类型列名：property, 有 4 种类型列名：installment_plan, 有 3 种类型列名：housing, 有 3 种类型列名：job, 有 4 种类型列名：telephone, 有 2 种类型列名：foreign_worker, 有 2 种类型</span><br></pre></td></tr></table></figure><p> 非数值型数据列数比较多，但是每一列的类别比较少，最多只有 $ 5 $ 种类别，可以直接看做离散特征</p><p> 将非数值数据进行编码，这里直接像之前一样，使用数字编码</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">col_dicts = &#123;&#125;cols = list(credit.columns) <span class="comment"># 这里还是直接使用所有列，后面进行一次判断col_dicts = &#123;'checking_balance': &#123;'1 - 200 DM': 2,  '&lt; 0 DM': 1,  '&gt; 200 DM': 3,  'unknown': 0&#125;, 'credit_history': &#123;'critical': 0,  'delayed': 2,  'fully repaid': 3,  'fully repaid this bank': 4,  'repaid': 1&#125;, 'employment_length': &#123;'0 - 1 yrs': 1,  '1 - 4 yrs': 2,  '4 - 7 yrs': 3,  '&gt; 7 yrs': 4,  'unemployed': 0&#125;, 'foreign_worker': &#123;'no': 1, 'yes': 0&#125;, 'housing': &#123;'for free': 1, 'own': 0, 'rent': 2&#125;, 'installment_plan': &#123;'bank': 1, 'none': 0, 'stores': 2&#125;, 'job': &#123;'mangement self-employed': 3,  'skilled employee': 2,  'unemployed non-resident': 0,  'unskilled resident': 1&#125;, 'other_debtors': &#123;'co-applicant': 2, 'guarantor': 1, 'none': 0&#125;, 'personal_status': &#123;'divorced male': 2,  'female': 1,  'married male': 3,  'single male': 0&#125;, 'property': &#123;'building society savings': 1,  'other': 3,  'real estate': 0,  'unknown/none': 2&#125;, 'purpose': &#123;'business': 5,  'car (new)': 3,  'car (used)': 4,  'domestic appliances': 6,  'education': 1,  'furniture': 2,  'others': 8,  'radio/tv': 0,  'repairs': 7,  'retraining': 9&#125;, 'savings_balance': &#123;'101 - 500 DM': 2,  '501 - 1000 DM': 3,  '&lt; 100 DM': 1,  '&gt; 1000 DM': 4,  'unknown': 0&#125;, 'telephone': &#123;'none': 1, 'yes': 0&#125;&#125;for col in cols:    if credit[col].dtypes == object: # 判断是非数值列        credit[col] = credit[col].map(col_dicts[col])credit.head(5)</span></span><br></pre></td></tr></table></figure><p> <img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20210430144851.png" alt="image-20210430144850889"></p><ol><li><p>对数值型数据处理</p><p>对数值型数据进行描述性统计</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">credit.describe()</span><br></pre></td></tr></table></figure><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20210430145430.png" alt="image-20210430145424900"></p></li></ol><p> 查看数值型数据缺失情况</p><pre><code><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">credit.select_dtypes(<span class="string">'int64'</span>).isnull().sum()</span><br></pre></td></tr></table></figure> months_loan_duration 0amount 0installment_rate 0residence_history 0age 0existing_credits 0dependents 0default 0dtype: int64</code></pre><p> 可见所有的数值列全部没有缺失值，不需要进行缺失值填补</p><p> 查看数值型数据每列的种类数</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> col <span class="keyword">in</span> credit.select_dtypes(<span class="string">'int64'</span>):    print(<span class="string">"列名："</span> + col + <span class="string">", 有"</span>, credit[col].value_counts().shape[<span class="number">0</span>], <span class="string">"种类型"</span>)</span><br></pre></td></tr></table></figure><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">列名：months_loan_duration, 有 33 种类型列名：amount, 有 921 种类型列名：installment_rate, 有 4 种类型列名：residence_history, 有 4 种类型列名：age, 有 53 种类型列名：existing_credits, 有 4 种类型列名：dependents, 有 2 种类型列名：default, 有 2 种类型</span><br></pre></td></tr></table></figure><p> 可以看到 <code>months_loan_duration</code>， <code>amount</code>， <code>age</code> 连续性比较明显，而且方差比较高，需要进行离散化处理。这里我使用 <code>Kmeans</code> 聚类离散化。其他的列本身就是离散值，没有进行特别的处理</p><pre><code><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.cluster <span class="keyword">import</span> KMeansimport matplotlib.pyplot <span class="keyword">as</span> pltfrom sklearn.metrics <span class="keyword">import</span> silhouette_scorefrom sklearn <span class="keyword">import</span> preprocessingimport matplotlib <span class="keyword">as</span> mplimport numpy <span class="keyword">as</span> npfrom scipy.spatial.distance <span class="keyword">import</span> cdistmpl.rcParams[<span class="string">'font.sans-serif'</span>] = [<span class="string">'KaiTi'</span>, <span class="string">'SimHei'</span>, <span class="string">'FangSong'</span>]  <span class="comment"># 汉字字体,优先使用楷体，如果找不到楷体，则使用黑体mpl.rcParams['font.size'] = 12  # 字体大小mpl.rcParams['axes.unicode_minus'] = False  # 正常显示负号data_col = ['months_loan_duration', 'amount', 'age']</span></span><br></pre></td></tr></table></figure></code></pre><p> 因为需要使用<code>kmeans</code>首先需要数据标准化，这里使用 <code>Z-score</code> 标准化方法。发现因为只对单列进行 <code>K-means</code> ，所以感觉标准化不太必要</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">data_col_zscore = pd.DataFrame(preprocessing.scale(credit[data_col]),columns=credit[data_col].columns)data_col_zscore.head(<span class="number">5</span>)</span><br></pre></td></tr></table></figure><p> <img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20210430151455.png" alt="image-20210430151453161"></p><p> 使用肘部法则 <code>SSE</code> 确定 <code>K-means</code> 中 <code>K</code> 的大小</p><pre><code><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> col <span class="keyword">in</span> data_col:    col = data_col_zscore[col]    s = col.values.reshape(len(col), <span class="number">1</span>)    K=range(<span class="number">1</span>,<span class="number">20</span>)    sse_result=[]    <span class="keyword">for</span> k <span class="keyword">in</span> K:        kmeans=KMeans(n_clusters=k)        kmeans.fit(s)        sse_result.append(sum(np.min(cdist(s,kmeans.cluster_centers_,<span class="string">'euclidean'</span>),axis=<span class="number">1</span>))/s.shape[<span class="number">0</span>])    plt.plot(K,sse_result,<span class="string">'gx-'</span>)    plt.xlabel(<span class="string">'k'</span>)    plt.ylabel(<span class="string">u'平均畸变程度'</span>)    plt.title(<span class="string">u'肘部法则确定'</span> + col.name + <span class="string">'最佳的K值'</span>)    plt.show()</span><br></pre></td></tr></table></figure></code></pre><p> <img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20210430151841.png" alt="image-20210430151839578"></p><p> <img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20210430151921.png" alt="image-20210430151901594"></p><p> <img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20210430151918.png" alt="image-20210430151915855"></p><p> 根据随着 <code>k</code> 增加曲线变缓，说明随着 <code>k</code> 的增加，效果提高的越来越不明显，因此可以确定三列的<code>k</code>的属性</p><pre><code><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">data_k = [<span class="number">3</span>, <span class="number">5</span>, <span class="number">5</span>]</span><br></pre></td></tr></table></figure></code></pre><p> <code>K-means</code> 聚类离散化函数，返回离散化之后列的数据</p><pre><code><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">kmeans_cluster</span><span class="params">(col, k)</span>:</span> <span class="comment"># 传入数据和聚类的簇数    kmodel = KMeans(n_clusters=k) # 建立模型    kmodel.fit(col.values.reshape(len(col), 1)) # 训练模型    c = pd.DataFrame(kmodel.cluster_centers_).sort_values(0) # 输出聚类中心，并且排序    # print(c)    w = c.rolling(2).mean().iloc[1:] # 相邻两项求中点，作为边界点    w = [col.min() - 1] + list(w[0]) + [col.max()] # 把首末边界点加上     # 这个区间坑死了，居然是前开后闭的 ( ] ，不像 python 中其他的都是前闭后开，    # z-score之后数据有负值，因此不能直接使用col.min()，所以首边界需要减 1    # 这个地方网站上的案例都没有注意到，参考了网站案例《Sklearn常用数据预处理方法》介绍 ，里面的也是没有注意到区间的区别    # 结果导致聚类前数据没有nan，聚类之后居然出现了nan    # print(w)    data = pd.cut(col, w, labels=range(k))    return data</span></span><br></pre></td></tr></table></figure></code></pre><p> <img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20210430152524.png" alt="image-20210430152521434"></p><p> 这三列都调用函数，进行离散化</p><pre><code><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(len(data_col)):    col_name = data_col[i]    data = data_col_zscore[col_name]    <span class="comment"># print("聚类前", data.isnull().sum())    data = kmeans_cluster(data, data_k[i])    data.col_name = col    # print("聚类后", data.isnull().sum())    credit.update(data)    # print(credit[data_col[i]].value_counts())</span></span><br></pre></td></tr></table></figure></code></pre><p> 查看离散化之后的数据</p><pre><code><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">credit.head(<span class="number">5</span>)</span><br></pre></td></tr></table></figure></code></pre><p> <img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20210430152606.png" alt="image-20210430152604748"></p><p> 查看处理之后每列的数据类型个数</p><pre><code><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> col <span class="keyword">in</span> credit.columns:    print(<span class="string">"列名："</span> + col + <span class="string">", 有"</span>, credit[col].value_counts().shape[<span class="number">0</span>], <span class="string">"种类型"</span>)</span><br></pre></td></tr></table></figure> 列名：checking_balance, 有 4 种类型 列名：months_loan_duration, 有 3 种类型 列名：credit_history, 有 5 种类型 列名：purpose, 有 10 种类型 列名：amount, 有 5 种类型 列名：savings_balance, 有 5 种类型 列名：employment_length, 有 5 种类型 列名：installment_rate, 有 4 种类型 列名：personal_status, 有 4 种类型 列名：other_debtors, 有 3 种类型 列名：residence_history, 有 4 种类型 列名：property, 有 4 种类型 列名：age, 有 5 种类型 列名：installment_plan, 有 3 种类型 列名：housing, 有 3 种类型 列名：existing_credits, 有 4 种类型 列名：job, 有 4 种类型 列名：dependents, 有 2 种类型 列名：telephone, 有 2 种类型 列名：foreign_worker, 有 2 种类型 列名：default, 有 2 种类型</code></pre><ol><li><p>相关性分析</p><p>生成相关性矩阵</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> seaborn <span class="keyword">as</span> snscredit_coor = credit.corr()credit_coor.head(<span class="number">5</span>)</span><br></pre></td></tr></table></figure><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20210430153231.png" alt="image-20210430153231121"></p></li></ol><p> 画出热力图</p><pre><code><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">plt.subplots(figsize=(<span class="number">18</span>,<span class="number">18</span>),dpi=<span class="number">720</span>,facecolor=<span class="string">'w'</span>)<span class="comment"># 设置画布大小，分辨率，和底色fig=sns.heatmap(credit_coor,annot=True, vmax=1, square=True, cmap="Blues", fmt='.2g')#annot为热力图上显示数据；# fmt='.2g'为数据保留两位有效数字,square呈现正方形，vmax最大值为1fig</span></span><br></pre></td></tr></table></figure></code></pre><p> 从图上可以看出相关性都不是很强，最大的还不到0.6，因此我选择了忽略，不删除任何列</p><p> <img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20210430155223.png" alt=""></p><h2 id="三、模型训练"><a href="#三、模型训练" class="headerlink" title="三、模型训练"></a>三、模型训练</h2><ol><li><p>划分测试集和训练集</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> model_selectiony = credit[<span class="string">'default'</span>]<span class="comment">#del credit['default']X  = credit.loc[:,'checking_balance':'foreign_worker']X_train, X_test, y_train, y_test = model_selection.train_test_split(X, y, test_size=0.3, random_state=1)</span></span><br></pre></td></tr></table></figure></li></ol><p> 查看训练集和测试集中违约贷款比例是否接近</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">print</span> (y_train.value_counts()/len(y_train))<span class="keyword">print</span> (y_test.value_counts()/len(y_test))</span><br></pre></td></tr></table></figure><pre><code>   1    0.6942862    0.305714Name: default, dtype: float641    0.7133332    0.286667Name: default, dtype: float64
+</code></pre><p> 可见比较接近，可以直接使用</p><ol><li><p>模型训练</p><p>这里我选用的是多项式的模型，因为之前使用离散化都弄成离散的数据了，所以使用多项式比较好</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.naive_bayes <span class="keyword">import</span> MultinomialNBcredit_model = MultinomialNB()credit_model.fit(X_train, y_train)</span><br></pre></td></tr></table></figure><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MultinomialNB()</span><br></pre></td></tr></table></figure></li></ol><ol><li><p>使用测试集进行测试</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">credit_pred = credit_model.predict(X_test)</span><br></pre></td></tr></table></figure></li></ol><p> 对模型进行评价</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> metricsprint (metrics.classification_report(y_test, credit_pred))<span class="keyword">print</span> (metrics.confusion_matrix(y_test, credit_pred))<span class="keyword">print</span> (metrics.accuracy_score(y_test, credit_pred))</span><br></pre></td></tr></table></figure><pre><code>                 precision    recall  f1-score   support           1       0.78      0.88      0.83       214           2       0.56      0.37      0.45        86    accuracy                           0.74       300   macro avg       0.67      0.63      0.64       300weighted avg       0.72      0.74      0.72       300[[189  25] [ 54  32]]0.7366666666666667
+</code></pre><p> 可见模型的准确率为 $ 73.7\% $ ，但是违约的 <code>recall</code> 值比较低，说明对违约贷款的识别能力比较差。朴素贝叶斯中多项式模型参数比较少，不能更通过灵活的调参提高准确率。如果像上次实验中使用代价矩阵应该可以提高 $ 2 $ 的 <code>recall</code> 值。</p><h2 id="四、实验总结"><a href="#四、实验总结" class="headerlink" title="四、实验总结"></a>四、实验总结</h2><p>​ 通过本次实验，我了解了朴素贝叶斯的相关用法。朴素贝叶斯分类在参数调整上选择有限，重心应该放在数据的预处理。在实验中使用 <code>K-means</code> ，也练习了 <code>K-means</code> 的用法。但是模型 <code>recall</code> 值感觉比较低，需要进一步使用属性权值进行优化。</p></div><div><ul class="post-copyright"><li class="post-copyright-author"> <strong>本文作者：</strong> luobuyu</li><li class="post-copyright-link"> <strong>本文链接：</strong> <a href="https://www.luobuyu.site/2021/Plain-Bayesian-based-personal-credit-assessment/" title="基于朴素贝叶斯的个人信用评估模型">https://www.luobuyu.site/2021/Plain-Bayesian-based-personal-credit-assessment/</a></li><li class="post-copyright-license"> <strong>版权声明：</strong> 本博客所有文章除特别声明外，均采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i> BY-NC-SA</a> 许可协议。转载请注明出处！</li></ul></div><footer class="post-footer"><div class="post-tags"><a href="/tags/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/" rel="tag"><i class="fa fa-tag"></i> 朴素贝叶斯</a><a href="/tags/%E5%A4%9A%E9%A1%B9%E5%BC%8F%E6%A8%A1%E5%9E%8B/" rel="tag"><i class="fa fa-tag"></i> 多项式模型</a></div><div class="post-nav"><div class="post-nav-item"><a href="/2021/C-Baby-Ehab-Partitions-Again/" rel="prev" title="C.Baby Ehab Partitions Again"><i class="fa fa-chevron-left"></i> C.Baby Ehab Partitions Again</a></div><div class="post-nav-item"> <a href="/2021/C-Recursive-sequence/" rel="next" title="C.Recursive sequence">C.Recursive sequence<i class="fa fa-chevron-right"></i></a></div></div></footer></article></div><div class="comments" id="valine-comments"></div><script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script></div><div class="toggle sidebar-toggle"><span class="toggle-line toggle-line-first"></span><span class="toggle-line toggle-line-middle"></span><span class="toggle-line toggle-line-last"></span></div><aside class="sidebar"><div class="sidebar-inner"><ul class="sidebar-nav motion-element"><li class="sidebar-nav-toc"> 文章目录</li><li class="sidebar-nav-overview"> 站点概览</li></ul><div class="post-toc-wrap sidebar-panel"><div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#基于朴素贝叶斯的个人信用评估"><span class="nav-number">1.</span> <span class="nav-text">基于朴素贝叶斯的个人信用评估</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、实验环境"><span class="nav-number">1.1.</span> <span class="nav-text">一、实验环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、数据预处理"><span class="nav-number">1.2.</span> <span class="nav-text">二、数据预处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、模型训练"><span class="nav-number">1.3.</span> <span class="nav-text">三、模型训练</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、实验总结"><span class="nav-number">1.4.</span> <span class="nav-text">四、实验总结</span></a></li></ol></li></ol></div></div><div class="site-overview-wrap sidebar-panel"><div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person"> <a href="/"><img class="site-author-image" itemprop="image" alt="luobuyu" src="/images/avatar.png"></a><p class="site-author-name" itemprop="name">luobuyu</p><div class="site-description" itemprop="description"></div></div><div class="site-state-wrap motion-element"><nav class="site-state"><div class="site-state-item site-state-posts"> <a href="/archives/"><span class="site-state-item-count">362</span> <span class="site-state-item-name">日志</span></a></div><div class="site-state-item site-state-categories"> <a href="/categories/"><span class="site-state-item-count">66</span> <span class="site-state-item-name">分类</span></a></div><div class="site-state-item site-state-tags"> <a href="/tags/"><span class="site-state-item-count">274</span> <span class="site-state-item-name">标签</span></a></div></nav></div><div class="links-of-author motion-element"><span class="links-of-author-item"><a href="https://github.com/luobuyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;luobuyu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i> GitHub</a></span><span class="links-of-author-item"><a href="mailto:1528751774@qq.com" title="E-Mail → mailto:1528751774@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i> E-Mail</a></span><span class="links-of-author-item"><a href="https://valine.luobuyu.site/" title="Comments → https:&#x2F;&#x2F;valine.luobuyu.site" rel="noopener" target="_blank"><i class="fas fa-comments fa-fw"></i> Comments</a></span></div></div></div></aside><div id="sidebar-dimmer"></div></div></main><footer class="footer"><div class="footer-inner"><div id="aplayer-ukhYMhCo" class="aplayer aplayer-tag-marker meting-tag-marker" data-id="7289878554" data-server="netease" data-type="playlist" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#FF4081" data-listfolded="true"></div><div class="copyright"> &copy; 2020 – <span itemprop="copyrightYear">2024</span><span class="with-love"><i class="fa fa-heartbeat"></i></span> <span class="author" itemprop="copyrightHolder">luobuyu</span><br><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span class="post-meta-divider"></span><span class="post-meta-item-icon"><i class="fa fa-chart-area"></i></span> <span class="post-meta-item-text">站点总字数：</span> <span title="站点总字数">938k</span> <span class="post-meta-divider">|</span><span class="post-meta-item-icon"><i class="fa fa-coffee"></i></span> <span class="post-meta-item-text">站点阅读时长 &asymp;</span> <span title="站点阅读时长">14:13</span></div> <span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span><script>var now=new Date;function createtime(){var n=new Date("07/20/2020 12:00:00");now.setTime(now.getTime()+250),days=(now-n)/1e3/60/60/24,dnum=Math.floor(days),hours=(now-n)/1e3/60/60-24*dnum,hnum=Math.floor(hours),1==String(hnum).length&&(hnum="0"+hnum),minutes=(now-n)/1e3/60-1440*dnum-60*hnum,mnum=Math.floor(minutes),1==String(mnum).length&&(mnum="0"+mnum),seconds=(now-n)/1e3-86400*dnum-3600*hnum-60*mnum,snum=Math.round(seconds),1==String(snum).length&&(snum="0"+snum),document.getElementById("timeDate").innerHTML="luobuyuの个人博客，已经勉强存活了 "+dnum+" 天 ",document.getElementById("times").innerHTML=hnum+" 小时 "+mnum+" 分 "+snum+" 秒"}setInterval("createtime()",250)</script><div class="busuanzi-count"><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span class="post-meta-item" id="busuanzi_container_site_uv" style="display:none"></span><span class="post-meta-item-icon"><i class="fa fa-user"></i></span> <span class="site-uv" title="总访客量">访问人数<span id="busuanzi_value_site_uv"></span></span> <span class="post-meta-divider">|</span><span class="post-meta-item" id="busuanzi_container_site_pv" style="display:none"></span><span class="post-meta-item-icon"><i class="fa fa-eye"></i></span> <span class="site-pv" title="总访问量">总访问量<span id="busuanzi_value_site_pv"></span></span></div></div></footer></div><script src="/lib/anime.min.js"></script><script src="/lib/velocity/velocity.min.js"></script><script src="/lib/velocity/velocity.ui.min.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/pisces.js"></script><script src="/js/next-boot.js"></script><script>!function(){var o,n,e=document.getElementsByTagName("link");if(0<e.length)for(i=0;i<e.length;i++)"canonical"==e[i].rel.toLowerCase()&&e[i].href&&(o=e[i].href);n=o?o.split(":")[0]:window.location.protocol.split(":")[0],o||(o=window.location.href),function(){var e=o,i=document.referrer;if(!/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi.test(e)){var t="https"===String(n).toLowerCase()?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";i?(t+="?r="+encodeURIComponent(document.referrer),e&&(t+="&l="+e)):e&&(t+="?l="+e),(new Image).src=t}}(window)}()</script><script src="/js/local-search.js"></script><script type="text/x-mathjax-config">
+    MathJax.Ajax.config.path['mhchem'] = '//cdn.jsdelivr.net/npm/mathjax-mhchem@3';
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        extensions: ['[mhchem]/mhchem.js'],
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script><script>
+  NexT.utils.getScript('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/GamerNoTitle/Picture-repo-v1@master/css/Valine-Emotion.css"><style>.v[data-class=v] .veditor{background-image:url(https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220325200442.gif);background-size:contain;background-repeat:no-repeat;background-position:right}</style><script>
+
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/valine@1.5.1/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+
+    var requiredFields = ['nick', 'mail', 'link'];
+    var requiredField = 'nick,mail';
+    requiredField = requiredField.split(',').filter(item => {
+      return requiredFields.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'GqF4f53ddiLc4MvB6rAMxrM6-MdYXbMMI',
+      appKey     : 'rn6pv6g3Qzu4mcbqhI7qWEk5',
+      emojiCDN: 'https://valinecdn.bili33.top/',
+      emojiMaps: {
+        "bilibiliHotKey1": "bilibiliHotKey/1.jpg",
+        "bilibiliHotKey2": "bilibiliHotKey/10.jpg",
+        "bilibiliHotKey3": "bilibiliHotKey/11.jpg",
+        "bilibiliHotKey4": "bilibiliHotKey/12.jpg",
+        "bilibiliHotKey5": "bilibiliHotKey/13.jpg",
+        "bilibiliHotKey6": "bilibiliHotKey/14.jpg",
+        "bilibiliHotKey7": "bilibiliHotKey/15.jpg",
+        "bilibiliHotKey8": "bilibiliHotKey/16.jpg",
+        "bilibiliHotKey9": "bilibiliHotKey/17.jpg",
+        "bilibiliHotKey10": "bilibiliHotKey/18.jpg",
+        "bilibiliHotKey11": "bilibiliHotKey/19.jpg",
+        "bilibiliHotKey12": "bilibiliHotKey/2.jpg",
+        "bilibiliHotKey13": "bilibiliHotKey/20.jpg",
+        "bilibiliHotKey14": "bilibiliHotKey/21.jpg",
+        "bilibiliHotKey15": "bilibiliHotKey/22.jpg",
+        "bilibiliHotKey16": "bilibiliHotKey/23.jpg",
+        "bilibiliHotKey17": "bilibiliHotKey/24.jpg",
+        "bilibiliHotKey18": "bilibiliHotKey/25.jpg",
+        "bilibiliHotKey19": "bilibiliHotKey/26.jpg",
+        "bilibiliHotKey20": "bilibiliHotKey/27.jpg",
+        "bilibiliHotKey21": "bilibiliHotKey/28.jpg",
+        "bilibiliHotKey22": "bilibiliHotKey/29.jpg",
+        "bilibiliHotKey23": "bilibiliHotKey/3.jpg",
+        "bilibiliHotKey24": "bilibiliHotKey/30.jpg",
+        "bilibiliHotKey25": "bilibiliHotKey/31.jpg",
+        "bilibiliHotKey26": "bilibiliHotKey/32.jpg",
+        "bilibiliHotKey27": "bilibiliHotKey/4.jpg",
+        "bilibiliHotKey28": "bilibiliHotKey/5.jpg",
+        "bilibiliHotKey29": "bilibiliHotKey/6.jpg",
+        "bilibiliHotKey30": "bilibiliHotKey/7.jpg",
+        "bilibiliHotKey31": "bilibiliHotKey/8.jpg",
+        "bilibiliHotKey32": "bilibiliHotKey/9.jpg",
+        "KeQing1": "KeQing/1MtdPr4y.png",
+        "KeQing2": "KeQing/29E353B37F06F48D0D32B896A555AB10.jpg",
+        "KeQing3": "KeQing/5q8iVluo.png",
+        "KeQing4": "KeQing/6Bo9DvjS.png",
+        "KeQing5": "KeQing/8uRU02Qn.png",
+        "KeQing6": "KeQing/a7Xxm0ou.png",
+        "KeQing7": "KeQing/aEhyb3F5.png",
+        "KeQing8": "KeQing/alT6XmFj.png",
+        "KeQing9": "KeQing/b4l6cyUT.png",
+        "KeQing10": "KeQing/BWYIgTtC.png",
+        "KeQing11": "KeQing/c1ZrqNaX.png",
+        "KeQing12": "KeQing/c7yp9Ewx.png",
+        "KeQing13": "KeQing/CeZsrXIq.png",
+        "KeQing14": "KeQing/CJRTKlGP.png",
+        "KeQing15": "KeQing/COMie4xg.png",
+        "KeQing16": "KeQing/D4G8UsxH.png",
+        "KeQing17": "KeQing/D80028AB4478C5C3986FE1A9FEEFEB35.gif",
+        "KeQing18": "KeQing/e01OVkHC.png",
+        "KeQing19": "KeQing/ELmIkgpZ.png",
+        "KeQing20": "KeQing/fbR6FSd3.png",
+        "KeQing21": "KeQing/Fh58COx7.png",
+        "KeQing22": "KeQing/FM1l6d9h.png",
+        "KeQing23": "KeQing/ghCViEvU.png",
+        "KeQing24": "KeQing/ivmGU68a.png",
+        "KeQing25": "KeQing/JmyRiSt1.png",
+        "KeQing26": "KeQing/jvI8Wa35.png",
+        "KeQing27": "KeQing/lHQhDR71.png",
+        "KeQing28": "KeQing/lxfPMp5I.png",
+        "KeQing29": "KeQing/nK5k6fHL.png",
+        "KeQing30": "KeQing/OsVSotEn.png",
+        "KeQing31": "KeQing/R4QdmJb1.png",
+        "KeQing32": "KeQing/rADUyouz.png",
+        "KeQing33": "KeQing/Rex3GWlg.png",
+        "KeQing34": "KeQing/RkHtnfyU.png",
+        "KeQing35": "KeQing/RrXmaHeb.png",
+        "KeQing36": "KeQing/sJ58YlzP.png",
+        "KeQing37": "KeQing/tjJGYOVF.png",
+        "KeQing38": "KeQing/tTnXvgZH.png",
+        "KeQing39": "KeQing/w37qQAel.png",
+        "KeQing40": "KeQing/W6y0ReEh.png",
+        "KeQing41": "KeQing/xDIO54sg.png",
+        "KeQing42": "KeQing/Xy8BbkcP.png",
+        "KeQing43": "KeQing/YCL13G5e.png",
+        "KeQing44": "KeQing/yG7MulxF.png",
+        "KeQing45": "KeQing/ZDI38NMK.png",
+        "KeQing46": "KeQing/Zl9NR6It.png",
+        "Snow-Miku1": "Snow-Miku/3583066@2x.png",
+        "Snow-Miku2": "Snow-Miku/3583067@2x.png",
+        "Snow-Miku3": "Snow-Miku/3583068@2x.png",
+        "Snow-Miku4": "Snow-Miku/3583069@2x.png",
+        "Snow-Miku5": "Snow-Miku/3583070@2x.png",
+        "Snow-Miku6": "Snow-Miku/3583071@2x.png",
+        "Snow-Miku7": "Snow-Miku/3583072@2x.png",
+        "Snow-Miku8": "Snow-Miku/3583073@2x.png",
+        "Snow-Miku9": "Snow-Miku/3583074@2x.png",
+        "Snow-Miku10": "Snow-Miku/3583075@2x.png",
+        "Snow-Miku11": "Snow-Miku/3583076@2x.png",
+        "Snow-Miku12": "Snow-Miku/3583077@2x.png",
+        "Snow-Miku13": "Snow-Miku/3583078@2x.png",
+        "Snow-Miku14": "Snow-Miku/3583079@2x.png",
+        "Snow-Miku15": "Snow-Miku/3583080@2x.png",
+        "Snow-Miku16": "Snow-Miku/3583081@2x.png",
+        "Snow-Miku17": "Snow-Miku/3583082@2x.png",
+        "Snow-Miku18": "Snow-Miku/3583083@2x.png",
+        "Snow-Miku19": "Snow-Miku/3583084@2x.png",
+        "Snow-Miku20": "Snow-Miku/3583085@2x.png",
+        "Snow-Miku21": "Snow-Miku/3583086@2x.png",
+        "Snow-Miku22": "Snow-Miku/3583087@2x.png",
+        "Snow-Miku23": "Snow-Miku/3583088@2x.png",
+        "Snow-Miku24": "Snow-Miku/3583089@2x.png",
+        "Snow-Miku25": "Snow-Miku/3583090@2x.png",
+        "Snow-Miku26": "Snow-Miku/3583091@2x.png",
+        "Snow-Miku27": "Snow-Miku/3583092@2x.png",
+        "Snow-Miku28": "Snow-Miku/3583093@2x.png",
+        "Snow-Miku29": "Snow-Miku/3583094@2x.png",
+        "Snow-Miku30": "Snow-Miku/3583095@2x.png",
+        "Snow-Miku31": "Snow-Miku/3583096@2x.png",
+        "Snow-Miku32": "Snow-Miku/3583097@2x.png",
+        "Snow-Miku33": "Snow-Miku/3583098@2x.png",
+        "Snow-Miku34": "Snow-Miku/3583099@2x.png",
+        "Snow-Miku35": "Snow-Miku/3583100@2x.png",
+        "Snow-Miku36": "Snow-Miku/3583101@2x.png",
+        "Snow-Miku37": "Snow-Miku/3583102@2x.png",
+        "Snow-Miku38": "Snow-Miku/3583103@2x.png",
+        "Snow-Miku39": "Snow-Miku/3583104@2x.png",
+        "Snow-Miku40": "Snow-Miku/3583105@2x.png",
+        "bilibilitv2": "bilibilitv/[tv_doge].png",
+        "bilibilitv3": "bilibilitv/[tv_亲亲].png",
+        "bilibilitv4": "bilibilitv/[tv_偷笑].png",
+        "bilibilitv5": "bilibilitv/[tv_再见].png",
+        "bilibilitv6": "bilibilitv/[tv_冷漠].png",
+        "bilibilitv7": "bilibilitv/[tv_发怒].png",
+        "bilibilitv8": "bilibilitv/[tv_发财].png",
+        "bilibilitv9": "bilibilitv/[tv_可爱].png",
+        "bilibilitv10": "bilibilitv/[tv_吐血].png",
+        "bilibilitv11": "bilibilitv/[tv_呆].png",
+        "bilibilitv12": "bilibilitv/[tv_呕吐].png",
+        "bilibilitv13": "bilibilitv/[tv_困].png",
+        "bilibilitv14": "bilibilitv/[tv_坏笑].png",
+        "bilibilitv15": "bilibilitv/[tv_大佬].png",
+        "bilibilitv16": "bilibilitv/[tv_大哭].png",
+        "bilibilitv17": "bilibilitv/[tv_委屈].png",
+        "bilibilitv18": "bilibilitv/[tv_害羞].png",
+        "bilibilitv19": "bilibilitv/[tv_尴尬].png",
+        "bilibilitv20": "bilibilitv/[tv_微笑].png",
+        "bilibilitv21": "bilibilitv/[tv_思考].png",
+        "bilibilitv22": "bilibilitv/[tv_惊吓].png",
+        "bilibilitv23": "bilibilitv/[tv_打脸].png",
+        "bilibilitv24": "bilibilitv/[tv_抓狂].png",
+        "bilibilitv25": "bilibilitv/[tv_抠鼻].png",
+        "bilibilitv26": "bilibilitv/[tv_斜眼笑].png",
+        "bilibilitv27": "bilibilitv/[tv_无奈].png",
+        "bilibilitv28": "bilibilitv/[tv_晕].png",
+        "bilibilitv29": "bilibilitv/[tv_流汗].png",
+        "bilibilitv30": "bilibilitv/[tv_流泪].png",
+        "bilibilitv31": "bilibilitv/[tv_流鼻血].png",
+        "bilibilitv32": "bilibilitv/[tv_点赞].png",
+        "bilibilitv33": "bilibilitv/[tv_生气].png",
+        "bilibilitv34": "bilibilitv/[tv_生病].png",
+        "bilibilitv35": "bilibilitv/[tv_疑问].png",
+        "bilibilitv36": "bilibilitv/[tv_白眼].png",
+        "bilibilitv37": "bilibilitv/[tv_皱眉].png",
+        "bilibilitv38": "bilibilitv/[tv_目瞪口呆].png",
+        "bilibilitv39": "bilibilitv/[tv_睡着].png",
+        "bilibilitv40": "bilibilitv/[tv_笑哭].png",
+        "bilibilitv41": "bilibilitv/[tv_腼腆].png",
+        "bilibilitv42": "bilibilitv/[tv_色].png",
+        "bilibilitv43": "bilibilitv/[tv_调侃].png",
+        "bilibilitv44": "bilibilitv/[tv_调皮].png",
+        "bilibilitv45": "bilibilitv/[tv_鄙视].png",
+        "bilibilitv46": "bilibilitv/[tv_闭嘴].png",
+        "bilibilitv47": "bilibilitv/[tv_难过].png",
+        "bilibilitv48": "bilibilitv/[tv_馋].png",
+        "bilibilitv49": "bilibilitv/[tv_鬼脸].png",
+        "bilibilitv50": "bilibilitv/[tv_黑人问号].png",
+        "bilibilitv51": "bilibilitv/[tv_鼓掌].png",
+        "HONKAI3-MEI1": "HONKAI3-MEI/501ac209b259bb545dea898838c24229483fcfeb.gif",
+        "HONKAI3-MEI2": "HONKAI3-MEI/5baf4306d1f685bf47922fbae365ccfba7721beb.gif",
+        "HONKAI3-MEI3": "HONKAI3-MEI/624857651c863ea9571f5e557fca8516dd41e0fc.gif",
+        "HONKAI3-MEI4": "HONKAI3-MEI/680311714674014d0c17f757eb40c3071448222a.gif",
+        "HONKAI3-MEI5": "HONKAI3-MEI/bf68423446465d396d3cbd8856882b5e9fb1c0c7.gif",
+        "HONKAI3-MEI6": "HONKAI3-MEI/d3a2a9c6ad1e2a0b262dca9354ab8de736d81cdf.gif",
+        "HONKAI3-MEI7": "HONKAI3-MEI/dd0fd1f3668f4907c9f6fcd39c6138417ac0e1f5.gif"
+      },
+      placeholder: "Leave a comment now!",
+      avatar     : 'wavatar',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-CN' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://chat.luobuyu.site',
+      requiredFields: requiredField
+    });
+  }, window.Valine);
+});
+</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({pluginRootPath:"live2dw/",pluginJsPath:"lib/",pluginModelPath:"assets/",tagMode:!1,debug:!1,model:{jsonPath:"/live2dw/assets/assets/haru01.model.json"},display:{superSample:2,width:200,height:400,position:"right",hOffset:0,vOffset:-20},mobile:{show:!0,scale:.5},react:{opacityDefault:.7,opacityOnHover:.8},log:!1})</script></body></html>

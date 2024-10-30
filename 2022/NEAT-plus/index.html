@@ -1,0 +1,317 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2"><meta name="theme-color" content="#222"><meta name="generator" content="Hexo 4.2.1"><link rel="apple-touch-icon" sizes="180x180" href="/images/favicon-1.png"><link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-1.png"><link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-1.png"><link rel="mask-icon" href="/images/favicon-1.png" color="#222"><meta name="google-site-verification" content="lkGKflS_fVXQNJnC_UXP0lqUEpV4NFx0b000PxRrX7g"><meta name="baidu-site-verification" content="codeva-Uj3syugSr3"><link rel="stylesheet" href="/css/main.css"><link rel="stylesheet" href="/lib/font-awesome/css/all.min.css"><link rel="stylesheet" href="//cdn.jsdelivr.net/npm/pace-js@1.2.4/themes/blue/pace-theme-minimal.css"><script src="//cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><script id="hexo-configurations">var NexT=window.NexT||{},CONFIG={hostname:"www.luobuyu.site",root:"/",scheme:"Gemini",version:"7.8.0",exturl:!1,sidebar:{position:"right",display:"post",padding:18,offset:12,onmobile:!1},copycode:{enable:!0,show_result:!1,style:null},back2top:{enable:!0,sidebar:!1,scrollpercent:!1},bookmark:{enable:!1,color:"#222",save:"auto"},fancybox:!1,mediumzoom:!1,lazyload:!1,pangu:!1,comments:{style:"tabs",active:null,storage:!0,lazyload:!1,nav:null},algolia:{hits:{per_page:10},labels:{input_placeholder:"Search for Posts",hits_empty:"We didn't find any results for the search: ${query}",hits_stats:"${hits} results found in ${time} ms"}},localsearch:{enable:!0,trigger:"auto",top_n_per_article:1,unescape:!1,preload:!1},motion:{enable:!0,async:!1,transition:{post_block:"fadeIn",post_header:"slideDownIn",post_body:"slideDownIn",coll_header:"slideLeftIn",sidebar:"slideUpIn"}},path:"search.xml"}</script><meta name="description" content="NEAT+优化目标是最小化平均流的完成时间，它利用底层网络调度器的信息和可用的计算资源来做出任务调度决策。NEAT+是一个任务调度器，它的核心是任务完成时间预测器。NEAT+ 的任务调度加上正确选择的网络调度策略，确保任务尽快完成。"><meta property="og:type" content="article"><meta property="og:title" content="数据中心资源调度"><meta property="og:url" content="https://www.luobuyu.site/2022/NEAT-plus/index.html"><meta property="og:site_name" content="Luobuyu&#39;s Blog"><meta property="og:description" content="NEAT+优化目标是最小化平均流的完成时间，它利用底层网络调度器的信息和可用的计算资源来做出任务调度决策。NEAT+是一个任务调度器，它的核心是任务完成时间预测器。NEAT+ 的任务调度加上正确选择的网络调度策略，确保任务尽快完成。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220221101513.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220221112738.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220221150456.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220221163314.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220224183240.png"><meta property="article:published_time" content="2022-02-21T00:42:46.000Z"><meta property="article:modified_time" content="2024-10-30T14:47:37.480Z"><meta property="article:author" content="luobuyu"><meta property="article:tag" content="云计算"><meta property="article:tag" content="资源调度"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220221101513.png"><link rel="canonical" href="https://www.luobuyu.site/2022/NEAT-plus/"><script id="page-configurations">CONFIG.page={sidebar:"",isHome:!1,isPost:!0,lang:"zh-CN"}</script><title>数据中心资源调度 | Luobuyu's Blog</title><noscript><style>.sidebar-inner,.use-motion .brand,.use-motion .collection-header,.use-motion .comments,.use-motion .menu-item,.use-motion .pagination,.use-motion .post-block,.use-motion .post-body,.use-motion .post-header{opacity:initial}.use-motion .site-subtitle,.use-motion .site-title{opacity:initial;top:initial}.use-motion .logo-line-before i{left:initial}.use-motion .logo-line-after i{right:initial}</style></noscript><link rel="alternate" href="/atom.xml" title="Luobuyu's Blog" type="application/atom+xml"><link rel="stylesheet" href="/assets/css/APlayer.min.css" class="aplayer-style-marker"><script src="/assets/js/APlayer.min.js" class="aplayer-script-marker"></script><script>var meting_api="https://api.injahow.cn/meting/?server=:server&type=:type&id=:id&r=:r"</script><script src="/assets/js/Meting.min.js" class="meting-script-marker"></script></head><body itemscope itemtype="http://schema.org/WebPage"><div class="container use-motion"><div class="headband"></div><header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="header-inner"><div class="site-brand-container"><div class="site-nav-toggle"><div class="toggle" aria-label="切换导航栏"><span class="toggle-line toggle-line-first"></span><span class="toggle-line toggle-line-middle"></span><span class="toggle-line toggle-line-last"></span></div></div><div class="site-meta"><a href="/" class="brand" rel="start"><span class="logo-line-before"><i></i></span><h1 class="site-title">Luobuyu's Blog</h1><span class="logo-line-after"><i></i></span></a></div><div class="site-nav-right"><div class="toggle popup-trigger"><i class="fa fa-search fa-fw fa-lg"></i></div></div></div><nav class="site-nav"><ul id="menu" class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i> 首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i> 关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i> 标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i> 分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i> 归档</a></li><li class="menu-item menu-item-music"><a href="/music/" rel="section"><i class="fa fa-music fa-fw"></i> 歌单</a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i> 朋友</a></li><li class="menu-item menu-item-search"><a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i> 搜索</a></li></ul></nav><div class="search-pop-overlay"><div class="popup search-popup"><div class="search-header"><span class="search-icon"><i class="fa fa-search"></i></span><div class="search-input-container"> <input autocomplete="off" autocapitalize="off" placeholder="搜索..." spellcheck="false" type="search" class="search-input"></div><span class="popup-btn-close"><i class="fa fa-times-circle"></i></span></div><div id="search-result"><div id="no-result"><i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i></div></div></div></div></div></header><div class="back-to-top"><i class="fa fa-arrow-up"></i> <span>0%</span></div><main class="main"><div class="main-inner"><div class="content-wrap"><div class="content post posts-expand"><article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN"><link itemprop="mainEntityOfPage" href="https://www.luobuyu.site/2022/NEAT-plus/"><span hidden itemprop="author" itemscope itemtype="http://schema.org/Person"><meta itemprop="image" content="/images/avatar.png"><meta itemprop="name" content="luobuyu"><meta itemprop="description" content=""></span><span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization"><meta itemprop="name" content="Luobuyu's Blog"></span><header class="post-header"><h1 class="post-title" itemprop="name headline"> 数据中心资源调度</h1><div class="post-meta"><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar"></i></span> <span class="post-meta-item-text">发表于</span> <time title="创建时间：2022-02-21 08:42:46" itemprop="dateCreated datePublished" datetime="2022-02-21T08:42:46+08:00">2022-02-21</time></span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-folder"></i></span> <span class="post-meta-item-text">分类于</span> <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/%E8%AE%BA%E6%96%87/" itemprop="url" rel="index"><span itemprop="name">论文</span></a></span> ， <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/%E8%AE%BA%E6%96%87/%E4%BA%91%E8%AE%A1%E7%AE%97%E8%B0%83%E5%BA%A6/" itemprop="url" rel="index"><span itemprop="name">云计算调度</span></a></span></span><span id="/2022/NEAT-plus/" class="post-meta-item leancloud_visitors" data-flag-title="数据中心资源调度" title="热度"><span class="post-meta-item-icon"><i class="fa fa-eye"></i></span> <span class="post-meta-item-text">热度：</span><span class="leancloud-visitors-count"></span> <span>℃</span></span><span class="post-meta-item" title="热度" id="busuanzi_container_page_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i></span> <span class="post-meta-item-text">热度：</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-comment"></i></span> <span class="post-meta-item-text">评论：</span><a title="valine" href="/2022/NEAT-plus/#valine-comments" itemprop="discussionUrl"><span class="post-comments-count valine-comment-count" data-xid="/2022/NEAT-plus/" itemprop="commentCount"></span></a></span><br><span class="post-meta-item" title="本文字数"><span class="post-meta-item-icon"><i class="far fa-file-word"></i></span> <span class="post-meta-item-text">本文字数：</span> <span>20k</span></span><span class="post-meta-item" title="阅读时长"><span class="post-meta-item-icon"><i class="far fa-clock"></i></span> <span class="post-meta-item-text">阅读时长 &asymp;</span> <span>18 分钟</span></span><div class="post-description">NEAT+优化目标是最小化平均流的完成时间，它利用底层网络调度器的信息和可用的计算资源来做出任务调度决策。NEAT+是一个任务调度器，它的核心是任务完成时间预测器。NEAT+ 的任务调度加上正确选择的网络调度策略，确保任务尽快完成。</div></div></header><div class="post-body" itemprop="articleBody"><h1 id="Network-Scheduling-and-Compute-Resource-Aware-Task-Placement-in-Datacenters"><a href="#Network-Scheduling-and-Compute-Resource-Aware-Task-Placement-in-Datacenters" class="headerlink" title="Network Scheduling and Compute Resource Aware Task Placement in Datacenters"></a>Network Scheduling and Compute Resource Aware Task Placement in Datacenters</h1><h2 id="一、摘要"><a href="#一、摘要" class="headerlink" title="一、摘要"></a>一、摘要</h2><p>为了提高数据密集型应用程序的性能，现有的数据中心调度器优化了任务的位置或网络流的调度。任务调度程序努力将任务放置在输入数据（即，最大化数据局部性），以最大限度地减少网络流量，同时假设网络公平共享。网络调度器根据任务调度器确定的流的来源和目的地尽可能快地完成流，而调度基于流属性（例如大小、截止日期和相关性），不受公平共享的约束。两个调度器的假设不一致会影响应用程序的整体性能。在本文中，我们提出了一个任务调度框架NEAT+，它利用<strong>底层网络调度器的信息</strong>和<strong>可用的计算资源</strong>来做出任务调度决策。NEAT+ 的核心是<strong>任务完成时间预测器</strong>，该预测器在给定的网络条件和给定的网络调度策略下估计任务的完成时间。NEAT+ 利用预测的任务完成时间来最小化活动任务的平均完成时间。使用 ns2 仿真和真实试验平台进行的评估表明，对于<strong>次优网络调度策略</strong>，NEAT+ 将应用程序性能提高了 $ 3.7 $ 倍，对于最佳网络调度策略，NEAT+ 将应用程序性能提高了 $ 33\% $ 。</p><p>关键词：数据中心网络、网络调度、任务调度、云计算。</p><h2 id="二、介绍"><a href="#二、介绍" class="headerlink" title="二、介绍"></a>二、介绍</h2><p>​ 数据传输时间对数据中心内的任务完成时间有重大影响，因为大多数数据中心应用程序（如MapReduce[19]、Pregel[30]、MPI[24]、Dryad[27]）都是数据密集型的，它们需要访问分布在整个网络中的数据。<em>（也就类似于 IO 占比比较高）</em> 例如，对于 MapReduce，30%的任务完成时间用于在网络上传输数据[39]。对于大型商业数据中心，随机数据的传输是网络流量的主要来源[3]。.在 Facebook[39] MapReduce 集群中，20%的工作都是无序的（即生成大量无序数据），而在雅虎！集群[13]这一比例高达60%。无序数据导致的网络拥塞是降低 MapReduce 作业性能的关键因素[18]。因此，数据中心的数据传输时间对于提高应用程序性能至关重要。</p><p>​ 之前关于最小化数据传输时间的工作分为两类：任务调度（[3]、[8]、[28]、[29]、[34]、[39]）和网络调度（[6]、[9]、[15]–[17]、[20]、[26]、[31]、[32]、[41]、[42]）。<strong>任务调度的思想</strong>是将计算任务放置在靠近输入数据的位置，以便最大限度地提高数据的局部性，最小化网络流量[8]，[28]，[39]。<em>（减少网络传输花费的时间）</em> 。<strong>网络调度</strong>的思想是根据给定的流属性（如大小、截止日期和流之间的相关性）和给定的任务位置，在共享链路上调度任务生成的流或流组（即 coflows），以最小化流完成时间[6]、[17]、[26]、[31]、[32]。现有任务调度策略的局限性在于，它们在设计流量矩阵时假设网络带宽的公平共享，<strong>而忽略了网络调度器分配给不同流的优先级</strong>；同时，网络调度器基于流优先级（例如大小或截止日期）来调度流，如果将低优先级流放置在具有高优先级流的路径共享链路上，则低优先级流的流完成时间可能会增加。网络调度器的局限性在于，每个流的源/目的地由任务调度器独立决定，不一定是最优的。</p><p>​ 在本文中，我们提出了一个支持网络调度的任务调度框架NEAT+，它利用网络调度策略、网络状态和可用计算资源（+）为数据密集型应用程序做出任务放置决策。NEAT+ 的任务调度加上正确选择的网络调度策略，确保任务尽快完成。NEAT+背后显而易见的是，数据密集型任务的良好布局应该分散流量，以最小化网络链接的共享，并平衡节点之间的负载。然而，当共享不可避免时，首选调度策略取决于网络计划的流动方式，如下例所示。</p><h3 id="Motivating-Example"><a href="#Motivating-Example" class="headerlink" title="Motivating Example"></a>Motivating Example</h3><p>让我们考虑图1中的一个简单场景，即我们想把一个 需要从运行在节点2上的任务M读取数据 的任务R放到候选主机节点1或节点3上。<em>（ $ M \to R $ ，其中 $ M $ 运行在节点 $ 2 $ 上）</em></p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220221101513.png" alt="image-20220221101506126"></p><center>图 1. 网络调度感知布局</center><p>目前，网络在路径 $ 2 $ 上有一个剩余大小为 $ 4 $ Gb 的流 $ \to 3 $ ，如果单独运行，则需要 $ 4 $ 秒钟（在 $ 1 $ Gbps链路上）才能完成。路径 $ 2 $ 上还有另外两个流 $ \to 1 $ ，每个剩余的大小为 $ 10 $ Gb，因此如果单独运行，则需要 $ 10 $ 秒以上 <em>( $ 20 $ 秒)</em>。假设候选任务 $ R $ 的输入数据大小为 $ 5 $ Gb <em>（ $ 5 $ 秒）</em>，我们的目标是尽快完成任务。</p><ul><li><p>假设网络中使用的是先到先服务调度（FCFS），我们将把任务 $ R $ 放在节点 $ 3 $ 上，因为它提供的完成时间比放在节点 $ 1 $ 上的 $ 25 $ 秒要短 $ 9 $ 秒，因为在现有流完成数据传输之前，不会调度流 $ R $ 。</p></li><li><p>假设网络中使用的是公平调度（fair），我们将把任务 $ R $ 放在节点 $ 3 $ 上，因为在节点 $ 3 $ 上完成流 $ R $ 需要 $ 9 $ 秒，而在节点 $ 1 $ 上则需要 $ 15 $ 秒。</p><p><em>(每用户获得相同的处理机时间)</em> 在节点 $ 1 $ 上时，一共有三个流，所以需要 $ 15 $ 秒 $ R $ 才能完成。在节点 $ 3 $ 上时，一共有两个流，所以需要 $ 2 \times 4 + 1 = 9 $ 秒完成。看来与剩余的流的大小和数量有关</p></li><li><p>假设网络中使用的是最短剩余处理时间（SRPT）调度，我们将把任务 $ R $ 放在节点 $ 1 $ 上，因为它可以通过抢占两个现有流在节点 $ 1 $ 上 $ 5 $ 秒钟内完成。</p><p><em>因为节点 $ 1 $ 上两个流都是需要 $ 10 $ 秒才能完成，剩余时间比较长，因此会被抢占。而节点 $ 3 $ 上的一个流需要 $ 4 $ 秒就完成了，因此不会被抢占。</em></p></li></ul><p>我们假设具有相同优先级的流与现有解决方案中的流公平地共享网络[6]，[31]。然而，如果目标是最小化网络中所有活动流的总（即总和）流完成时间的增加，那么在SRPT下，调度器将选择节点 $ 3 $ 以最小化网络中流的完成时间的增加（即，新流的完成时间加上现有流的完成时间的增加）。我们发现，网络中的最佳任务调度可能会因网络调度策略和网络性能指标的不同而有所不同。类似地，可用的计算资源可以显著影响流性能。</p><h3 id="NEAT-Overview"><a href="#NEAT-Overview" class="headerlink" title="NEAT+ Overview"></a>NEAT+ Overview</h3><p>NEAT+ 在其设计中利用了这些见解，并提供了一个任务调度框架，以最小化网络中的平均流完成时间（AFCT）。NEAT+ 使用任务性能预测器，在任意网络调度策略下预测给定任务的完成时间。在更好的资源或应用模型和预测器方面，NEAT+具有相当的可插拔性。NEAT+ 通过两个步骤做出任务安排决策：</p><ol><li>首先，它通过假设在每个候选节点上放置一个任务并根据网络调度策略和网络状态分析其性能来预测任务性能。</li><li>接下来，它根据预测的任务完成时间和节点状态为任务选择一个节点，该节点状态表征了现有流的大小。</li></ol><p>提出的任务放置机制关注任务调度决策中的网络性能，并额外使用节点属性（例如CPU、内存）来确定节点是否为候选主机。为了实现这个想法，NEAT+ 解决了两个挑战：</p><ol><li>设计NEAT+ 的第一个技术挑战是准确预测给定网络状态和调度策略下任务的性能。我们使用数据传输的完成时间，即<strong>流完成时间（FCT）</strong>或<strong>同流完成时间（CCT）</strong>，来衡量总体任务性能。与以网络为中心的性能指标（如延迟、抖动和可用带宽）相比，完成时间是以任务为中心的，并且更好地模拟了网络条件对任务性能的影响（ $ \S $ VI）。</li><li>第二个技术挑战是有效收集网络状态信息并做出调度决策。</li></ol><p>如图 $ 2 $ 所示，NEAT+使用了一个分布式控制框架，该框架包含两个组件：一个本地控制器（网络守护进程 network<br>daemon ），它维护每个节点上所有活动流（或共流）的压缩状态，以预测任务完成时间，以及一个全局控制器（任务调度守护进程 task placement daemon），它从本地控制器收集预测的任务完成时间，以做出任务调度决策。在这里，“节点”指的是能够运行任务的终端主机（例如服务器）。局部控制器利用流状态信息预测边缘链路（即直接连接到节点的链路）上的FCT/CCT，在此基础上，全局控制器使用贪婪算法选择边缘链路上FCT/CCT最小的节点。为了减少与本地控制器的通信，全局控制器还维护每个节点的状态，定义为该节点上<strong>最小活动流的剩余大小</strong>和<strong>可用的计算资源</strong>，以便仅接触具有首选状态的节点。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220221112738.png" alt="image-20220221112738488"></p><center>图二. NEAT+ 框架</center><p>优点：</p><p>​ NEAT+ 不需要对网络进行任何更改。然而，它需要来自应用程序的任务信息（例如大小），类似于之前的工作[6]、[15]、[31]，以准确预测任务完成时间。对于经常性工作负载，可以通过监视任务执行来推断这些信息[29]。</p><p>​ NEAT+的性能上限是受底层网络（流/共流）调度策略的限制。当网络调度策略不理想时（例如，公平、LAS），当我们的目标是FCT时，有很大的改进空间，而NEAT+能够显著提高任务绩效；当网络调度策略接近最优（SRPT）时，改进的空间减少了，在这种情况下，NEAT+仍然取得了显著的改进。</p><h3 id="NEAT-Evaluation"><a href="#NEAT-Evaluation" class="headerlink" title="NEAT+ Evaluation"></a>NEAT+ Evaluation</h3><p>我们基于各种生产工作负载[6]、[19]和网络调度策略（如DCTCP[5]、L2DCT[32]、PASE[31]和Varys[17]），使用跟踪驱动模拟器和10台机器的测试台来评估NEAT+。我们评估了另外两种最先进的任务调度策略：loadAware，它在所有节点上均匀分配负载，minDist，它总是选择最接近输入数据的节点。当底层网络调度策略是公平的（DCTCP[5]）时，NEAT+的性能比备选策略好 $ 3.7 $ 倍，当策略是最低服务（LAS）（L2DCT[32]）时，性能比备选策略好 $ 3 $ 倍，当策略是SRPT（PASE[31]）时，性能比备选策略好 $ 33\% $ 。在这两种情况下，NEAT+都通过了解网络调度策略来提高性能。特别是，由于公平是大多数商业数据中心的基本政策，因此在大多数情况下，NEAT+可以显著提高数据密集型应用程序的性能。</p><h2 id="三、现有技术的局限性"><a href="#三、现有技术的局限性" class="headerlink" title="三、现有技术的局限性"></a>三、现有技术的局限性</h2><h3 id="Related-Work"><a href="#Related-Work" class="headerlink" title="Related Work"></a>Related Work</h3><p>​ 任务调度：最先进的任务调度程序遵循“最大化数据局部性”的原则，以最小化网络上的数据传输。对于作业的第一阶段（如Map），延迟调度[39]和基于流的调度[28]等技术试图将任务放置在机器或机架上，这些机器或机架的大部分输入数据都位于这些机器或机架上。相反，Mantri在放置减缩器时优化了数据位置[8]。然而，当数据分布在整个集群中时（例如，在HDFS[10]这样的分布式文件系统中），随后的作业阶段（例如，洗牌阶段）必须使用跨机架链接读取数据，并且通常会出现严重的网络拥塞[14]。为了缓解这个问题，ShuffleWatcher[3]等技术试图将作业的映射任务定位到一个或几个机架上，从而减少跨机架的洗牌。然而，这种技术最终会增加输入数据的跨机架传输。Sinbad[14]也利用了类似的想法来放置流的端点，以避免拥塞的链接，但Sinbad适用于一种特殊类型的流（复制的文件系统写入），与底层网络调度策略无关。当作业的输入数据事先已知时，可以使用Corral[29]等技术将输入数据打包到几个机架上，这样就可以对本地数据执行所有计算。类似地，已经提出了许多基于公平性的集群调度框架[21]–[23]、[25]、[36]或分散缓解技术[7]、[8]、[33]、[40]。然而，这些工作假定在网络中公平共享，并且不考虑底层网络调度策略的影响。另一类工作[11]，[12]是联合网络和任务执行调度，但这些工作假设他们了解任务到达时间，并[12]做出离线任务调度决策。类似地，[38]提议联合安排任务安排和流程安排。但是，NEAT+只优化任务布局，不会对流程调度进行任何更改。</p><p>​ 网络调度：通常情况下，数据密集型作业的执行时间大部分用于数据传输[39]，因此，它们的性能在很大程度上取决于网络调度的性能。近年来，人们提出了各种网络调度系统，如DCTCP[5]、L2DCT[32]、PASE[31]、Varys[17]和Baraat[20]。其中许多协议提供了接近最佳的数据传输时间，但总体任务性能的改善是有限的，因为它们没有优化流的源/目的地的位置。NEAT+通过两种方式解决了这些限制：它放置流的目的地（通过任务放置），同时考虑底层网络调度策略，以最小化总体数据传输时间；它使用性能预测器，捕捉网络状态和网络调度策略的本质。</p><h3 id="Comparative-Study"><a href="#Comparative-Study" class="headerlink" title="Comparative Study"></a>Comparative Study</h3><p>​ 当与不同的网络调度策略一起使用时，任务调度策略的性能会有所不同。为了说明这一点，我们比较了两种任务调度策略在两种不同网络调度策略下的性能。对于任务调度策略，我们考虑：最小距离放置（Minist），它放置每个任务以使其与输入数据的距离最小化，以及最小负载放置（loadAware），它将负载分布在所有节点上。对于网络调度策略，我们考虑：DCTCP[5]，它近似于公平共享策略，以及PASE[31]，它近似于网络中的最短剩余处理时间（SRPT）策略。</p><p>​ 我们模拟了160台机器的拓扑结构，使用折叠 CLOS 拓扑连接，如[31]所示。我们将链路配置为 $ 200 $ 微秒 RTT 和1 Gbps（边缘）或10 Gbps（核心）带宽。我们根据数据挖掘工作量[6]生成的流需求，评估上述任务/网络调度策略的每种组合。图3（a）和图3（b）分别显示了在 Fair 和 SRPT 网络调度策略下，不同流量大小下 minDist 的FCT和loadAware的FCT之间的比率。带有坐标 $ (x,y) $ 的条形图表示大小为 $ x $ 的流的FCT比率为 $ y $ ，其中 $ y \lt 1 $ 表示minDist 优于 loadAware， $ y \gt 1 $ 表示相反。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220221150456.png" alt="image-20220221150456672"></p><center>图3. SRPT 和 Fair 网络调度策略下 minDist 和 loadAware 布局的比较</center><p>​ 结果表明，当网络遵循SRPT政策（图3（a））时，minDist 调度效果更好（比率小于1）。相比之下，当网络遵循公平策略（图3（b））时，loadAware placement 对大多数流大小都更有效。结果可以用以下观察来解释： 当网络遵循SRPT策略时（图3(a)），短流量抢占长流量。并获得全部链路带宽。因此，短流程可以实现接近最佳的完成时间。我们在FCT日志中进行了验证，但由于页面限制，省略了细节。短流完成后，长流可以使用更多的带宽，从而可以快速完成。minDist 调度优于minLoad 调度，因为它最小化了总网络负载，即每个流的大小和跳数的乘积之和。相反，当网络遵循 Fair 策略（图3（b））时，短流不再优先于长流。loadAware 调度工作得更好，尤其是对于长流，因为它确保长流避免被放置在具有现有长流的节点上。然而，图3（b）显示，与Minist布局相比，在loadAware布局下，短流可能遭受更长的FCT。当新到达的长流被放置在具有持续短流的节点上时，通常会发生这种情况，从而增加短流的FCT。综上所述，本实验表明任务分配的性能取决于底层的网络调度策略。因此，设计一个考虑底层网络调度策略的任务放置框架非常重要。</p><h2 id="四、系统概述"><a href="#四、系统概述" class="headerlink" title="四、系统概述"></a>四、系统概述</h2><p>​ NEAT+，是一个支持网络调度的任务调度框架，它在做出任务调度决策时考虑网络调度策略和网络状态。NEAT+考虑通过将任务放置在作为流目的地（共流）的节点上，在网络中同时放置流和共流。布局框架与底层网络调度策略（例如，Fair、FCFS、LAS、SRPT）相结合，确保在任务之间正确分配网络资源，以最小化其平均完成时间。</p><p>​ NEAT+使用一个集中的体系结构来做出任务位置决策，如图4所示。它利用现有任务调度系统[25]、[36]的主从架构，以分布式方式实现其功能。NEAT+有两个组件：</p><ul><li>一个集中式全局任务调度守护程序和</li><li>一个分布式每节点网络守护程序。</li></ul><p>这两个组件交换信息，以实现基于表单的网络感知任务调度。</p><h3 id="Network-Daemon"><a href="#Network-Daemon" class="headerlink" title="Network Daemon"></a>Network Daemon</h3><p>NEAT+网络守护进程（类似于 Hadoop 中的节点管理器）在网络中的所有节点（即 endhosts）上运行，并使用数据传输的完成时间（FCT 表示 flow，CCT表示 coflow）作为预测任务性能的指标。预测基于网络状态，例如所有活动流的（剩余）大小，以及网络调度策略。因此，网络守护进程执行两项功能：（i）维护节点上所有活动任务的网络信息（例如流的数量及其剩余大小），以及（ii）在任务放置守护进程请求时预测新任务的性能，根据第四节中的分析，NEAT+只考虑任务性能预测的边缘链接。因此，任务性能预测是基于只有边缘链路是网络中的瓶颈，而核心链路是无拥塞的假设。因此，NEAT+只需要在终端主机上维护流量信息，不需要网络的任何反馈。</p><h3 id="Task-Placement-Daemon"><a href="#Task-Placement-Daemon" class="headerlink" title="Task Placement Daemon"></a>Task Placement Daemon</h3><p>NEAT+task placement daemon通过两个步骤做出放置决策：首先，它查询节点上的网络守护程序，这些节点是给定任务的有效主机（由节点状态、CPU和内存确定），以了解它们的预测任务性能。接下来，它选择使用预测的任务完成时间和节点状态（即，每个节点上的活动任务的最小剩余流量大小）来将任务放置任务的最佳节点或节点子集。它还将节点状态缓存在本地，以便于将来做出放置决策，如下所述。每当在节点上放置新任务或完成现有任务时，节点状态缓存都会更新。</p><h3 id="NEAT-Workflow"><a href="#NEAT-Workflow" class="headerlink" title="NEAT+ Workflow"></a>NEAT+ Workflow</h3><p>​ 如图4所示，当任务放置守护进程收到放置新任务的请求（步骤1）时，它会根据节点状态的本地副本识别一组首选主机，并联系相应的网络守护进程以获得新任务的预测性能（步骤2）。每个网络守护进程维护本地网络状态（例如在节点开始/结束的流的数量和大小），并使用此状态以及网络调度策略的知识来预测新任务的性能。然后，task placement守护进程收集这些信息（步骤3），并根据预测的性能将任务放置在首选主机中的最佳主机上（步骤4）。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220221163314.png" alt="image-20220221163307471"></p><center>图4. NEAT+组件</center><p>​ 讨论：有几点值得澄清。首先，NEAT+是一个任务放置框架，因此，它不会对网络交换机或网络调度机制进行任何更改。网络拥塞由底层网络调度策略管理。然而，NEAT+通过在网络上适当分配流量负载，有助于缓解网络拥塞。此外，在当前的设计中，NEAT+将网络抽象为一个单交换机拓扑结构，如早期作品[6]，[29]中所假设的那样。单交换机假设意味着只有边缘链路是瓶颈，因此对于任务完成时间（FCT/CCT）预测，它只考虑边缘链路。然而，这种限制并不是NEAT+的基础，我们将在第七节讨论如何将其扩展到其他拓扑。</p><p>​ 在接下来的两部分中，我们将更详细地讨论任务性能预测和NEAT+设计。</p><h2 id="五、任务性能预测"><a href="#五、任务性能预测" class="headerlink" title="五、任务性能预测"></a>五、任务性能预测</h2><p>​ NEAT+有一个可插拔的任务性能预测器，可以在任意网络调度策略下预测给定任务的完成时间。我们分析的一个有趣的见解是：对于 flow-based 的调度，即使基础策略不公平，在温和条件下根据公平策略预测FCT也足够了；然而，对于基于coflow的调度，这通常是不正确的。</p><p>​ 从网络的角度来看，将任务放到服务器上相当于将流放到路径上（或将同流放到一组路径上）。现在我们定义了流布局的目标函数；同流布局的目标函数是类似的。对于流布局，我们的目标是将每个流放置在路径上，以最小化所有活动流的总和（从而平均）FCT。考虑一个具有大小为 $ S_f $ （bits）在路径 $ p_f $ 上的流 $ f $ 。让 $ FCT(F,L) $ 表示 Link $ l \in p_f $ 上的流动 $ f $ 的完成时间（即，流通过链路 $ l $ 完成传输所需的时间）。现在考虑在路径 $ p_{f0} $ 上放置一个新的流 $ f_0 $ 。使用 $ \Delta \text{FCT}(f,l) $ 表示由于 $ f_0 $ 的调度，链路 $ l $ 上完成 $ f $ 增加的时间。使用 $ F $ 表示网络中的 cross-flows 集合（与 $ f_0 $ 共享至少一条链路的流）。<strong>然后，由于 $ f_0 $ 的放置，所有活动流的总和 FCT 的增加等于</strong></p><script type="math/tex;mode=display">
+\begin{array}{r}
+\max _{l \in p_{f_{0}}} \mathrm{FCT}\left(f_{0}, l\right)+\sum_{f \in F}\left(\max _{l \in p_{f}}(\mathrm{FCT}(f, l)+\Delta \mathrm{FCT}(f, l))\right. 
+\left.-\max _{l \in p_{f}} \mathrm{FCT}(f, l)\right)
+\end{array}</script><p>最佳的放置方式是放置 $ f_0 $ ，使得上面公式<strong>最小化</strong>（注意上面公式取决于 $ p_{f_0} $ ）。原始目标（1）要求在为每个流量 $ f \in F $ 以及 $ f $ 穿过的每一跳在放置f0之前和之后计算FCT。为了简化计算，我们交换求和和和最大化的顺序，以获得另一个目标函数</p><script type="math/tex;mode=display">
+\begin{aligned}
+\max _{l \in p_{f_{0}}} \mathrm{FCT}(&\left.f_{0}, l\right)+\max _{l \in p_{f_{0}}} \sum_{f \in F_{l}} \Delta \mathrm{FCT}(f, l) \\
+& \geq \max _{l \in p_{f_{0}}}\left(\operatorname{FCT}\left(f_{0}, l\right)+\sum_{f \in F_{l}} \Delta \mathrm{FCT}(f, l)\right)
+\end{aligned}</script><p>其中 $ F_l $ 是穿过链路 $ l $ 的流的集合。注意，（2）只是（1）的近似值，因此最小化（2）并不保证最小化总和 FCT。然而，正如我们后面所展示的，备选目标（2）有一个很好的性质，即在一定条件下（见命题4.1和命题4.2），它对网络调度策略是不变的，达到一个恒定的比例，对于各种流和网络调度策略，最小化（2）的布局在最小化FCT方面取得了优异的性能。</p><p>​ 为了简化分析，我们不考虑未来任务到达或任务完成对预测的影响。我们选择这种设计有利于NEAT+设计的适用性（不需要预测能力）和稳定性（不移动现有流量）（见备注 $ \S V-A1 $ ）。</p><h3 id="A-FCT-Prediction-for-Flow-Scheduling"><a href="#A-FCT-Prediction-for-Flow-Scheduling" class="headerlink" title="A. FCT Prediction for Flow Scheduling"></a>A. FCT Prediction for Flow Scheduling</h3><p>​ 给定流 $ f_0 $ 及其交叉流的位置， $ f_0 $ 的FCT由网络采用的调度策略决定。因此，我们研究了几种广泛采用的调度策略下的 FCT 预测，包括 FCFS、Fair、LAS 和 SFF。为了便于演示，我们修正了一个（候选）布局，考虑给定带宽 $ B_l $ 的给定链路 $ l $ 的预测。NEAT+ predictor的关键思想是计算currentflow 完成传输时将通过瓶颈链路传输的总字节数，然后除以链路带宽来预测 currentflow 的完成时间。例如，为了预测在路径 $ p $ 上放置低流量 $ f $ 的完成时间，我们计算 $ p $ 上每个链路 $ l $ 的总流量 $ V_l $ ，以及 $ f $ 完成后将穿过 $ l $ 的共存流量，然后计算所有链路 $ l \in p $ 上 $ V_l/B_l $ 的最大值（ $ B_l $ 是 $ l $ 的带宽）给出了 $ f $ 的预计完成时间。这种方法适用于任何节省工作的调度策略（即，当链路上存在挂起的流量时，该链路从不空闲），而不同的策略在 $ V_l $ 的计算上有所不同。</p><p>1）FCFS 调度下的 FCT：在 FCFS 调度下，按照流到达的顺序提供服务，新流的 FCT 可以预测为：</p><script type="math/tex;mode=display">
+\mathrm{FCT}^{\mathrm{FCFS}}\left(f_{0}, l\right)=\frac{1}{B_{l}}\left(s_{f_{0}}+\sum_{f \in F_{l}} s_{f}\right)</script><p>和 $ \Delta FCT^{FCFS}(f,l) \equiv 0 $ 代表全部 $ f \in F_l $ 因为新流量不影响现有流量的完成。因此，在这种情况下，（1）和（2）中的两个目标重合，都等于 $ \max _{l \in p_{f_{0}}} \mathrm{FCT} ^\mathrm{FCFS}{\left(f_{0}, l\right)} $ 。</p><p>2）公平或LAS调度下的FCT：在执行公平共享的调度策略下，所有流在完成之前都将收到相同的服务，即，到时间流 $ f_0 $ 通过链路 $ l $ 完成传输时，每个现有流 $ f\ in F_l $ 将通过 $ l $ 传输 $ \min(s_f, s_{f_0}) $ 字节。因此， $ f_0 $ 的 FCT 可以预测为：</p><script type="math/tex;mode=display">
+\text{FCT}^\text{FAIR}\left(f_{0}, l\right)=\frac{1}{B_{l}}\left(s_{f_{0}}+\sum_{f \in F_{l}} \min \left(s_{f}, s_{f_{0}}\right)\right)</script><p>同时，公平分享规则意味着，对于每一个流量 $ f \in F_l $ 并且 $ s_f \lt s_{f_0} $ ，调度 $ f_0 $ 通过在链路 $ l $ 上施加额外的 $ sf $ 流量负载（在 $ f $ 的生存期内）来增加其FCT；对于 $ f \in F_l $ 并且大小 $ s_f \ge s_{f_0} $ ， $ f_0 $ 将提前完成，导致额外的 $ s_{f_0} $ 负载。因此，现有流量的FCT变化为：</p><script type="math/tex;mode=display">
+\Delta \mathrm{FCT} ^ \mathrm{FAIR}{(f, l)}=\frac{\min \left(s_{f}, s_{f_{0}}\right)}{B_{l}}</script><p>将（4）和（5）代入（1）中会使总FCT增加。</p><p>​ 在这种情况下，替代目标（2）会拥有更紧凑的形式。具体来说，对于给定的 $ l $ ，</p><script type="math/tex;mode=display">
+\begin{array}{l}
+\text { FCT } ^ \text{FAIR}{\left(f_{0}, l\right)}+\sum_{f \in F_{l}} \Delta \mathrm{FCT} ^ \text{FAIR}(f, l)\\
+=\frac{s_{f_{0}}}{B_{l}}+\frac{2}{B_{l}} \sum_{f \in F_{l}} \min \left(s_{f}, s_{f_{0}}\right) \approx 2 \mathrm{FCT}^\text{FAIR}(f_0, l)
+\end{array}</script><p>其中，当 $ s_{f_0} $ 相近于 $ \sum_{f \in F_l} \min(s_f, s_{f_0}) $</p><p>注：由于LAS调度（带抢占）相当于公平共享，上述结果也适用于LAS调度。</p><p>3）SRPT 调度下的 FCT：如果网络采用SRPT调度，那么在currentflow完成之前，只有小于或等于currentflow的剩余大小的流将被服务（假设FCFS规则用于断开流量大小之间的联系），并且更大的流将被抢占。因此，SRPT下新流量 $ f_0 $ 的FCT可以预测为：</p><script type="math/tex;mode=display">
+\operatorname{FCT} ^\text{SRPT}\left(f_{0}, l\right)=\frac{1}{B_{l}}\left(s_{f_{0}}+\sum_{f \in F_{l}: s_{f} \leq s_{f_{0}}} s_{f}\right)</script><p>同时，由于 $ f_0 $ 的放置， $ s_f \gt s_{f_0} $ 大小的每个流量将延迟 $ s_{f_0}/B_l $ ，而 $ s_f \le s_{f_0} $ 的流量不会受到影响，这意味着：</p><script type="math/tex;mode=display">
+\Delta \mathrm{FCT} ^\text{SRPT}(f, l)=\frac{s_{f_{0}}}{B_{l}} \mathbb{1}_{s_{f}>s_{f_{0}}}</script><p> $ \mathbb{1} $ 是指示器功能，将（7）和（8）应用于（1）给出了第一个目标。第二个目标是</p><script type="math/tex;mode=display">
+\begin{array}{l}
+\mathrm{FCT} ^ \text{SRPT}\left(f_{0}, l\right)+\sum_{f \in F_{l}} \Delta \mathrm{FCT} ^ \text{SRPT}(f, l)\\
+\quad=\frac{1}{B_{l}}\left(s_{f_{0}}+\sum_{f \in F_{l}} \min \left(s_{f}, s_{f_{0}}\right)\right)=\mathrm{FCT}^\text{FAIR}(f_0, l)
+\end{array}</script><p>4）不变性条件：这表明最优布局不需要知道底层调度策略，尽管预测的FCT因不同的网络调度策略而异。这表明，最优布局不需要知道底层调度策略，尽管预测的FCT因不同的网络调度策略而不同。例如，我们已经证明，在公平/LAS调度下，替代目标（2）大约是公平共享FCT的两倍（见（6））。由于常数因子缩放不影响任务放置决策，这些结果表明，无论网络是否执行公平或LAS调度，我们都可以使用相同的目标函数来放置流。类似地，在SRPT调度下，替代目标（2）减少为新到达的流的公平共享FCT（见（9））。这是基于这样的假设，即<strong>流动安置不受未来到达的影响</strong>。</p><p>​ 命题4.1：如果网络执行公平、LAS或SRPTflow调度，且每个流量相对于每个链路上的总负载较小，则最小化（2）的最佳布局始终是将新到达流量的瓶颈公平共享FCT最小化的布局，如预测（4）。</p><p>​ 备注：令人惊讶的是，我们已经证明，当网络调度通过LAS或SRPT进行流时，我们应该在公平调度下放置流以最小化其预测的FCT，以便优化目标（2）。</p><h3 id="B-CCT-Prediction-for-Coflow-Scheduling"><a href="#B-CCT-Prediction-for-Coflow-Scheduling" class="headerlink" title="B. CCT Prediction for Coflow Scheduling"></a>B. CCT Prediction for Coflow Scheduling</h3><p>​ 现在，我们对上述公式进行了修正，以适应网络在同流量级别调度流量的情况。我们研究了应用于同流调度的以下策略，包括FCFS[20]、Fair、LAS[16]和SRPT的一个扩展，称为置换调度[17]。对于同流 $ c $ ，让 $ s_c $ 表示其总大小（字节数）， $ s_{c,l} $ 表示在 $ c $ 中遍历链路 $ l $ 的各个流的总大小。我们表明，计算FCT的思想可以推广到预测同流的性能。</p><p>​ 我们做出以下假设：</p><ul><li>（i）同流的所有流具有相同的优先级；</li><li>（ii）同流的所有流同时完成。</li></ul><p>第一个假设基于最先进的同流调度程序[17]，[20]所采用的一个原则，即同流中的流应该同时进行；第二个假设基于最先进的同流速率自适应机制[17]，该机制减慢同流中除最慢流以外的所有最慢流，以匹配最慢流的完成时间，从而在不增加CCT的情况下节省带宽。特别是，假设（ii）允许我们在放置共流时应用相同的目标函数（1，2）， $ f(f_0) $ 替换为 $ c(c_0) $ ，FCT替换为CCT， $ p_f $ 替换为 $ p_c $ （表示共流 $ c $ 的任何流所经过的链路集）。然而， $ CCT(c,l) $ 和 $ \Delta CCT(c,l) $ 的计算不同于其单流对应物，将在下文详细说明。我们将 $ F_l $ 重新定义为至少有一个组成流穿过链路 $ l $ 的一组共流。</p><p>1）FCFS调度下的CCT：在FCFS调度下，每个链路将在服务新到达的同流之前服务于现有同流的流量，因此</p><script type="math/tex;mode=display">
+\operatorname{CCT} ^ \text{FCFS}{\left(c_{0}, l\right)=\frac{1}{B_{l}}\left(s_{c_{0}, l}+\sum_{c \in F_{l}} s_{c, l}\right)}</script><p>并且 $ \Delta \mathrm{CCT} ^ \text{FCFS}{(c, l)} \equiv 0 $ 对于所有的 $ c \in F_{l} $</p><p>2）公平或LAS调度下的CCT：在公平共享或LAS调度下，大小小于 $ c_0 $ 的所有共流将完成，并且当共流 $ c_0 $ 完成时，大小大于 $ c_0 $ 的所有共流将传输 $ s_{c_0} $ 字节。在假设（ii）下，同流中的流的进展与其大小成比例，因此，当同流遍历链路 $ l $ 在其所有组成流上完成 $ b $ 字节时， $ bs_{(c, l)}/s_c $ 字节必须通过链路 $ l $ 传输。因此，每个同流 $ c\in F_l $ 在同流 $ c_0 $ 的寿命期间，在链路 $ l $ 上引入了 $ (s_c,s_{c_0})s_{(c,l)}/s_c $ 的负载，反之亦然。上述论点暗示</p><script type="math/tex;mode=display">
+\operatorname{CCT} ^ \text{FAIR}{\left(c_{0}, l\right)=\frac{1}{B_{l}}}\left(s_{c_{0}, l}+\sum_{c \in F_{l} \atop s_{c} \leq s_{c_{0}}} s_{c, l}+\sum_{c \in F_{l} \atop s_{c}>s_{c_{0}}} \frac{s_{c_{0}} s_{c, l}}{s_{c}}\right)</script><p>对于新到达的coflow $ c_0 $ ，以及</p><script type="math/tex;mode=display">
+\Delta \mathrm{CCT}^{\mathrm{FAIR}}(c, l)=\frac{s_{c_{0}, l}}{B_{l} s_{c_{0}}} \min \left(s_{c}, s_{c_{0}}\right)</script><p>对于每个现有的同流 $ c \in F_l $ 从上面我们可以看到</p><script type="math/tex;mode=display">
+\sum_{c \in F_{l}} \Delta \mathrm{CCT} ^ \text{FAIR}{(c, l)=\frac{1}{B_{l}}}\left(\sum_{c \in F_{l} \atop s_{c} \leq s_{c_{0}}} \frac{s_{c} s_{c_{0}, l}}{s_{c_{0}}}+\sum_{c \in F_{l} \atop s_{c}>s_{c_{0}}} s_{c_{0}, l}\right)</script><p>这与（11）不同，除非 $ s_{c，l}/s_c=s_{c_0, l}/s_{c_0} $ ，所有 $ c \in F_l $ . 它意味着，与单流量 Fair/LAS调度相比，在最小化目标（2）最小化到新到达流的FCT的情况下，我们必须通过coflow Fair/LAS调度下通过（13）（除了（11））明确地考虑对现有 coflows 的影响。</p><p>3）置换调度下的CCT：置换调度[17]按顺序服务于共流，并包括许多作为特殊情况的调度策略（例如FCF和SRPT的所有变体）。给定一个置换 $ \pi=\left(\pi_{c}\right)_{c \in F_{l} \cup\left\{c_{0}\right\}} $ 在所有共流共享链路 $ l $ 中，其中 $ π_c $ 是调度共流 $ c $ 的顺序，新到达的共流 $ c_0 $ 的CCT等于</p><script type="math/tex;mode=display">
+\operatorname{CCT}^{\pi}\left(c_{0}, l\right)=\frac{1}{B_{l}} \sum_{\pi_{c} \leq \pi_{c_{0}}} s_{c, l}</script><p>以及每种现有共流 $ c \in F_l $ 的 CCT 增加等于</p><script type="math/tex;mode=display">
+\Delta \operatorname{CCT}^{\pi}(c, l)=\frac{s_{c_{0}, l}}{B_{l}} \mathbb{1}_{\pi_{c}>\pi_{c_{0}}}</script><p>可用于评估第一个目标（1）。对于第二个目标（2），我们有</p><script type="math/tex;mode=display">
+\begin{aligned}
+\mathrm{CCT} & ^\pi\left(c_{0}, l\right)+\sum_{c \in F_{l}} \Delta \mathrm{CCT}^{\pi}(c, l) \\
+&=\frac{1}{B_{l}}\left(\sum_{\pi_{c} \leq \pi_{c_{0}}} s_{c, l}+s_{c_{0}, l}\left|\left\{c \in F_{l}: \pi_{c}>\pi_{c_{0}}\right\}\right|\right)
+\end{aligned}</script><p>特别是，对于被称为smallesT-Coflow-First（TCF）[17]的SRPT的对应物，（16）变为</p><script type="math/tex;mode=display">
+\begin{aligned}
+\operatorname{CCT} ^ \text{TCF} &\left(c_{0}, l\right)+\sum_{c \in F_{l}} \Delta \operatorname{CCT}^{\operatorname{TCF}}(c, l) \\
+&=\frac{1}{B_{l}}\left(s_{c_{0}, l}+\sum_{c \in F_{l} \atop s_{c} \leq s_{c_{0}}} s_{c, l}+\sum_{c \in F_{l} \atop s_{c}>s_{c_{0}}} s_{c_{0}, l}\right)
+\end{aligned}</script><p>这与公平分享（11）下的CCT相似，如果 $ s_{c,l}/s_c=s_{c_0,l}/S_{c_0} $ ，对于所有的 $ c \in F_l, s_c \gt s_{c_0} $ 。</p><p>4）不变性条件：上述分析表明，在 $ s_{c, l} / s_{c}=s_{c_{0}, l} / s_{c_{0}} $ ，对于所有 $ c \in F_l $ 的特殊情况下，即所有同向流以相同的方式在被穿越链路之间分割流量，目标（2）满足 $ \operatorname{CCT} ^ \text{FAIR}{\left(c_{0}, l\right)}+\sum_{c \in F_{l}} \Delta \mathrm{CCT} ^ \text{FAIR}{(c, l)} \approx 2 \mathrm{CCT}^{\operatorname{FAIR}}\left(c_{0}, l\right) $ 在 Fair/LAS 调度下（假设 $ s_{c_{0}, l} \ll \sum_{c \in F_{l} s_{c} \leq s_{c_{0}}} s_{c, l}+\sum_{c \in F_{l} s_{c}&gt;s_{c_{0}}} s_{c_{0}, l} $ ），并且在 TCF 调度下 $ \mathrm{CCT}^{\mathrm{TCF}}\left(c_{0}, l\right)+\sum_{c \in F_{l}} \Delta \mathrm{CCT} ^\mathrm{TCF}{(c, l)}=\mathrm{CCT} ^ \mathrm{FAIR}(c_0, l) $ 。通过类似于命题4.1的论证，我们有以下陈述。</p><p>​ 命题4.2：如果网络执行公平、LAS或TCF同流调度，则每个同流在每个链路上施加一个小负载（相对于其总负载），并且 $ s_{c,l}/s_c $ 在所有同流 $ c\in F_l $ 中是相同的对于每个链路 $ l $ ，则最小化（2）的最佳位置始终是最小化（11）预测的新到达的同流的瓶颈公平共享CCT的位置。</p><p>​ 备注：我们注意到，与流量调度的情况（命题4.1）相比，同流量调度的不变性仅适用于所有同流量以相同方式分割流量的非常特殊的情况。这意味着，与流布局相比，在不同的同流调度策略下，同流很少有一致的最优布局，根据网络中的底层同流调度策略定制同流布局至关重要。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220224183240.png" alt="image-20220224183233816"></p><h2 id="六、NEAT-设计"><a href="#六、NEAT-设计" class="headerlink" title="六、NEAT+ 设计"></a>六、NEAT+ 设计</h2><p>​ NEAT+面向数据密集型应用，如MapReduce或基于有向无环图DAG的系统（如Spark、Tez等）。此类应用程序分多个阶段运行，而NEAT+旨在将任务放置在每个阶段中，以最小化系统中所有活动任务的平均完成时间。例如，MapReduce作业有两个阶段，Map（处理输入数据的地方）和Reduce（汇总Map阶段的结果的地方），每个阶段可能有一个数据洗牌部分和一个数据处理部分。数据洗牌和数据处理都会影响作业的总完成时间。类似地，基于DAG的应用程序可以被视为MapReduce应用程序的扩展，它可以有多个Map/Reduce阶段[29]。因此，为了简单起见，在这项工作中，我们使用MapReduce作为基础模型，然后将其扩展到用于多阶段作业的DAG。</p><h3 id="A-NEAT-Task-Placement"><a href="#A-NEAT-Task-Placement" class="headerlink" title="A. NEAT+ Task Placement"></a>A. NEAT+ Task Placement</h3><p>在本节中，我们将讨论如何在NEAT+框架中放置新任务，以及它在MapReduce和基于DAG的应用程序中的应用。</p><p>1）Flow Placement: NEAT+分两步放置一个新任务：首先，它确定一组任务放置的候选主机（参见Algo1第4-14行），然后，它从这些主机中选择一个最佳主机来执行任务（参见Algo1第15-18行）。</p><p>​ 首选主机标识：对于给定任务，NEAT+根据当前任务的大小和节点状态（定义为每个节点上的最小剩余流大小）将节点分为首选主机和非首选主机。如果任务生成的大小小于s，则如果节点空闲或当前在该节点上调度的所有流量不小于s，则该节点是首选主机。使用首选主机可提供各种好处。首先，它减少了网络守护程序和任务放置守护程序之间的通信开销。对于每个新任务，任务守护进程只会联系主机的子集，以获得预测的任务完成时间。因此，它改进了搜索正确候选主机所需的时间，使得选择时间与候选主机的数量成线性关系。其次，使用首选主机可以补充不同网络调度策略的好处。例如，在公平或LAS政策下，使用预先引用的FCT，可以确保长流不与现有短流放在一起（尽管短流可以与LAS调度下的现有长流放在一起），从而改善短流和长流之间的分离，减少短流经历的交换机排队延迟。同样，在SRPT策略下，它确保新任务可以立即开始数据传输。这是通过将aflow放在主机上以获得最高优先级来实现的。</p><p>​ 下一步将进一步比较首选主机。如果没有首选主机，每个节点至少有一个流量小于当前任务的流量，那么NEAT+会根据可用的计算资源分配任务，并且具有最多可用计算资源的节点被视为首选主机。</p><p>​ 选择最佳主机：给定一组首选主机，下一步是选择一个任务完成时间最短的主机。任务的完成时间取决于：i）传输输入数据所需的时间，以及ii）处理数据所需的时间。数据传输时间由预测的FCT/CCT捕获，该FCT/CCT从网络守护程序获得（参见第3节）。数据处理时间取决于可用的节点资源（例如CPU和内存），这些资源可以从现有的每节点资源管理器（例如Hadoop节点管理器）获得。在当前的设计中，NEAT+将每个首选主机的可用节点资源与应用程序施加的要求（例如，最小CPU和内存）进行比较，以确定候选主机，然后选择一个提供最小数据传输时间的主机（见algo 1第15-18行）。这样一来，数据密集型应用程序的总体任务完成时间大约最小化。</p><p>备注：NEAT+是一款在线调度器，可以贪婪地优化每个新任务的性能。我们选择这种设计是因为：</p><p>（i）它大大简化了每个布局的计算；</p><p>（ii）它近似于命题4.1和4.2中规定的某些条件下的最佳布局。</p><p>请注意，NEAT+只在每个任务的生命周期开始时放置一次，并且在执行过程中不会移动任何任务。</p><p>2）同向流动安置：同向流动安置相比，同向流动安置带来了额外的挑战。理想情况下，我们希望将所有流联合放置在同一个流中，以最小化最慢流的完成时间。然而，在一对多或多对多的同向流的情况下，由于可能的解是指数级的，所以将同向流中的所有子流联合放置具有指数级的复杂性。为了解决这个问题，我们使用了一种顺序启发式算法，首先使用流量布局算法将最大的流量放置在同一流量中，然后根据更新后的网络状态使用相同的算法将第二大流量放置，依此类推。这种用于同流布局的顺序启发式算法应该具有二次复杂性。按大小降序放置流的原因是，较大的流更有可能是决定共流完成时间的关键流，因此应放置在具有更多可用资源的节点上。我们将对其他同流布局算法的评估留作将来的工作。请注意，多对一共流不存在复杂性问题，因此可以将其置于最佳位置。</p><p>3）MapReduce调度的应用：NEAT+将每个MapReduce作业视为两个任务的串联，一个用于Map阶段，一个用于Reduce阶段。由于一个作业中通常有多个映射“任务”，1这需要使用NEAT+放置两个同流，一个多对多同流用于将输入数据读入映射任务，另一个多对一同流用于混合中间结果以减少任务（或者如果有多个Reduce任务，则需要多对多）。在这两种情况下，如果可能的话，NEAT+努力实现数据局部性（因为具有输入数据的节点将具有零FCT/CCT），否则将最小化数据传输时间。例如，对于放置映射任务，它可以利用集群文件系统的数据放置策略（例如Apache Thread中的HDFS）。在HDFS中，数据通常放置在多个位置，以实现容错并提供更好的数据位置。在映射任务放置期间，NEAT+可以将任务放置在具有可用输入数据的节点上，或者使用其放置启发式选择节点。</p><p>4）DAG调度的应用程序：DAG样式的应用程序可以建模为MapReduce应用程序的扩展，但DAG可能有多个洗牌阶段。NEAT+将DAG作业的每个阶段视为一个单独的任务，并使用第 $ \text{V-A1} $ 和 $ \text{V-A2} $ 节中讨论的程序将流量（共流量）放置在任务中。NEAT+使用的布局算法鼓励将相同作业的任务放置在靠近输入数据的节点上。</p><h3 id="B-NEAT-Optimizations"><a href="#B-NEAT-Optimizations" class="headerlink" title="B. NEAT+ Optimizations"></a>B. NEAT+ Optimizations</h3><p>​ NEAT+需要网络中所有活动流的状态来做出最佳任务放置决策，这可能会在网络守护程序和任务放置守护程序上产生大量开销。为了减少开销，NEAT+引入了两种优化：</p><p>（i）每个网络守护进程不保持所有ActiveFlow的单独状态，只保持大小不变的压缩状态，</p><p>（ii）不联系所有网络守护进程，task placement daemon根据本地信息确定作为候选主机的节点子集，并仅联系候选主机上的网络守护程序。</p><p>1）压缩流状态：保持原始流状态需要空间随着活动流的数量线性增长，这限制了网络守护进程（相对于网络负载）的可伸缩性。NEAT+通过使用压缩流状态近似FCT/CCT预测来解决这个问题。每个网络守护进程通过将流量大小量化到固定数量的存储箱中，并在每个存储箱中维护摘要统计信息（例如，总大小和流量数量），来压缩其本地流（共流量）的信息。与跟踪单个流的原始流状态相比，这种压缩状态的大小由存储箱的数量决定，而与网络中的流的数量无关。</p><p>​ 我们将链路 $ l $ 上的一组活动流 $ F_l $ 称为链路 $ l $ 的流量状态。所有链路的流量状态构成网络的整体流量状态 $ F $ 。注意，在FCFS下，我们可以通过只存储总负载（ $ \sum_{c \in F_{l}} s_{f} $ 对于流调度， $ \sum_{c \in F_{l}} s_{c, l} $ 对于 coflow 调度）来轻松压缩 $ F_l $ ，足以预测FCT/CCT。因此，我们将重点放在续集中的其他调度策略上。</p><p>​ 对于FCT预测，我们的想法是将每个链路上的流划分为 $ n=1, \cdots, N $ 的有限个存储箱，其中我们为每个 bin 保留以下参数：最小和最大流大小（ $ s^{(1)}_{l,N},s^{(2)}_{l,N} $ ），总流大小（字节数） $ b_{l,N} $ ，以及流的数量 $ c_{l,N} $ 。本质上，我们将一组流大小压缩为具有灵活bin边界（ $ s^{(1)}_{l,N},s^{(2)}_{l,N} $ ）的流大小直方图。利用压缩流状态，我们可以通过以下方式近似（4）：</p><script type="math/tex;mode=display">
+\operatorname{FCT} ^ \text{FAIR}\left(f_{0}, l\right) \approx \frac{1}{B_{l}}\left(s_{f_{0}}+\sum_{n=1}^{p} b_{l, n}+s_{f_{0}} \sum_{n=p+1}^{N} c_{l, n}\right)</script><p>其中 $ p=m_{l}\left(s_{f_{0}}\right) $ 和 $ m_{l}(s) \in\{1, \ldots, N\} $ 是包含流大小 $ s \text { (i.e., } s_{l, m_{l}(s)}^{(1)} \leq s&lt;s_{l, m_{l}(s)}^{(2)} \text { ). } $ 的容器的索引。</p><p> $ \S \mathrm{IV}-\mathrm{A} $ 中的其他预测可以类似地进行近似，尽管我们只需要在满足命题4.1中的不变性条件的情况下近似（4）。请注意，存储 $ b_{l, n} $ 是可选的，因为对于某些 $ s \in \left[s_{l, n}^{(1)}, s_{l, n}^{(2)}\right) $ ，它可以近似为 $ c_{l, n} s $ 。</p><p>对于CCT预测，每个箱子中的压缩流状态有两个附加属性： $ d_{l, n} $ ，表示链路 $ l $ 上的总负载（即， $ s_{c, l} $ 之和，coflows 在这个 bin 中），以及 $ e_{l, n} $ ，表示链路 $ l $ 上的总规范化负载（即， $ S_{c}, l / S_{c} $ 之和，箱中的 $ l $ 过同流量）。假设 $ q=m_{l}\left(s_{c_{0}}\right) $ ，对于公平/公平调度，我们可以通过</p><script type="math/tex;mode=display">
+\operatorname{CCT}^ \text{FAIR}{\left(c_{0}, l\right)} \approx \frac{1}{B_{l}}\left(s_{c_{0}, l}+\sum_{n=1}^{q} d_{l, n}+s_{c_{0}} \sum_{n=q+1}^{N} e_{l, n}\right)</script><p>和</p><script type="math/tex;mode=display">
+\sum_{c \in F_{l}} \Delta \mathrm{CCT} ^\text{FAIR}{(c, l)} \approx \frac{s_{c_{0}, l}}{B_{l} s_{c_{0}}}\left(\sum_{n=1}^{q} b_{l, n}+s_{c_{0}} \sum_{n=q+1}^{N} c_{l, n}\right) .</script><p>在TCF调度下，我们可以通过</p><script type="math/tex;mode=display">
+\frac{1}{B_{l}}\left(s_{c_{0}, l}+\sum_{n=1}^{q} d_{l, n}+s_{c_{0}, l} \sum_{n=q+1}^{N} c_{l, n}\right)</script><p>这里存储 $ e_{l, n} $ 也是可选的，因为对于某些， $ s \in\left[s_{l, n}^{(1)}, s_{l, n}^{(2)}\right) $ 它可以近似为 $ d_{l, n} / s $ 。</p><p>​ 备注：compressed flow状态的大小与箱数（这是一个设计参数）呈线性关系，而与网络中的流量数无关。这种压缩的代价是FCT/CCT预测的准确性损失，这是由于与新到达的流量（共流量）位于同一个容器中的流量（共流量）大小的不确定性造成的。可以根据数据中心流量分布设置存储箱大小。例如，对于重尾流量[5]，可以使用指数增长的仓位大小来为短流提供较小的仓位大小，为长流提供较大的仓位大小。</p><p>2）减少了通信开销：NEAT+使用分布在网络上的分布式组件（网络守护进程）来维持流外状态（见图2）。为了最大限度地减少任务放置守护程序和网络守护程序之间的通信开销，网络守护程序并不总是报告其更新的流状态；相反，任务放置守护进程会在需要放置新任务时ping网络守护进程，以获得预测的任务性能。</p><p>​ 在大型集群中，任务放置守护程序必须联系大量网络守护程序才能放置任务。为了进一步减少开销，任务放置守护程序使用本地信息来减少需要联系的网络守护程序的数量。具体地说，只有在以下情况下，它才会联系网络守护进程：（i）它所在的节点与输入数据足够接近（例如，在同一机架中，或距离输入数据一跳的机架中），（ii）如果节点状态（即，当前在该节点上调度的流的最小剩余大小）不小于当前任务的大小，以及（iii）节点是否有足够的可用计算资源。请注意，如果不联系网络守护程序，任务放置守护程序就不知道当前节点状态。在我们的设计中，任务放置守护进程缓存网络守护进程之前报告的节点状态，并使用缓存的值作为估计值。</p><h2 id="七、评价"><a href="#七、评价" class="headerlink" title="七、评价"></a>七、评价</h2><p>略</p></div><div><ul class="post-copyright"><li class="post-copyright-author"> <strong>本文作者：</strong> luobuyu</li><li class="post-copyright-link"> <strong>本文链接：</strong> <a href="https://www.luobuyu.site/2022/NEAT-plus/" title="数据中心资源调度">https://www.luobuyu.site/2022/NEAT-plus/</a></li><li class="post-copyright-license"> <strong>版权声明：</strong> 本博客所有文章除特别声明外，均采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i> BY-NC-SA</a> 许可协议。转载请注明出处！</li></ul></div><footer class="post-footer"><div class="post-tags"><a href="/tags/%E4%BA%91%E8%AE%A1%E7%AE%97/" rel="tag"><i class="fa fa-tag"></i> 云计算</a><a href="/tags/%E8%B5%84%E6%BA%90%E8%B0%83%E5%BA%A6/" rel="tag"><i class="fa fa-tag"></i> 资源调度</a></div><div class="post-nav"><div class="post-nav-item"><a href="/2022/hust-yqtb/" rel="prev" title="HUST疫情填报"><i class="fa fa-chevron-left"></i> HUST疫情填报</a></div><div class="post-nav-item"> <a href="/2022/The-Mad-Scientist/" rel="next" title="1672.疯狂的科学家">1672.疯狂的科学家<i class="fa fa-chevron-right"></i></a></div></div></footer></article></div><div class="comments" id="valine-comments"></div><script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script></div><div class="toggle sidebar-toggle"><span class="toggle-line toggle-line-first"></span><span class="toggle-line toggle-line-middle"></span><span class="toggle-line toggle-line-last"></span></div><aside class="sidebar"><div class="sidebar-inner"><ul class="sidebar-nav motion-element"><li class="sidebar-nav-toc"> 文章目录</li><li class="sidebar-nav-overview"> 站点概览</li></ul><div class="post-toc-wrap sidebar-panel"><div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Network-Scheduling-and-Compute-Resource-Aware-Task-Placement-in-Datacenters"><span class="nav-number">1.</span> <span class="nav-text">Network Scheduling and Compute Resource Aware Task Placement in Datacenters</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、摘要"><span class="nav-number">1.1.</span> <span class="nav-text">一、摘要</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、介绍"><span class="nav-number">1.2.</span> <span class="nav-text">二、介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Motivating-Example"><span class="nav-number">1.2.1.</span> <span class="nav-text">Motivating Example</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NEAT-Overview"><span class="nav-number">1.2.2.</span> <span class="nav-text">NEAT+ Overview</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NEAT-Evaluation"><span class="nav-number">1.2.3.</span> <span class="nav-text">NEAT+ Evaluation</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、现有技术的局限性"><span class="nav-number">1.3.</span> <span class="nav-text">三、现有技术的局限性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Related-Work"><span class="nav-number">1.3.1.</span> <span class="nav-text">Related Work</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Comparative-Study"><span class="nav-number">1.3.2.</span> <span class="nav-text">Comparative Study</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、系统概述"><span class="nav-number">1.4.</span> <span class="nav-text">四、系统概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Network-Daemon"><span class="nav-number">1.4.1.</span> <span class="nav-text">Network Daemon</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Task-Placement-Daemon"><span class="nav-number">1.4.2.</span> <span class="nav-text">Task Placement Daemon</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NEAT-Workflow"><span class="nav-number">1.4.3.</span> <span class="nav-text">NEAT+ Workflow</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、任务性能预测"><span class="nav-number">1.5.</span> <span class="nav-text">五、任务性能预测</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#A-FCT-Prediction-for-Flow-Scheduling"><span class="nav-number">1.5.1.</span> <span class="nav-text">A. FCT Prediction for Flow Scheduling</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#B-CCT-Prediction-for-Coflow-Scheduling"><span class="nav-number">1.5.2.</span> <span class="nav-text">B. CCT Prediction for Coflow Scheduling</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#六、NEAT-设计"><span class="nav-number">1.6.</span> <span class="nav-text">六、NEAT+ 设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#A-NEAT-Task-Placement"><span class="nav-number">1.6.1.</span> <span class="nav-text">A. NEAT+ Task Placement</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#B-NEAT-Optimizations"><span class="nav-number">1.6.2.</span> <span class="nav-text">B. NEAT+ Optimizations</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#七、评价"><span class="nav-number">1.7.</span> <span class="nav-text">七、评价</span></a></li></ol></li></ol></div></div><div class="site-overview-wrap sidebar-panel"><div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person"> <a href="/"><img class="site-author-image" itemprop="image" alt="luobuyu" src="/images/avatar.png"></a><p class="site-author-name" itemprop="name">luobuyu</p><div class="site-description" itemprop="description"></div></div><div class="site-state-wrap motion-element"><nav class="site-state"><div class="site-state-item site-state-posts"> <a href="/archives/"><span class="site-state-item-count">362</span> <span class="site-state-item-name">日志</span></a></div><div class="site-state-item site-state-categories"> <a href="/categories/"><span class="site-state-item-count">66</span> <span class="site-state-item-name">分类</span></a></div><div class="site-state-item site-state-tags"> <a href="/tags/"><span class="site-state-item-count">274</span> <span class="site-state-item-name">标签</span></a></div></nav></div><div class="links-of-author motion-element"><span class="links-of-author-item"><a href="https://github.com/luobuyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;luobuyu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i> GitHub</a></span><span class="links-of-author-item"><a href="mailto:1528751774@qq.com" title="E-Mail → mailto:1528751774@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i> E-Mail</a></span><span class="links-of-author-item"><a href="https://valine.luobuyu.site/" title="Comments → https:&#x2F;&#x2F;valine.luobuyu.site" rel="noopener" target="_blank"><i class="fas fa-comments fa-fw"></i> Comments</a></span></div></div></div></aside><div id="sidebar-dimmer"></div></div></main><footer class="footer"><div class="footer-inner"><div id="aplayer-ukhYMhCo" class="aplayer aplayer-tag-marker meting-tag-marker" data-id="7289878554" data-server="netease" data-type="playlist" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#FF4081" data-listfolded="true"></div><div class="copyright"> &copy; 2020 – <span itemprop="copyrightYear">2024</span><span class="with-love"><i class="fa fa-heartbeat"></i></span> <span class="author" itemprop="copyrightHolder">luobuyu</span><br><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span class="post-meta-divider"></span><span class="post-meta-item-icon"><i class="fa fa-chart-area"></i></span> <span class="post-meta-item-text">站点总字数：</span> <span title="站点总字数">938k</span> <span class="post-meta-divider">|</span><span class="post-meta-item-icon"><i class="fa fa-coffee"></i></span> <span class="post-meta-item-text">站点阅读时长 &asymp;</span> <span title="站点阅读时长">14:13</span></div> <span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span><script>var now=new Date;function createtime(){var n=new Date("07/20/2020 12:00:00");now.setTime(now.getTime()+250),days=(now-n)/1e3/60/60/24,dnum=Math.floor(days),hours=(now-n)/1e3/60/60-24*dnum,hnum=Math.floor(hours),1==String(hnum).length&&(hnum="0"+hnum),minutes=(now-n)/1e3/60-1440*dnum-60*hnum,mnum=Math.floor(minutes),1==String(mnum).length&&(mnum="0"+mnum),seconds=(now-n)/1e3-86400*dnum-3600*hnum-60*mnum,snum=Math.round(seconds),1==String(snum).length&&(snum="0"+snum),document.getElementById("timeDate").innerHTML="luobuyuの个人博客，已经勉强存活了 "+dnum+" 天 ",document.getElementById("times").innerHTML=hnum+" 小时 "+mnum+" 分 "+snum+" 秒"}setInterval("createtime()",250)</script><div class="busuanzi-count"><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span class="post-meta-item" id="busuanzi_container_site_uv" style="display:none"></span><span class="post-meta-item-icon"><i class="fa fa-user"></i></span> <span class="site-uv" title="总访客量">访问人数<span id="busuanzi_value_site_uv"></span></span> <span class="post-meta-divider">|</span><span class="post-meta-item" id="busuanzi_container_site_pv" style="display:none"></span><span class="post-meta-item-icon"><i class="fa fa-eye"></i></span> <span class="site-pv" title="总访问量">总访问量<span id="busuanzi_value_site_pv"></span></span></div></div></footer></div><script src="/lib/anime.min.js"></script><script src="/lib/velocity/velocity.min.js"></script><script src="/lib/velocity/velocity.ui.min.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/pisces.js"></script><script src="/js/next-boot.js"></script><script>!function(){var o,n,e=document.getElementsByTagName("link");if(0<e.length)for(i=0;i<e.length;i++)"canonical"==e[i].rel.toLowerCase()&&e[i].href&&(o=e[i].href);n=o?o.split(":")[0]:window.location.protocol.split(":")[0],o||(o=window.location.href),function(){var e=o,i=document.referrer;if(!/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi.test(e)){var t="https"===String(n).toLowerCase()?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";i?(t+="?r="+encodeURIComponent(document.referrer),e&&(t+="&l="+e)):e&&(t+="?l="+e),(new Image).src=t}}(window)}()</script><script src="/js/local-search.js"></script><script type="text/x-mathjax-config">
+    MathJax.Ajax.config.path['mhchem'] = '//cdn.jsdelivr.net/npm/mathjax-mhchem@3';
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        extensions: ['[mhchem]/mhchem.js'],
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script><script>
+  NexT.utils.getScript('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/GamerNoTitle/Picture-repo-v1@master/css/Valine-Emotion.css"><style>.v[data-class=v] .veditor{background-image:url(https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220325200442.gif);background-size:contain;background-repeat:no-repeat;background-position:right}</style><script>
+
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/valine@1.5.1/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+
+    var requiredFields = ['nick', 'mail', 'link'];
+    var requiredField = 'nick,mail';
+    requiredField = requiredField.split(',').filter(item => {
+      return requiredFields.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'GqF4f53ddiLc4MvB6rAMxrM6-MdYXbMMI',
+      appKey     : 'rn6pv6g3Qzu4mcbqhI7qWEk5',
+      emojiCDN: 'https://valinecdn.bili33.top/',
+      emojiMaps: {
+        "bilibiliHotKey1": "bilibiliHotKey/1.jpg",
+        "bilibiliHotKey2": "bilibiliHotKey/10.jpg",
+        "bilibiliHotKey3": "bilibiliHotKey/11.jpg",
+        "bilibiliHotKey4": "bilibiliHotKey/12.jpg",
+        "bilibiliHotKey5": "bilibiliHotKey/13.jpg",
+        "bilibiliHotKey6": "bilibiliHotKey/14.jpg",
+        "bilibiliHotKey7": "bilibiliHotKey/15.jpg",
+        "bilibiliHotKey8": "bilibiliHotKey/16.jpg",
+        "bilibiliHotKey9": "bilibiliHotKey/17.jpg",
+        "bilibiliHotKey10": "bilibiliHotKey/18.jpg",
+        "bilibiliHotKey11": "bilibiliHotKey/19.jpg",
+        "bilibiliHotKey12": "bilibiliHotKey/2.jpg",
+        "bilibiliHotKey13": "bilibiliHotKey/20.jpg",
+        "bilibiliHotKey14": "bilibiliHotKey/21.jpg",
+        "bilibiliHotKey15": "bilibiliHotKey/22.jpg",
+        "bilibiliHotKey16": "bilibiliHotKey/23.jpg",
+        "bilibiliHotKey17": "bilibiliHotKey/24.jpg",
+        "bilibiliHotKey18": "bilibiliHotKey/25.jpg",
+        "bilibiliHotKey19": "bilibiliHotKey/26.jpg",
+        "bilibiliHotKey20": "bilibiliHotKey/27.jpg",
+        "bilibiliHotKey21": "bilibiliHotKey/28.jpg",
+        "bilibiliHotKey22": "bilibiliHotKey/29.jpg",
+        "bilibiliHotKey23": "bilibiliHotKey/3.jpg",
+        "bilibiliHotKey24": "bilibiliHotKey/30.jpg",
+        "bilibiliHotKey25": "bilibiliHotKey/31.jpg",
+        "bilibiliHotKey26": "bilibiliHotKey/32.jpg",
+        "bilibiliHotKey27": "bilibiliHotKey/4.jpg",
+        "bilibiliHotKey28": "bilibiliHotKey/5.jpg",
+        "bilibiliHotKey29": "bilibiliHotKey/6.jpg",
+        "bilibiliHotKey30": "bilibiliHotKey/7.jpg",
+        "bilibiliHotKey31": "bilibiliHotKey/8.jpg",
+        "bilibiliHotKey32": "bilibiliHotKey/9.jpg",
+        "KeQing1": "KeQing/1MtdPr4y.png",
+        "KeQing2": "KeQing/29E353B37F06F48D0D32B896A555AB10.jpg",
+        "KeQing3": "KeQing/5q8iVluo.png",
+        "KeQing4": "KeQing/6Bo9DvjS.png",
+        "KeQing5": "KeQing/8uRU02Qn.png",
+        "KeQing6": "KeQing/a7Xxm0ou.png",
+        "KeQing7": "KeQing/aEhyb3F5.png",
+        "KeQing8": "KeQing/alT6XmFj.png",
+        "KeQing9": "KeQing/b4l6cyUT.png",
+        "KeQing10": "KeQing/BWYIgTtC.png",
+        "KeQing11": "KeQing/c1ZrqNaX.png",
+        "KeQing12": "KeQing/c7yp9Ewx.png",
+        "KeQing13": "KeQing/CeZsrXIq.png",
+        "KeQing14": "KeQing/CJRTKlGP.png",
+        "KeQing15": "KeQing/COMie4xg.png",
+        "KeQing16": "KeQing/D4G8UsxH.png",
+        "KeQing17": "KeQing/D80028AB4478C5C3986FE1A9FEEFEB35.gif",
+        "KeQing18": "KeQing/e01OVkHC.png",
+        "KeQing19": "KeQing/ELmIkgpZ.png",
+        "KeQing20": "KeQing/fbR6FSd3.png",
+        "KeQing21": "KeQing/Fh58COx7.png",
+        "KeQing22": "KeQing/FM1l6d9h.png",
+        "KeQing23": "KeQing/ghCViEvU.png",
+        "KeQing24": "KeQing/ivmGU68a.png",
+        "KeQing25": "KeQing/JmyRiSt1.png",
+        "KeQing26": "KeQing/jvI8Wa35.png",
+        "KeQing27": "KeQing/lHQhDR71.png",
+        "KeQing28": "KeQing/lxfPMp5I.png",
+        "KeQing29": "KeQing/nK5k6fHL.png",
+        "KeQing30": "KeQing/OsVSotEn.png",
+        "KeQing31": "KeQing/R4QdmJb1.png",
+        "KeQing32": "KeQing/rADUyouz.png",
+        "KeQing33": "KeQing/Rex3GWlg.png",
+        "KeQing34": "KeQing/RkHtnfyU.png",
+        "KeQing35": "KeQing/RrXmaHeb.png",
+        "KeQing36": "KeQing/sJ58YlzP.png",
+        "KeQing37": "KeQing/tjJGYOVF.png",
+        "KeQing38": "KeQing/tTnXvgZH.png",
+        "KeQing39": "KeQing/w37qQAel.png",
+        "KeQing40": "KeQing/W6y0ReEh.png",
+        "KeQing41": "KeQing/xDIO54sg.png",
+        "KeQing42": "KeQing/Xy8BbkcP.png",
+        "KeQing43": "KeQing/YCL13G5e.png",
+        "KeQing44": "KeQing/yG7MulxF.png",
+        "KeQing45": "KeQing/ZDI38NMK.png",
+        "KeQing46": "KeQing/Zl9NR6It.png",
+        "Snow-Miku1": "Snow-Miku/3583066@2x.png",
+        "Snow-Miku2": "Snow-Miku/3583067@2x.png",
+        "Snow-Miku3": "Snow-Miku/3583068@2x.png",
+        "Snow-Miku4": "Snow-Miku/3583069@2x.png",
+        "Snow-Miku5": "Snow-Miku/3583070@2x.png",
+        "Snow-Miku6": "Snow-Miku/3583071@2x.png",
+        "Snow-Miku7": "Snow-Miku/3583072@2x.png",
+        "Snow-Miku8": "Snow-Miku/3583073@2x.png",
+        "Snow-Miku9": "Snow-Miku/3583074@2x.png",
+        "Snow-Miku10": "Snow-Miku/3583075@2x.png",
+        "Snow-Miku11": "Snow-Miku/3583076@2x.png",
+        "Snow-Miku12": "Snow-Miku/3583077@2x.png",
+        "Snow-Miku13": "Snow-Miku/3583078@2x.png",
+        "Snow-Miku14": "Snow-Miku/3583079@2x.png",
+        "Snow-Miku15": "Snow-Miku/3583080@2x.png",
+        "Snow-Miku16": "Snow-Miku/3583081@2x.png",
+        "Snow-Miku17": "Snow-Miku/3583082@2x.png",
+        "Snow-Miku18": "Snow-Miku/3583083@2x.png",
+        "Snow-Miku19": "Snow-Miku/3583084@2x.png",
+        "Snow-Miku20": "Snow-Miku/3583085@2x.png",
+        "Snow-Miku21": "Snow-Miku/3583086@2x.png",
+        "Snow-Miku22": "Snow-Miku/3583087@2x.png",
+        "Snow-Miku23": "Snow-Miku/3583088@2x.png",
+        "Snow-Miku24": "Snow-Miku/3583089@2x.png",
+        "Snow-Miku25": "Snow-Miku/3583090@2x.png",
+        "Snow-Miku26": "Snow-Miku/3583091@2x.png",
+        "Snow-Miku27": "Snow-Miku/3583092@2x.png",
+        "Snow-Miku28": "Snow-Miku/3583093@2x.png",
+        "Snow-Miku29": "Snow-Miku/3583094@2x.png",
+        "Snow-Miku30": "Snow-Miku/3583095@2x.png",
+        "Snow-Miku31": "Snow-Miku/3583096@2x.png",
+        "Snow-Miku32": "Snow-Miku/3583097@2x.png",
+        "Snow-Miku33": "Snow-Miku/3583098@2x.png",
+        "Snow-Miku34": "Snow-Miku/3583099@2x.png",
+        "Snow-Miku35": "Snow-Miku/3583100@2x.png",
+        "Snow-Miku36": "Snow-Miku/3583101@2x.png",
+        "Snow-Miku37": "Snow-Miku/3583102@2x.png",
+        "Snow-Miku38": "Snow-Miku/3583103@2x.png",
+        "Snow-Miku39": "Snow-Miku/3583104@2x.png",
+        "Snow-Miku40": "Snow-Miku/3583105@2x.png",
+        "bilibilitv2": "bilibilitv/[tv_doge].png",
+        "bilibilitv3": "bilibilitv/[tv_亲亲].png",
+        "bilibilitv4": "bilibilitv/[tv_偷笑].png",
+        "bilibilitv5": "bilibilitv/[tv_再见].png",
+        "bilibilitv6": "bilibilitv/[tv_冷漠].png",
+        "bilibilitv7": "bilibilitv/[tv_发怒].png",
+        "bilibilitv8": "bilibilitv/[tv_发财].png",
+        "bilibilitv9": "bilibilitv/[tv_可爱].png",
+        "bilibilitv10": "bilibilitv/[tv_吐血].png",
+        "bilibilitv11": "bilibilitv/[tv_呆].png",
+        "bilibilitv12": "bilibilitv/[tv_呕吐].png",
+        "bilibilitv13": "bilibilitv/[tv_困].png",
+        "bilibilitv14": "bilibilitv/[tv_坏笑].png",
+        "bilibilitv15": "bilibilitv/[tv_大佬].png",
+        "bilibilitv16": "bilibilitv/[tv_大哭].png",
+        "bilibilitv17": "bilibilitv/[tv_委屈].png",
+        "bilibilitv18": "bilibilitv/[tv_害羞].png",
+        "bilibilitv19": "bilibilitv/[tv_尴尬].png",
+        "bilibilitv20": "bilibilitv/[tv_微笑].png",
+        "bilibilitv21": "bilibilitv/[tv_思考].png",
+        "bilibilitv22": "bilibilitv/[tv_惊吓].png",
+        "bilibilitv23": "bilibilitv/[tv_打脸].png",
+        "bilibilitv24": "bilibilitv/[tv_抓狂].png",
+        "bilibilitv25": "bilibilitv/[tv_抠鼻].png",
+        "bilibilitv26": "bilibilitv/[tv_斜眼笑].png",
+        "bilibilitv27": "bilibilitv/[tv_无奈].png",
+        "bilibilitv28": "bilibilitv/[tv_晕].png",
+        "bilibilitv29": "bilibilitv/[tv_流汗].png",
+        "bilibilitv30": "bilibilitv/[tv_流泪].png",
+        "bilibilitv31": "bilibilitv/[tv_流鼻血].png",
+        "bilibilitv32": "bilibilitv/[tv_点赞].png",
+        "bilibilitv33": "bilibilitv/[tv_生气].png",
+        "bilibilitv34": "bilibilitv/[tv_生病].png",
+        "bilibilitv35": "bilibilitv/[tv_疑问].png",
+        "bilibilitv36": "bilibilitv/[tv_白眼].png",
+        "bilibilitv37": "bilibilitv/[tv_皱眉].png",
+        "bilibilitv38": "bilibilitv/[tv_目瞪口呆].png",
+        "bilibilitv39": "bilibilitv/[tv_睡着].png",
+        "bilibilitv40": "bilibilitv/[tv_笑哭].png",
+        "bilibilitv41": "bilibilitv/[tv_腼腆].png",
+        "bilibilitv42": "bilibilitv/[tv_色].png",
+        "bilibilitv43": "bilibilitv/[tv_调侃].png",
+        "bilibilitv44": "bilibilitv/[tv_调皮].png",
+        "bilibilitv45": "bilibilitv/[tv_鄙视].png",
+        "bilibilitv46": "bilibilitv/[tv_闭嘴].png",
+        "bilibilitv47": "bilibilitv/[tv_难过].png",
+        "bilibilitv48": "bilibilitv/[tv_馋].png",
+        "bilibilitv49": "bilibilitv/[tv_鬼脸].png",
+        "bilibilitv50": "bilibilitv/[tv_黑人问号].png",
+        "bilibilitv51": "bilibilitv/[tv_鼓掌].png",
+        "HONKAI3-MEI1": "HONKAI3-MEI/501ac209b259bb545dea898838c24229483fcfeb.gif",
+        "HONKAI3-MEI2": "HONKAI3-MEI/5baf4306d1f685bf47922fbae365ccfba7721beb.gif",
+        "HONKAI3-MEI3": "HONKAI3-MEI/624857651c863ea9571f5e557fca8516dd41e0fc.gif",
+        "HONKAI3-MEI4": "HONKAI3-MEI/680311714674014d0c17f757eb40c3071448222a.gif",
+        "HONKAI3-MEI5": "HONKAI3-MEI/bf68423446465d396d3cbd8856882b5e9fb1c0c7.gif",
+        "HONKAI3-MEI6": "HONKAI3-MEI/d3a2a9c6ad1e2a0b262dca9354ab8de736d81cdf.gif",
+        "HONKAI3-MEI7": "HONKAI3-MEI/dd0fd1f3668f4907c9f6fcd39c6138417ac0e1f5.gif"
+      },
+      placeholder: "Leave a comment now!",
+      avatar     : 'wavatar',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-CN' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://chat.luobuyu.site',
+      requiredFields: requiredField
+    });
+  }, window.Valine);
+});
+</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({pluginRootPath:"live2dw/",pluginJsPath:"lib/",pluginModelPath:"assets/",tagMode:!1,debug:!1,model:{jsonPath:"/live2dw/assets/assets/haru01.model.json"},display:{superSample:2,width:200,height:400,position:"right",hOffset:0,vOffset:-20},mobile:{show:!0,scale:.5},react:{opacityDefault:.7,opacityOnHover:.8},log:!1})</script></body></html>

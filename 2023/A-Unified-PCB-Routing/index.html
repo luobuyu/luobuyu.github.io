@@ -1,0 +1,293 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=2"><meta name="theme-color" content="#222"><meta name="generator" content="Hexo 4.2.1"><link rel="apple-touch-icon" sizes="180x180" href="/images/favicon-1.png"><link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-1.png"><link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-1.png"><link rel="mask-icon" href="/images/favicon-1.png" color="#222"><meta name="google-site-verification" content="lkGKflS_fVXQNJnC_UXP0lqUEpV4NFx0b000PxRrX7g"><meta name="baidu-site-verification" content="codeva-Uj3syugSr3"><link rel="stylesheet" href="/css/main.css"><link rel="stylesheet" href="/lib/font-awesome/css/all.min.css"><link rel="stylesheet" href="//cdn.jsdelivr.net/npm/pace-js@1.2.4/themes/blue/pace-theme-minimal.css"><script src="//cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><script id="hexo-configurations">var NexT=window.NexT||{},CONFIG={hostname:"www.luobuyu.site",root:"/",scheme:"Gemini",version:"7.8.0",exturl:!1,sidebar:{position:"right",display:"post",padding:18,offset:12,onmobile:!1},copycode:{enable:!0,show_result:!1,style:null},back2top:{enable:!0,sidebar:!1,scrollpercent:!1},bookmark:{enable:!1,color:"#222",save:"auto"},fancybox:!1,mediumzoom:!1,lazyload:!1,pangu:!1,comments:{style:"tabs",active:null,storage:!0,lazyload:!1,nav:null},algolia:{hits:{per_page:10},labels:{input_placeholder:"Search for Posts",hits_empty:"We didn't find any results for the search: ${query}",hits_stats:"${hits} results found in ${time} ms"}},localsearch:{enable:!0,trigger:"auto",top_n_per_article:1,unescape:!1,preload:!1},motion:{enable:!0,async:!1,transition:{post_block:"fadeIn",post_header:"slideDownIn",post_body:"slideDownIn",coll_header:"slideLeftIn",sidebar:"slideUpIn"}},path:"search.xml"}</script><meta name="description" content="一种统一的多层PCB布线算法，主要采用A星，使用的基于协商的方法。"><meta property="og:type" content="article"><meta property="og:title" content="A Unified Printed Circuit Board Routing Algorithm With Complicated Constraints and Differential Pairs"><meta property="og:url" content="https://www.luobuyu.site/2023/A-Unified-PCB-Routing/index.html"><meta property="og:site_name" content="Luobuyu&#39;s Blog"><meta property="og:description" content="一种统一的多层PCB布线算法，主要采用A星，使用的基于协商的方法。"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202212151629554.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202212151641854.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202212152227123.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202212161103837.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202212161125538.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202212161207005.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202212161125538.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202212201300832.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202212201302376.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202212201311292.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202212201312418.png"><meta property="og:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202212201312321.png"><meta property="article:published_time" content="2023-03-07T12:00:48.000Z"><meta property="article:modified_time" content="2024-10-30T14:47:37.468Z"><meta property="article:author" content="luobuyu"><meta property="article:tag" content="A星"><meta property="article:tag" content="PCB布线"><meta property="article:tag" content="ASPDAC"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202212151629554.png"><link rel="canonical" href="https://www.luobuyu.site/2023/A-Unified-PCB-Routing/"><script id="page-configurations">CONFIG.page={sidebar:"",isHome:!1,isPost:!0,lang:"zh-CN"}</script><title>A Unified Printed Circuit Board Routing Algorithm With Complicated Constraints and Differential Pairs | Luobuyu's Blog</title><noscript><style>.sidebar-inner,.use-motion .brand,.use-motion .collection-header,.use-motion .comments,.use-motion .menu-item,.use-motion .pagination,.use-motion .post-block,.use-motion .post-body,.use-motion .post-header{opacity:initial}.use-motion .site-subtitle,.use-motion .site-title{opacity:initial;top:initial}.use-motion .logo-line-before i{left:initial}.use-motion .logo-line-after i{right:initial}</style></noscript><link rel="alternate" href="/atom.xml" title="Luobuyu's Blog" type="application/atom+xml"><link rel="stylesheet" href="/assets/css/APlayer.min.css" class="aplayer-style-marker"><script src="/assets/js/APlayer.min.js" class="aplayer-script-marker"></script><script>var meting_api="https://api.injahow.cn/meting/?server=:server&type=:type&id=:id&r=:r"</script><script src="/assets/js/Meting.min.js" class="meting-script-marker"></script></head><body itemscope itemtype="http://schema.org/WebPage"><div class="container use-motion"><div class="headband"></div><header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="header-inner"><div class="site-brand-container"><div class="site-nav-toggle"><div class="toggle" aria-label="切换导航栏"><span class="toggle-line toggle-line-first"></span><span class="toggle-line toggle-line-middle"></span><span class="toggle-line toggle-line-last"></span></div></div><div class="site-meta"><a href="/" class="brand" rel="start"><span class="logo-line-before"><i></i></span><h1 class="site-title">Luobuyu's Blog</h1><span class="logo-line-after"><i></i></span></a></div><div class="site-nav-right"><div class="toggle popup-trigger"><i class="fa fa-search fa-fw fa-lg"></i></div></div></div><nav class="site-nav"><ul id="menu" class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i> 首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i> 关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i> 标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i> 分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i> 归档</a></li><li class="menu-item menu-item-music"><a href="/music/" rel="section"><i class="fa fa-music fa-fw"></i> 歌单</a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i> 朋友</a></li><li class="menu-item menu-item-search"><a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i> 搜索</a></li></ul></nav><div class="search-pop-overlay"><div class="popup search-popup"><div class="search-header"><span class="search-icon"><i class="fa fa-search"></i></span><div class="search-input-container"> <input autocomplete="off" autocapitalize="off" placeholder="搜索..." spellcheck="false" type="search" class="search-input"></div><span class="popup-btn-close"><i class="fa fa-times-circle"></i></span></div><div id="search-result"><div id="no-result"><i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i></div></div></div></div></div></header><div class="back-to-top"><i class="fa fa-arrow-up"></i> <span>0%</span></div><main class="main"><div class="main-inner"><div class="content-wrap"><div class="content post posts-expand"><article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN"><link itemprop="mainEntityOfPage" href="https://www.luobuyu.site/2023/A-Unified-PCB-Routing/"><span hidden itemprop="author" itemscope itemtype="http://schema.org/Person"><meta itemprop="image" content="/images/avatar.png"><meta itemprop="name" content="luobuyu"><meta itemprop="description" content=""></span><span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization"><meta itemprop="name" content="Luobuyu's Blog"></span><header class="post-header"><h1 class="post-title" itemprop="name headline"> A Unified Printed Circuit Board Routing Algorithm With Complicated Constraints and Differential Pairs</h1><div class="post-meta"><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-calendar"></i></span> <span class="post-meta-item-text">发表于</span> <time title="创建时间：2023-03-07 20:00:48" itemprop="dateCreated datePublished" datetime="2023-03-07T20:00:48+08:00">2023-03-07</time></span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-folder"></i></span> <span class="post-meta-item-text">分类于</span> <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/%E8%AE%BA%E6%96%87/" itemprop="url" rel="index"><span itemprop="name">论文</span></a></span> ， <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/%E8%AE%BA%E6%96%87/PCB%E5%B8%83%E5%B1%80%E5%B8%83%E7%BA%BF/" itemprop="url" rel="index"><span itemprop="name">PCB布局布线</span></a></span></span><span id="/2023/A-Unified-PCB-Routing/" class="post-meta-item leancloud_visitors" data-flag-title="A Unified Printed Circuit Board Routing Algorithm With Complicated Constraints and Differential Pairs" title="热度"><span class="post-meta-item-icon"><i class="fa fa-eye"></i></span> <span class="post-meta-item-text">热度：</span><span class="leancloud-visitors-count"></span> <span>℃</span></span><span class="post-meta-item" title="热度" id="busuanzi_container_page_pv" style="display:none"><span class="post-meta-item-icon"><i class="fa fa-eye"></i></span> <span class="post-meta-item-text">热度：</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-item"><span class="post-meta-item-icon"><i class="far fa-comment"></i></span> <span class="post-meta-item-text">评论：</span><a title="valine" href="/2023/A-Unified-PCB-Routing/#valine-comments" itemprop="discussionUrl"><span class="post-comments-count valine-comment-count" data-xid="/2023/A-Unified-PCB-Routing/" itemprop="commentCount"></span></a></span><br><span class="post-meta-item" title="本文字数"><span class="post-meta-item-icon"><i class="far fa-file-word"></i></span> <span class="post-meta-item-text">本文字数：</span> <span>9.7k</span></span><span class="post-meta-item" title="阅读时长"><span class="post-meta-item-icon"><i class="far fa-clock"></i></span> <span class="post-meta-item-text">阅读时长 &asymp;</span> <span>9 分钟</span></span><div class="post-description">一种统一的多层PCB布线算法，主要采用A星，使用的基于协商的方法。</div></div></header><div class="post-body" itemprop="articleBody"><h1 id="A-Unified-Printed-Circuit-Board-Routing-Algorithm-With-Complicated-Constraints-and-Differential-Pairs"><a href="#A-Unified-Printed-Circuit-Board-Routing-Algorithm-With-Complicated-Constraints-and-Differential-Pairs" class="headerlink" title="A Unified Printed Circuit Board Routing Algorithm With Complicated Constraints and Differential Pairs"></a>A Unified Printed Circuit Board Routing Algorithm With Complicated Constraints and Differential Pairs</h1><center>Ting-Chou Lin, Devon Merrill, Yen-Yi Wu, Chester Holtz and Chung-Kuan Cheng<br> UC San Diego, La Jolla, CA, USA<br> {til002, djmerril, yew001, chholtz, ckcheng}@eng.ucsd.edu</center><p>Aspdac 21: Asia &amp; South Pacific Design Automation Conference</p><p>亚洲及南太平洋设计自动化会议</p><p><a href="https://github.com/The-OpenROAD-Project/PcbRouter" target="_blank" rel="noopener">The-OpenROAD-Project/PcbRouter (github.com)</a></p><p><a href="https://github.com/The-OpenROAD-Project/KicadParser/tree/master" target="_blank" rel="noopener">The-OpenROAD-Project/KicadParser (github.com)</a></p><h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>印刷电路板（PCB）布线问题近年来得到了广泛的研究。由于不断增长的净/引脚数、极高的引脚密度和独特的物理限制，PCB的人工布线已成为实现设计闭合的耗时任务。以前的工作将问题分解为<strong>逃逸布线</strong>和<strong>区域布线</strong>，并分别关注这些问题。然而，这两个问题之间总是存在差距，需要大量的人力来来回微调算法。此外，先前的区域路由工作主要集中在逃逸路由球栅阵列（BGA）封装之间的路由。然而，在实践中，许多组件不是BGA封装的形式，例如无源器件、去耦电容器和通孔引脚阵列。为了缓解先前工作的不足，我们提出了一种完整的电路板布线算法，该算法可以处理多个现实世界中的复杂约束，以促进印刷电路板布线并产生高质量的可制造布局。实验结果表明，该算法是有效的。具体来说，对于所有给定的测试用例，我们的路由器可以实现100%的可路由性，而不会违反任何设计规则，而其他两个最先进的路由器无法完成某些测试用例的路由，并导致违反设计规则。</p><h2 id="INTRODUCTION"><a href="#INTRODUCTION" class="headerlink" title="INTRODUCTION"></a>INTRODUCTION</h2><p>近年来，由于网络/引脚数量的增长、极高的引脚密度和特殊的物理限制，印刷电路板（PCB）的手动布线已成为一项耗时的任务。此外，高性能PCB所需的物理约束，如<strong>长度匹配布线、成对布线和平面布线</strong>，仍然是PCB布线自动化的负担[1，2]。此外，对于高性能PCB设计，高频信号传输通常通过差分对[3]。差分对具有几个优异的特性，如更好的接地偏移耐受性、更高的抗干扰性和更好的电磁干扰降低，使其成为高性能PCB设计的流行技术。为了实现<strong>差分对</strong>的优点，每个差分对中的两个连接应以匹配的线长度彼此靠近地布线，从而导致差分对布线不平凡。</p><blockquote><p>差分对布线</p></blockquote><p>此外，由于简化的原因，以前的PCB布线工作通常考虑的是芯片封装的常规球栅阵列（BGA）之间的连接[1]。然而，从我们对实际PCB设计的观察来看，设计中包含很多不是BGA封装的元件，如无源器件、去耦电容、通孔引脚阵列等，是很常见的。图1(a)显示了一个部分实际PCB设计的例子，其中有BGA封装以外的元件。这些非BGA封装的元件通常不规则地分布在PCB设计内部，这就造成了布线拥堵的不均匀分布，使布线任务更加困难。因此，开发一种能够处理此类设计的PCB布线算法，同时满足高性能PCB的独特物理约束，是非常可取的。</p><h3 id="1-1先前的工作"><a href="#1-1先前的工作" class="headerlink" title="1.1先前的工作"></a>1.1先前的工作</h3><p>广泛研究的PCB布线问题的目标是在满足各种物理约束的同时，布线芯片封装的BGA之间的所有连接。此外，通孔的使用通常受到限制，因此布线变得平坦。<strong>这种平面布线方式使PCB布线成为与IC布线不同的问题</strong>。先前的研究将PCB布线问题分为两类：</p><p>（1）逃逸布线问题：从BGA的焊盘路由到它们的阵列边界。</p><p>（2）区域布线问题[1，2]。区域布线问题是连接BGA的先前逃逸路线，通常受制于每个连接的布线长度上限/下限。</p><blockquote><p><strong>逃逸布线和区域布线</strong></p></blockquote><p>工作[4-10]集中讨论了逃逸路由问题。逃逸路由问题可以进一步分为无序逃逸和有序逃逸；前者需要不对边界上的连接进行特定排序的路由，而后者则需要。Wang等人[4]提出了一个三角形模式和序列的模型，以促进基于网络流的方法，得出无序逃逸路由解决方案。Kubo等人[5]开发了一种迭代的通道分配方法，以有效地减少线路拥堵和总线长。Fang等人[6, 7, 9]也利用了基于网络流的算法来进行无序逃逸路由。Fang等人[8]提出了一种基于整数线性编程的方法，并采用了减少技术 在合理的运行时间内完成有序逃逸路由。Yan等人[10]提出了一个能够正确反映路由资源能力的网络模型，从而得到了一个更好的无序路由的结果。</p><blockquote><p>逃逸布线：</p><ul><li>有序逃逸：需要按照顺序</li><li>无序逃逸：无序按照顺序对连接布线</li></ul></blockquote><p>工作[11-14]解决了具有长度匹配约束的区域路由问题。Ozdal等人[11]采用了基于拉格朗日松弛的路由方案来获得长度匹配的路由解决方案。此外，Ozdal等人[12]提出了一种有效的<code>river-routing-based</code>的算法，以解决<code>channel</code>内的长度匹配路由问题，其理论上的恒定系数为最佳解。Yan等人[13]提出了一种基于有界切片线网格的算法，以在没有任何路由拓扑限制的情况下检索路由解决方案。Yan等人[14]基于路由区域划分和最大流量算法建立了障碍感知路由框架。</p><blockquote><p>主要讲区域路由</p></blockquote><p>除了传统的逃逸路由和区域路由问题，工作[15–21]在考虑差分对约束的同时处理路由问题。Fang等人[16，18]提出了一种考虑差分对的芯片封装板代码设计算法，<strong>但他们对单调路由的假设限制了该算法的实际使用</strong>。Yan等人[17]提出了一种考虑路由拥塞的基于协商的路由算法，以完成差分对的路由。Li等人[19]采用了两阶段方案和最小成本最大流量算法来同时路由所有差分对。Wang和Jiao等人[20，21]在考虑差分对的情况下，开发了交错引脚阵列的无序和有序逃逸路由算法。</p><blockquote><p>差分对约束布线问题</p></blockquote><h3 id="1-2-前人工作的区别"><a href="#1-2-前人工作的区别" class="headerlink" title="1.2 前人工作的区别"></a>1.2 前人工作的区别</h3><p>如上所述，我们注意到PCB设计中存在<strong>非BGA封装</strong>的不规则性。对逃逸布线和区域布线的传统研究可能不适合处理这些不规则性，因为<strong>它们假设PCB设计仅包含BGA封装</strong>。因此，有必要有一种新的统一算法来处理这类路由问题。</p><p>图1（a）和（b）分别显示了该路由问题的示例和（a）中的可行路由解决方案。从这个例子中，很明显，由于非BGA封装的不均匀分布，逃逸路由和区域路由的组合不适合处理此类路由问题。此外，我们观察到，差分对的路由与之前的工作中假设的问题不同。由于封装具有非常密集的BGA，差分对的两个网络可能没有足够的空间通过同一层上的非常密集BGA。因此，在这种非常密集的BGA上执行逃逸路由的唯一可行方法是在BGA的焊盘之间分配一个“狗骨”通路，然后在不同的路由层上逃逸网络。图2（a）显示了工作[21]提供的一种可能的路由解决方案。由于BGA之间的空间有限，该解决方案遭受各种设计规则冲突，因此不是优选的。因此，需要提出一种新的路由算法，该算法可以处理具有非常密集BGA的差分对路由。图2（b）显示了我们提出的算法的路由结果，其中分配了“狗骨”通孔，差分对通过不同的路由层逃逸。</p><blockquote><p><strong><a href="https://link.zhihu.com/?target=https%3A//www.spcera.com/a/SMD-biao-tie-qi-jian-feng-zhuang-wai-ke.html">表面贴装器件</a></strong>SMD（Surface Mount Device）封装是将电子元器件直接贴在基板上，即将芯片组件封装并放置在印刷电路板上，利用回流炉熔化电子系统互连的焊锡合金，从而实现芯片组件与基片互连的主要技术。</p><p>SMD（Solder-Mask Defined Pad Design，防焊限定焊垫设计）就是使用solder-mask(绿漆/绿油)覆盖于较大面积的铜箔上，然后在绿漆的开口处(绿漆没有覆盖)的地方裸露出铜箔来形成焊垫(pad)的称谓。因为这种焊垫的尺寸会取决于绿油开孔的大小，所以才会说是防焊限定焊垫。</p></blockquote><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202212151629554.png" alt="image-20221215162924513"></p><center>图1：（a）典型PCB布线布局的局部视图，包括SMD焊盘、通孔焊盘和网表。注意，SMD焊盘出现在顶层或底层，而通孔焊盘从上到下贯穿所有层。（b） 来自（A）的给定PCB布线布局的可行布线结果。</center><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202212151641854.png" alt="image-20221215164120810"></p><center>图2：先前工作[21]的扩展与我们的算法之间的比较。（a） 工作[21]的扩展提供了一种可能的路由解决方案，其中由于BGA之间的空间有限，引入了设计规则冲突（即间距冲突）。（b） 由我们提出的算法提供的布线结果，其中分配了“狗骨”通孔，差分对通过不同的布线层逃逸，以避免间距冲突。</center><h3 id="1-3-本文贡献"><a href="#1-3-本文贡献" class="headerlink" title="1.3 本文贡献"></a>1.3 本文贡献</h3><p>我们将主要贡献总结如下：</p><ul><li>以前的大多数工作都有一个假设，即PCB设计是用常规的BGA，因此他们可以通过逃逸路由和区域路由的组合来处理PCB的路由。<strong>然而，在现实中，很多PCB设计包含的封装并不是BGA，这使得以前的大多数工作不适用于此类设计。</strong>本文是文献中第一个提出全面的多层PCB布线算法的工作，该算法可以处理这类设计，在统一的布线框架下，将电源/地线、差分对和信号网一起进行布线。此外，还提出了一个新的路由网的障碍成本函数，以促进路由资源的协商。</li><li>我们提出了一种多层差分对路由方案。与以前的工作相比，之前的方法只能以单层路由方式处理差分对，因此我们的方法可以通过位置搜索更好的狗骨，并执行多层差分对路由。此外，我们提出的方案允许差分对与所有其他信号网络协商路由资源，以提高总体可路由性。</li><li>我们提出了一种焊盘入口感知后处理方法，该方法可以进一步完善我们的布线解决方案，以提高制造能力。通过修改衬垫间隙区域内的布线段或添加填充物，可以有效地消除锐角和间隙的设计规则冲突。</li><li>基于实际学术和工业PCB设计的实验结果表明，我们的算法是有效的。特别是，我们的路由器可以在所有测试用例中实现100%的可路由性，而不违反任何设计规则，而其他两个最先进的路由器在多个测试用例中无法完成路由，并导致违反设计规则，危及可制造性。</li></ul><p>本文的其余部分组织如下。第2节阐述了所解决的问题，并阐述了PCB布线设计规则。第3节详细介绍了我们提出的算法。第4节显示了实验结果。第5节总结了本文。</p><h2 id="PRELIMINARIES"><a href="#PRELIMINARIES" class="headerlink" title="PRELIMINARIES"></a>PRELIMINARIES</h2><p>在本节中，我们提供了PCB布线问题的正式定义，并描述了与我们的问题相对应的布线设计规则。</p><h3 id="2-1-问题描述"><a href="#2-1-问题描述" class="headerlink" title="2.1 问题描述"></a>2.1 问题描述</h3><p>在本文中，我们关注一个统一的多层PCB布线问题。我们首先提供本文中使用的以下术语和符号：</p><ul><li>焊接掩模定义（SMD）焊盘：在网表中具有预定义分配的顶层或底层焊盘。</li><li>通孔焊盘（Through-hole pad）：在网表中具有预定义分配的所有布线层上打孔的焊盘。</li><li>$ 𝑁 =\{𝑛_1,𝑛_2,\cdots,𝑛_𝑚\} $ 是网表，其中 $ 𝑚 $ 是网络的数量 $ 𝑛_𝑖 $ 定义SMD焊盘或通孔焊盘之间的连接。</li></ul><p>图1（a）显示了考虑的PCB布线平面的部分结构示例。与之前的工作不同，布线平面周围散布着SMD焊盘和通孔焊盘，它们不是BGA。由于这些不规则性，先前工作提出的算法通常不适用于此类路由问题。图1（b）显示了满足所有设计规则的两层路由结果示例。这里，我们正式定义问题如下：</p><ul><li><strong>统一多层PCB布线问题</strong>：给定一组SMD焊盘、一组通孔焊盘、网络列表 $ 𝑁 $ , 一组设计规则，连接所有网络 $ 𝑛_𝑖\in 𝑁 $ 从而不存在违反设计规则的情况，并且使总导线长度最小化。</li></ul><h3 id="2-2-布线约束规则"><a href="#2-2-布线约束规则" class="headerlink" title="2.2 布线约束规则"></a>2.2 布线约束规则</h3><p>在本文中，为了在保持更好的可制造性的同时降低设计复杂性，我们的算法应该处理几个路由设计规则。我们问题中的五个主要设计规则详细如下：</p><ul><li>非交叉和间距约束：同一层上不允许净交叉。此外，同一层上的路由网络应保持彼此之间特定的间距。</li><li>布线角度约束：可以执行90度或135度的布线角度。但是，45度的布线角度是不允许的。</li><li>焊盘进入限制：进入焊盘的布线网络不应在彼此之间引入锐角；否则，称为锐角设计规则违反。此外，如果布线网络未进入焊盘，则应在布线网络和焊盘之间保持一定的间距；不管怎么说，它被称为间隙，一种违反设计规则的行为。图3（a）和（b）分别显示了锐角和间隙设计规则违规的示例。</li><li>T形接头约束：在同一层上连接有三段的布线网络应保持Y形接头，而不是T形接头。图3（c）显示了违反T形接头设计规则的示例。</li><li>差分对约束：差分对的路由网络应尽可能接近彼此，且具有相似的路由线路长度。</li></ul><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202212152227123.png" alt="image-20221215222720050"></p><center>图3：违反路由设计规则的示例。（a） 违反衬垫进入限制的锐角：布线网与衬垫之间的角度应为90度或135度。（b） 小间隙违反焊盘入口约束：布线网和焊盘之间的间距应大于指定值。（c） 违反T形接头约束：同一层上连接在一起的布线网络的三段应保持Y形接头，而不是T形接头。</center><h2 id="ALGORITHMS"><a href="#ALGORITHMS" class="headerlink" title="ALGORITHMS"></a>ALGORITHMS</h2><p>在本节中，我们将介绍我们的路由算法。首先，我们概述了我们提出的算法。然后，我们详细介绍了算法每个阶段使用的方法。</p><h3 id="3-1-算法概述"><a href="#3-1-算法概述" class="headerlink" title="3.1 算法概述"></a>3.1 算法概述</h3><p>图4总结了我们基于网格的布线算法，它包括三个主要阶段：</p><ol><li>考虑任意焊盘形状的布线网格初始化，</li><li>迭代印刷电路板布线</li><li>设计规则感知后处理。</li></ol><p>在第一阶段，我们通过将障碍物和垫的任意形状光栅化到布线网格来捕获布线障碍物。第二阶段是迭代PCB布线。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202212161103837.png" alt="image-20221216110326747"></p><center>图4：我们提出的算法的路由流程。</center><p>每次迭代包括电源/接地网、不同差分对和信号网的布线。<strong>电源/接地网布线</strong>在其指定的布线层上布线所有电源/接地线。<strong>差分对路由</strong>选择所有差分对，同时满足差分对约束。<strong>信号网络路由</strong>选择所有剩余网络。采用基于协商的路由器[22]来执行所有上述三种类型的路由，同时最小化违反设计规则的次数。在最后阶段，执行后处理以进一步减少设计规则违规的数量。</p><h3 id="3-2-布线网格初始化"><a href="#3-2-布线网格初始化" class="headerlink" title="3.2 布线网格初始化"></a>3.2 布线网格初始化</h3><p>PCB设计可能包含各种预定义的障碍区域，称为路由禁止区域，指定的网络不应在其中路由。这些布线禁止由PCB设计者出于各种目的定义，<strong>并且可以是任意形状</strong>。为了遵守这些布线限制，我们将这些任意形状与<strong>SMD</strong>和通孔焊盘光栅化为三维布线网格，作为障碍，以便于后期导出无设计规则冲突的布线解决方案。图 5(a) 显示了由布线网格中的障碍物表示的布线禁区和焊盘的示例。 布线禁区和焊盘被障碍物完全封闭和覆盖，以避免违反设计规则。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202212161125538.png" alt="image-20221216112528506"></p><center>图5：（a）在路由网格中，路由禁止和焊盘作为堆栈的示例。（b） 布线网络障碍物成本函数的横截面图。</center><h3 id="3-3-迭代印刷电路板布线"><a href="#3-3-迭代印刷电路板布线" class="headerlink" title="3.3 迭代印刷电路板布线"></a>3.3 迭代印刷电路板布线</h3><p>在本节中，我们详细介绍了迭代PCB布线方案。为了执行逃逸路由和区域路由的任务，我们提出的统一路由方案是基于网格的 $ A^\ast $ 搜索算法[23]。通过调整 $ A^\ast $ 搜索算法的成本函数，我们能够使 $ A^\ast $ 搜索适应不同路由目标的需要。与以前的方案不同，这些方案分别路由每种类型的网络，然后将它们与专用方法结合在一起，以解决资源冲突。在我们的路由方案中，因为所有不同类型的网络都在同一个路由网格中路由，所以所有网络（包括电源/接地网络、差分对和信号网络）都可以一起协商路由资源，而无需任何手动调整或过于复杂的方法。</p><p> $ A^\ast $ 搜索成本函数 $ f(x) $ 表示路径 $ x $ 的成本,可以定义为：</p><script type="math/tex;mode=display">
+f(x) = g(x) + h(x)</script><p>其中 $ g(x) $ 是从源到当前位置的成本 $ 𝑥 $ , 和 $ ℎ(𝑥) $ 是当前位置 $ x $ 到目标 $ t $ 的估计成本。由于我们的路由器支持135度和90度的路由角，在这项工作中，我们设计了估计函数 $ ℎ(𝑥) $ 成为：</p><script type="math/tex;mode=display">
+\begin{align}
+minD = min(|x.x - t.x|, |x.y-t.y|),\\\\
+maxD = max(|x.x-t.x|, |x.y-t.y|),\\\\
+h(x) = maxD - minD + \sqrt{2} \times minD,
+\end{align}</script><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202212161207005.png" alt="image-20221216120709923"></p><blockquote><p>从这个135度角过去</p></blockquote><p>其中 $ 𝑚𝑖𝑛𝐷 $ 是坐标差最小值， $ maxD $ 是坐标差最大值 。估计函数 $ ℎ(𝑥) $ 这里是可以接受的，它不会过分估计当前位置 $ x $ 到目标 $ 𝑡 $ 的实际成本，因此 $ A^\ast $ 搜索给出最优解。</p><p>此外，我们在每个路由迭代中为路由网络提出了一个新的障碍物成本函数。由于我们的迭代路由方案一个接一个地路由每个网络，因此<strong>先前路由的网络将成为以后路由的障碍</strong>。根据布线网络的宽度，它可能会占用多个网格单元作为障碍物（即软障碍物）。因此，<strong>从横截面角度来看</strong>，该成本函数被设置为根据每个网格单元到路由网络中心的距离来确定每个网格单元的值（即障碍物成本）。为了鼓励路由资源的协商，我们为路由网络设计了一个新的障碍物成本函数，如下所示：</p><script type="math/tex;mode=display">
+\begin{align}
+OC_{routed\_net}(r) = H - H * \frac{|r|^c}{w^c}\\\\
+c_i = c_{i - 1} * (\lambda + 1)
+\end{align}</script><p>其中 $ $ 𝑂𝐶_{𝑟𝑜𝑢𝑡𝑒𝑑\_𝑛𝑒𝑡} $ 是障碍物成本， $ 𝑟 $ 是到网中心的距离， $ 𝑤 $ 是网净宽度的一半， $ 𝐻 $ 是足够大以避免网络交叉的成本， $ 𝑐 $ 旨在调整网络边缘的成本（从横截面角度），以控制资源协商的水平，以及 $ \lambda $ 是用户定义的参数。例如，图5（b）给出了布线网络障碍物成本函数的横截面图。从绿色到蓝色再到红色虚线 $ 𝑐 $ 略微增加。换句话说，为了鼓励在早期阶段协商路由资源，可以选择由绿色虚线表示的成本函数。随着迭代的继续，可以利用红色虚线表示的成本函数来避免间距违规。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202212161125538.png" alt="image-20221216112528506"></p><h4 id="3-3-1-电源-接地网布线"><a href="#3-3-1-电源-接地网布线" class="headerlink" title="3.3.1 电源/接地网布线"></a>3.3.1 电源/接地网布线</h4><p>为了使通用 $ A^\ast $ 搜索算法适应电源/接地网路由，我们必须调整成本函数 $ 𝑔(𝑥) $ 以实现在其指定的路由层上路由电源/接地网的需要。成本函数 $ 𝑔_{𝑝}(𝑥) $ 定义如下：</p><script type="math/tex;mode=display">
+\begin{align}
+g_p(x) = \alpha * C_{layer} + \beta * C_{wl} + C_{obstacle}\\\\
+C_{wl} = \gamma * C_{Euclidean} + C_{layer\_change}
+\end{align}</script><p>其中 $ \alpha,\beta,\gamma $ 是用户定义的参数， $ C_{layer} $ 是在特定层上路由的成本， $ C_{wl} $ 是累计走线长度的成本， $ C_{Euclidean} $ 是在同一层上走线的成本， $ C_{layer\_change} $ 是穿过不同层的成本（例如是使用电路板通孔的成本）， $ C_{obstacle} $ 是清除区域中障碍物的成本。使用此成本函数 $ 𝑔_𝑝(𝑥) $ , 我们可以在优选的路由层上找到当前路由电源/接地网的最小成本路径。</p><h4 id="3-3-2差分对路由"><a href="#3-3-2差分对路由" class="headerlink" title="3.3.2差分对路由"></a>3.3.2差分对路由</h4><p>我们的多层差分对路由方法包括四个步骤。</p><ol><li>第一步是为差分对的焊盘对的每一侧确定准确的候选合并点，从候选合并点开始差分对网络的路由将开始彼此平行。</li><li>第二步是在来自焊盘对的每一侧的候选合并点之间以扩大的线宽度和间隙搜索区域进行布线。</li><li>第三步是将第二步中的路由网分解为两个路由网，同时分解网的起点和终点仍然接近候选合并点。</li><li>第四步是将每个分解网路由到其每一侧的相应焊盘上，并在BGA之间正确分配狗骨状通孔。请注意，在第二和第四步中，路由成本函数与信号网路由中使用的函数相同，将在后面详述。</li></ol><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202212201300832.png" alt="image-20221220130021726"></p><center>图6：差分对路由示例。（a） 第一步是为差分对的焊盘对的每一侧确定候选合并点，其中差分对网络的路由将彼此平行。（b） 第二步是在来自焊盘对的每一侧的候选合并点之间布线，具有扩大的线宽度和间隙搜索区域。（c） 第三步是将路由网络从第二步解耦为两个路由网络。（d） 第四步是将每个去耦网络路由到每一侧的相应焊盘。</center><h4 id="3-3-3-信号网络路由"><a href="#3-3-3-信号网络路由" class="headerlink" title="3.3.3 信号网络路由"></a>3.3.3 信号网络路由</h4><p>为了使通用 $ A^\ast $ 搜索算法符合信号网络和差分对的路由，我们需要修改代价函数 $ 𝑔(𝑥) $ 以实现更好的路由解决方案。成本函数 $ 𝑔_𝑠(𝑥) $ 定义如下：</p><script type="math/tex;mode=display">
+g_s(x) = \delta * C_{layer} + \epsilon * C_{wl} + \eta * C_{bend} + C_{obstacle}</script><p>其中 $ \delta,\epsilon,\eta $ 是用户定义参数， $ C_{layer} $ 是在特定层上路由的成本， $ C_{wl} $ 是累计走线长度的成本， $ C_{bend} $ 是累计弯曲次数的成本， $ C_{obstacle} $ 是清除区域中障碍物的成本。使用此成本函数 $ 𝑔_𝑠(𝑥) $ , 我们可以获得当前路由网络的最小成本路径，同时最小化弯曲和设计规则冲突的数量，并分配适当的狗骨通孔。</p><h3 id="3-4-设计规则感知后处理"><a href="#3-4-设计规则感知后处理" class="headerlink" title="3.4 设计规则感知后处理"></a>3.4 设计规则感知后处理</h3><p>在最后一个阶段，我们执行各种后处理，以进一步减少违反设计规则的次数。在迭代PCB布线之后，所有网络都被布线而没有间距冲突，因此预留了用于后处理的空间。我们可以自由地稍微调整路由网络的段，而不必担心引入新的设计规则冲突。或者，我们可以插入其他填料。图7（a）和（b）显示了一种通过添加填充物来消除衬垫输入违规的方法。类似地，图7（c）显示了通过添加填充物或修改布线线段来修复T形交叉点违规的示例。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202212201302376.png" alt="image-20221220130159237"></p><center>图7：（a）通过添加填充物以覆盖锐角来修复违反衬垫进入约束的锐角的示例。（b） 固定棉条的一个例子是，通过引入填充物来覆盖有限的间隔，从而违反了棉条进入规定。（c） 通过引入填充物或直接将T形结变为Y形结来解决T形结违规的示例</center><h2 id="EXPERIMENTAL-RESULTS"><a href="#EXPERIMENTAL-RESULTS" class="headerlink" title="EXPERIMENTAL RESULTS"></a>EXPERIMENTAL RESULTS</h2><p>我们用C++编程语言实现了我们的算法。Boost C++库[24]用于计算我们提出的算法中的几何计算。所有实验都是在具有256GB内存的Intel Xeon 1.80GHz Linux机器上进行的，除了使用DeepPCB[25]的实验，这些实验是由DeepPCB的服务执行的。表1列出了实际学术和工业PCB设计的基准。“WxH”表示设计的宽度和高度尺寸。“|𝐿|”, “|𝐶|”, “|𝑃|”, 和“|𝑁 |” 分别表示PCB布线层、组件、焊盘和网络的数量。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202212201311292.png" alt="image-20221220131139229"></p><p>如第1.2节所述，大多数先前的研究假设PCB设计采用常规BGA。然而，在实践中，一些SMD焊盘和通孔焊盘可能不在一个阵列的排列中，使得应用以前的工作来解决此类设计的路由任务具有挑战性。因此，为了证明我们提出的算法的效率和效果，我们将我们的算法与两个最先进的非学术性路由器DeepPCB和FreeRouting进行了比较。DeepPCB[25]是最近推出的基于人工智能的商业云端自动PCB布线服务。FreeRouting[26]是一个著名的用Java编写的开源PCB布线软件。此外，两个路由器都被设置为默认参数，并为我们的实验提供相同的输入设计和设计规则。对于我们的路由器，一个网格单元的宽度和高度是0.05毫米。KiCad[27]验证了不交叉、间隔和路由角度的约束，我们为其余的约束实现了一个设计规则检查器。</p><p>表2显示了实验结果，并报告了总导线长度、通孔数量、可布线性、运行时间和设计规则违规（DRV）总数。注意，此处DRV的数量包括第2.2节中提到的所有类型的违规行为。从结果可以看出，与DeepPCB（Deep）和FreeRouting（FR）相比，我们的算法可以在不违反任何设计规则的情况下实现所有14个基准的100%可路由性，而DeepPCB和FreeRoutings无法获得多个基准的路由解决方案，并导致不期望的设计规则违规。请注意，我们路由器的路由结果反映了更高的通孔使用率，因为我们的路由器被设置为将所有网络路由作为第一目标，然后将线路长度最小化。如结果所示，对于所有路由器完成路由（即100%可路由性）的测试情况，我们的路由器在所有路由器中给出了平均最短的总线路长度。此外，根据设计者的选择和设计的应用，我们提出的布线框架可以很容易地调整到最小化通孔数量或最小化总布线长度的偏好。因此，实验结果表明，对于SMD和通孔焊盘不规则排列的PCB设计的布线任务，我们的算法是灵活、有效和高效的。</p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202212201312418.png" alt="image-20221220131211249"></p><p><img src="https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/202212201312321.png" alt="image-20221220131254141"></p><center>图8:PCB14的PCB布线解决方案。黄色焊盘是通孔焊盘，红色网和SMD焊盘位于顶层，蓝色网位于第二层，粉色网位于第三层，绿色网和焊盘位于底层。</center><h2 id="CONCLUSIONS"><a href="#CONCLUSIONS" class="headerlink" title="CONCLUSIONS"></a>CONCLUSIONS</h2><p>在本文中，我们针对SMD和通孔焊盘不规则排列的PCB设计，提出了一种统一的PCB布线算法。此外，我们在文献中首次提出了一种综合的多层PCB布线算法，该算法可以在统一的布线框架下一起处理电源/接地网络、差分对和信号网络。基于我们提出的多层差分对路由方案，我们有效地分配了狗骨通孔的位置，并在与所有其他网络协商路由资源的同时完成了差分对的路由。为了保持更好的可制造性，我们提出了一种有效的后处理方法，以进一步消除危害可制造性的不期望的设计规则冲突。实验结果证明了我们提出的算法的效率和有效性。</p></div><div><ul class="post-copyright"><li class="post-copyright-author"> <strong>本文作者：</strong> luobuyu</li><li class="post-copyright-link"> <strong>本文链接：</strong> <a href="https://www.luobuyu.site/2023/A-Unified-PCB-Routing/" title="A Unified Printed Circuit Board Routing Algorithm With Complicated Constraints and Differential Pairs">https://www.luobuyu.site/2023/A-Unified-PCB-Routing/</a></li><li class="post-copyright-license"> <strong>版权声明：</strong> 本博客所有文章除特别声明外，均采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i> BY-NC-SA</a> 许可协议。转载请注明出处！</li></ul></div><footer class="post-footer"><div class="post-tags"><a href="/tags/A%E6%98%9F/" rel="tag"><i class="fa fa-tag"></i> A星</a><a href="/tags/PCB%E5%B8%83%E7%BA%BF/" rel="tag"><i class="fa fa-tag"></i> PCB布线</a><a href="/tags/ASPDAC/" rel="tag"><i class="fa fa-tag"></i> ASPDAC</a></div><div class="post-nav"><div class="post-nav-item"><a href="/2022/find-the-longest-substring-containing-vowels-in-even-counts/" rel="prev" title="1371.每个元音包含偶数次的最长子字符串"><i class="fa fa-chevron-left"></i> 1371.每个元音包含偶数次的最长子字符串</a></div><div class="post-nav-item"> <a href="/2023/NC13884-Paint-Box/" rel="next" title="NC13884.Paint Box">NC13884.Paint Box<i class="fa fa-chevron-right"></i></a></div></div></footer></article></div><div class="comments" id="valine-comments"></div><script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script></div><div class="toggle sidebar-toggle"><span class="toggle-line toggle-line-first"></span><span class="toggle-line toggle-line-middle"></span><span class="toggle-line toggle-line-last"></span></div><aside class="sidebar"><div class="sidebar-inner"><ul class="sidebar-nav motion-element"><li class="sidebar-nav-toc"> 文章目录</li><li class="sidebar-nav-overview"> 站点概览</li></ul><div class="post-toc-wrap sidebar-panel"><div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#A-Unified-Printed-Circuit-Board-Routing-Algorithm-With-Complicated-Constraints-and-Differential-Pairs"><span class="nav-number">1.</span> <span class="nav-text">A Unified Printed Circuit Board Routing Algorithm With Complicated Constraints and Differential Pairs</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#摘要"><span class="nav-number">1.1.</span> <span class="nav-text">摘要</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#INTRODUCTION"><span class="nav-number">1.2.</span> <span class="nav-text">INTRODUCTION</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1先前的工作"><span class="nav-number">1.2.1.</span> <span class="nav-text">1.1先前的工作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-前人工作的区别"><span class="nav-number">1.2.2.</span> <span class="nav-text">1.2 前人工作的区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-本文贡献"><span class="nav-number">1.2.3.</span> <span class="nav-text">1.3 本文贡献</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PRELIMINARIES"><span class="nav-number">1.3.</span> <span class="nav-text">PRELIMINARIES</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-问题描述"><span class="nav-number">1.3.1.</span> <span class="nav-text">2.1 问题描述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-布线约束规则"><span class="nav-number">1.3.2.</span> <span class="nav-text">2.2 布线约束规则</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ALGORITHMS"><span class="nav-number">1.4.</span> <span class="nav-text">ALGORITHMS</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-算法概述"><span class="nav-number">1.4.1.</span> <span class="nav-text">3.1 算法概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-布线网格初始化"><span class="nav-number">1.4.2.</span> <span class="nav-text">3.2 布线网格初始化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-迭代印刷电路板布线"><span class="nav-number">1.4.3.</span> <span class="nav-text">3.3 迭代印刷电路板布线</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-3-1-电源-接地网布线"><span class="nav-number">1.4.3.1.</span> <span class="nav-text">3.3.1 电源&#x2F;接地网布线</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-3-2差分对路由"><span class="nav-number">1.4.3.2.</span> <span class="nav-text">3.3.2差分对路由</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-3-3-信号网络路由"><span class="nav-number">1.4.3.3.</span> <span class="nav-text">3.3.3 信号网络路由</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-设计规则感知后处理"><span class="nav-number">1.4.4.</span> <span class="nav-text">3.4 设计规则感知后处理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#EXPERIMENTAL-RESULTS"><span class="nav-number">1.5.</span> <span class="nav-text">EXPERIMENTAL RESULTS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CONCLUSIONS"><span class="nav-number">1.6.</span> <span class="nav-text">CONCLUSIONS</span></a></li></ol></li></ol></div></div><div class="site-overview-wrap sidebar-panel"><div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person"> <a href="/"><img class="site-author-image" itemprop="image" alt="luobuyu" src="/images/avatar.png"></a><p class="site-author-name" itemprop="name">luobuyu</p><div class="site-description" itemprop="description"></div></div><div class="site-state-wrap motion-element"><nav class="site-state"><div class="site-state-item site-state-posts"> <a href="/archives/"><span class="site-state-item-count">362</span> <span class="site-state-item-name">日志</span></a></div><div class="site-state-item site-state-categories"> <a href="/categories/"><span class="site-state-item-count">66</span> <span class="site-state-item-name">分类</span></a></div><div class="site-state-item site-state-tags"> <a href="/tags/"><span class="site-state-item-count">274</span> <span class="site-state-item-name">标签</span></a></div></nav></div><div class="links-of-author motion-element"><span class="links-of-author-item"><a href="https://github.com/luobuyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;luobuyu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i> GitHub</a></span><span class="links-of-author-item"><a href="mailto:1528751774@qq.com" title="E-Mail → mailto:1528751774@qq.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i> E-Mail</a></span><span class="links-of-author-item"><a href="https://valine.luobuyu.site/" title="Comments → https:&#x2F;&#x2F;valine.luobuyu.site" rel="noopener" target="_blank"><i class="fas fa-comments fa-fw"></i> Comments</a></span></div></div></div></aside><div id="sidebar-dimmer"></div></div></main><footer class="footer"><div class="footer-inner"><div id="aplayer-ukhYMhCo" class="aplayer aplayer-tag-marker meting-tag-marker" data-id="7289878554" data-server="netease" data-type="playlist" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#FF4081" data-listfolded="true"></div><div class="copyright"> &copy; 2020 – <span itemprop="copyrightYear">2024</span><span class="with-love"><i class="fa fa-heartbeat"></i></span> <span class="author" itemprop="copyrightHolder">luobuyu</span><br><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span class="post-meta-divider"></span><span class="post-meta-item-icon"><i class="fa fa-chart-area"></i></span> <span class="post-meta-item-text">站点总字数：</span> <span title="站点总字数">938k</span> <span class="post-meta-divider">|</span><span class="post-meta-item-icon"><i class="fa fa-coffee"></i></span> <span class="post-meta-item-text">站点阅读时长 &asymp;</span> <span title="站点阅读时长">14:13</span></div> <span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span><script>var now=new Date;function createtime(){var n=new Date("07/20/2020 12:00:00");now.setTime(now.getTime()+250),days=(now-n)/1e3/60/60/24,dnum=Math.floor(days),hours=(now-n)/1e3/60/60-24*dnum,hnum=Math.floor(hours),1==String(hnum).length&&(hnum="0"+hnum),minutes=(now-n)/1e3/60-1440*dnum-60*hnum,mnum=Math.floor(minutes),1==String(mnum).length&&(mnum="0"+mnum),seconds=(now-n)/1e3-86400*dnum-3600*hnum-60*mnum,snum=Math.round(seconds),1==String(snum).length&&(snum="0"+snum),document.getElementById("timeDate").innerHTML="luobuyuの个人博客，已经勉强存活了 "+dnum+" 天 ",document.getElementById("times").innerHTML=hnum+" 小时 "+mnum+" 分 "+snum+" 秒"}setInterval("createtime()",250)</script><div class="busuanzi-count"><script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span class="post-meta-item" id="busuanzi_container_site_uv" style="display:none"></span><span class="post-meta-item-icon"><i class="fa fa-user"></i></span> <span class="site-uv" title="总访客量">访问人数<span id="busuanzi_value_site_uv"></span></span> <span class="post-meta-divider">|</span><span class="post-meta-item" id="busuanzi_container_site_pv" style="display:none"></span><span class="post-meta-item-icon"><i class="fa fa-eye"></i></span> <span class="site-pv" title="总访问量">总访问量<span id="busuanzi_value_site_pv"></span></span></div></div></footer></div><script src="/lib/anime.min.js"></script><script src="/lib/velocity/velocity.min.js"></script><script src="/lib/velocity/velocity.ui.min.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/pisces.js"></script><script src="/js/next-boot.js"></script><script>!function(){var o,n,e=document.getElementsByTagName("link");if(0<e.length)for(i=0;i<e.length;i++)"canonical"==e[i].rel.toLowerCase()&&e[i].href&&(o=e[i].href);n=o?o.split(":")[0]:window.location.protocol.split(":")[0],o||(o=window.location.href),function(){var e=o,i=document.referrer;if(!/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi.test(e)){var t="https"===String(n).toLowerCase()?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";i?(t+="?r="+encodeURIComponent(document.referrer),e&&(t+="&l="+e)):e&&(t+="?l="+e),(new Image).src=t}}(window)}()</script><script src="/js/local-search.js"></script><script type="text/x-mathjax-config">
+    MathJax.Ajax.config.path['mhchem'] = '//cdn.jsdelivr.net/npm/mathjax-mhchem@3';
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        extensions: ['[mhchem]/mhchem.js'],
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script><script>
+  NexT.utils.getScript('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML', () => {
+    MathJax.Hub.Typeset();
+  }, window.MathJax);
+</script><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/GamerNoTitle/Picture-repo-v1@master/css/Valine-Emotion.css"><style>.v[data-class=v] .veditor{background-image:url(https://cdn.jsdelivr.net/gh/luobuyu/blog_img/img/20220325200442.gif);background-size:contain;background-repeat:no-repeat;background-position:right}</style><script>
+
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/valine@1.5.1/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+
+    var requiredFields = ['nick', 'mail', 'link'];
+    var requiredField = 'nick,mail';
+    requiredField = requiredField.split(',').filter(item => {
+      return requiredFields.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'GqF4f53ddiLc4MvB6rAMxrM6-MdYXbMMI',
+      appKey     : 'rn6pv6g3Qzu4mcbqhI7qWEk5',
+      emojiCDN: 'https://valinecdn.bili33.top/',
+      emojiMaps: {
+        "bilibiliHotKey1": "bilibiliHotKey/1.jpg",
+        "bilibiliHotKey2": "bilibiliHotKey/10.jpg",
+        "bilibiliHotKey3": "bilibiliHotKey/11.jpg",
+        "bilibiliHotKey4": "bilibiliHotKey/12.jpg",
+        "bilibiliHotKey5": "bilibiliHotKey/13.jpg",
+        "bilibiliHotKey6": "bilibiliHotKey/14.jpg",
+        "bilibiliHotKey7": "bilibiliHotKey/15.jpg",
+        "bilibiliHotKey8": "bilibiliHotKey/16.jpg",
+        "bilibiliHotKey9": "bilibiliHotKey/17.jpg",
+        "bilibiliHotKey10": "bilibiliHotKey/18.jpg",
+        "bilibiliHotKey11": "bilibiliHotKey/19.jpg",
+        "bilibiliHotKey12": "bilibiliHotKey/2.jpg",
+        "bilibiliHotKey13": "bilibiliHotKey/20.jpg",
+        "bilibiliHotKey14": "bilibiliHotKey/21.jpg",
+        "bilibiliHotKey15": "bilibiliHotKey/22.jpg",
+        "bilibiliHotKey16": "bilibiliHotKey/23.jpg",
+        "bilibiliHotKey17": "bilibiliHotKey/24.jpg",
+        "bilibiliHotKey18": "bilibiliHotKey/25.jpg",
+        "bilibiliHotKey19": "bilibiliHotKey/26.jpg",
+        "bilibiliHotKey20": "bilibiliHotKey/27.jpg",
+        "bilibiliHotKey21": "bilibiliHotKey/28.jpg",
+        "bilibiliHotKey22": "bilibiliHotKey/29.jpg",
+        "bilibiliHotKey23": "bilibiliHotKey/3.jpg",
+        "bilibiliHotKey24": "bilibiliHotKey/30.jpg",
+        "bilibiliHotKey25": "bilibiliHotKey/31.jpg",
+        "bilibiliHotKey26": "bilibiliHotKey/32.jpg",
+        "bilibiliHotKey27": "bilibiliHotKey/4.jpg",
+        "bilibiliHotKey28": "bilibiliHotKey/5.jpg",
+        "bilibiliHotKey29": "bilibiliHotKey/6.jpg",
+        "bilibiliHotKey30": "bilibiliHotKey/7.jpg",
+        "bilibiliHotKey31": "bilibiliHotKey/8.jpg",
+        "bilibiliHotKey32": "bilibiliHotKey/9.jpg",
+        "KeQing1": "KeQing/1MtdPr4y.png",
+        "KeQing2": "KeQing/29E353B37F06F48D0D32B896A555AB10.jpg",
+        "KeQing3": "KeQing/5q8iVluo.png",
+        "KeQing4": "KeQing/6Bo9DvjS.png",
+        "KeQing5": "KeQing/8uRU02Qn.png",
+        "KeQing6": "KeQing/a7Xxm0ou.png",
+        "KeQing7": "KeQing/aEhyb3F5.png",
+        "KeQing8": "KeQing/alT6XmFj.png",
+        "KeQing9": "KeQing/b4l6cyUT.png",
+        "KeQing10": "KeQing/BWYIgTtC.png",
+        "KeQing11": "KeQing/c1ZrqNaX.png",
+        "KeQing12": "KeQing/c7yp9Ewx.png",
+        "KeQing13": "KeQing/CeZsrXIq.png",
+        "KeQing14": "KeQing/CJRTKlGP.png",
+        "KeQing15": "KeQing/COMie4xg.png",
+        "KeQing16": "KeQing/D4G8UsxH.png",
+        "KeQing17": "KeQing/D80028AB4478C5C3986FE1A9FEEFEB35.gif",
+        "KeQing18": "KeQing/e01OVkHC.png",
+        "KeQing19": "KeQing/ELmIkgpZ.png",
+        "KeQing20": "KeQing/fbR6FSd3.png",
+        "KeQing21": "KeQing/Fh58COx7.png",
+        "KeQing22": "KeQing/FM1l6d9h.png",
+        "KeQing23": "KeQing/ghCViEvU.png",
+        "KeQing24": "KeQing/ivmGU68a.png",
+        "KeQing25": "KeQing/JmyRiSt1.png",
+        "KeQing26": "KeQing/jvI8Wa35.png",
+        "KeQing27": "KeQing/lHQhDR71.png",
+        "KeQing28": "KeQing/lxfPMp5I.png",
+        "KeQing29": "KeQing/nK5k6fHL.png",
+        "KeQing30": "KeQing/OsVSotEn.png",
+        "KeQing31": "KeQing/R4QdmJb1.png",
+        "KeQing32": "KeQing/rADUyouz.png",
+        "KeQing33": "KeQing/Rex3GWlg.png",
+        "KeQing34": "KeQing/RkHtnfyU.png",
+        "KeQing35": "KeQing/RrXmaHeb.png",
+        "KeQing36": "KeQing/sJ58YlzP.png",
+        "KeQing37": "KeQing/tjJGYOVF.png",
+        "KeQing38": "KeQing/tTnXvgZH.png",
+        "KeQing39": "KeQing/w37qQAel.png",
+        "KeQing40": "KeQing/W6y0ReEh.png",
+        "KeQing41": "KeQing/xDIO54sg.png",
+        "KeQing42": "KeQing/Xy8BbkcP.png",
+        "KeQing43": "KeQing/YCL13G5e.png",
+        "KeQing44": "KeQing/yG7MulxF.png",
+        "KeQing45": "KeQing/ZDI38NMK.png",
+        "KeQing46": "KeQing/Zl9NR6It.png",
+        "Snow-Miku1": "Snow-Miku/3583066@2x.png",
+        "Snow-Miku2": "Snow-Miku/3583067@2x.png",
+        "Snow-Miku3": "Snow-Miku/3583068@2x.png",
+        "Snow-Miku4": "Snow-Miku/3583069@2x.png",
+        "Snow-Miku5": "Snow-Miku/3583070@2x.png",
+        "Snow-Miku6": "Snow-Miku/3583071@2x.png",
+        "Snow-Miku7": "Snow-Miku/3583072@2x.png",
+        "Snow-Miku8": "Snow-Miku/3583073@2x.png",
+        "Snow-Miku9": "Snow-Miku/3583074@2x.png",
+        "Snow-Miku10": "Snow-Miku/3583075@2x.png",
+        "Snow-Miku11": "Snow-Miku/3583076@2x.png",
+        "Snow-Miku12": "Snow-Miku/3583077@2x.png",
+        "Snow-Miku13": "Snow-Miku/3583078@2x.png",
+        "Snow-Miku14": "Snow-Miku/3583079@2x.png",
+        "Snow-Miku15": "Snow-Miku/3583080@2x.png",
+        "Snow-Miku16": "Snow-Miku/3583081@2x.png",
+        "Snow-Miku17": "Snow-Miku/3583082@2x.png",
+        "Snow-Miku18": "Snow-Miku/3583083@2x.png",
+        "Snow-Miku19": "Snow-Miku/3583084@2x.png",
+        "Snow-Miku20": "Snow-Miku/3583085@2x.png",
+        "Snow-Miku21": "Snow-Miku/3583086@2x.png",
+        "Snow-Miku22": "Snow-Miku/3583087@2x.png",
+        "Snow-Miku23": "Snow-Miku/3583088@2x.png",
+        "Snow-Miku24": "Snow-Miku/3583089@2x.png",
+        "Snow-Miku25": "Snow-Miku/3583090@2x.png",
+        "Snow-Miku26": "Snow-Miku/3583091@2x.png",
+        "Snow-Miku27": "Snow-Miku/3583092@2x.png",
+        "Snow-Miku28": "Snow-Miku/3583093@2x.png",
+        "Snow-Miku29": "Snow-Miku/3583094@2x.png",
+        "Snow-Miku30": "Snow-Miku/3583095@2x.png",
+        "Snow-Miku31": "Snow-Miku/3583096@2x.png",
+        "Snow-Miku32": "Snow-Miku/3583097@2x.png",
+        "Snow-Miku33": "Snow-Miku/3583098@2x.png",
+        "Snow-Miku34": "Snow-Miku/3583099@2x.png",
+        "Snow-Miku35": "Snow-Miku/3583100@2x.png",
+        "Snow-Miku36": "Snow-Miku/3583101@2x.png",
+        "Snow-Miku37": "Snow-Miku/3583102@2x.png",
+        "Snow-Miku38": "Snow-Miku/3583103@2x.png",
+        "Snow-Miku39": "Snow-Miku/3583104@2x.png",
+        "Snow-Miku40": "Snow-Miku/3583105@2x.png",
+        "bilibilitv2": "bilibilitv/[tv_doge].png",
+        "bilibilitv3": "bilibilitv/[tv_亲亲].png",
+        "bilibilitv4": "bilibilitv/[tv_偷笑].png",
+        "bilibilitv5": "bilibilitv/[tv_再见].png",
+        "bilibilitv6": "bilibilitv/[tv_冷漠].png",
+        "bilibilitv7": "bilibilitv/[tv_发怒].png",
+        "bilibilitv8": "bilibilitv/[tv_发财].png",
+        "bilibilitv9": "bilibilitv/[tv_可爱].png",
+        "bilibilitv10": "bilibilitv/[tv_吐血].png",
+        "bilibilitv11": "bilibilitv/[tv_呆].png",
+        "bilibilitv12": "bilibilitv/[tv_呕吐].png",
+        "bilibilitv13": "bilibilitv/[tv_困].png",
+        "bilibilitv14": "bilibilitv/[tv_坏笑].png",
+        "bilibilitv15": "bilibilitv/[tv_大佬].png",
+        "bilibilitv16": "bilibilitv/[tv_大哭].png",
+        "bilibilitv17": "bilibilitv/[tv_委屈].png",
+        "bilibilitv18": "bilibilitv/[tv_害羞].png",
+        "bilibilitv19": "bilibilitv/[tv_尴尬].png",
+        "bilibilitv20": "bilibilitv/[tv_微笑].png",
+        "bilibilitv21": "bilibilitv/[tv_思考].png",
+        "bilibilitv22": "bilibilitv/[tv_惊吓].png",
+        "bilibilitv23": "bilibilitv/[tv_打脸].png",
+        "bilibilitv24": "bilibilitv/[tv_抓狂].png",
+        "bilibilitv25": "bilibilitv/[tv_抠鼻].png",
+        "bilibilitv26": "bilibilitv/[tv_斜眼笑].png",
+        "bilibilitv27": "bilibilitv/[tv_无奈].png",
+        "bilibilitv28": "bilibilitv/[tv_晕].png",
+        "bilibilitv29": "bilibilitv/[tv_流汗].png",
+        "bilibilitv30": "bilibilitv/[tv_流泪].png",
+        "bilibilitv31": "bilibilitv/[tv_流鼻血].png",
+        "bilibilitv32": "bilibilitv/[tv_点赞].png",
+        "bilibilitv33": "bilibilitv/[tv_生气].png",
+        "bilibilitv34": "bilibilitv/[tv_生病].png",
+        "bilibilitv35": "bilibilitv/[tv_疑问].png",
+        "bilibilitv36": "bilibilitv/[tv_白眼].png",
+        "bilibilitv37": "bilibilitv/[tv_皱眉].png",
+        "bilibilitv38": "bilibilitv/[tv_目瞪口呆].png",
+        "bilibilitv39": "bilibilitv/[tv_睡着].png",
+        "bilibilitv40": "bilibilitv/[tv_笑哭].png",
+        "bilibilitv41": "bilibilitv/[tv_腼腆].png",
+        "bilibilitv42": "bilibilitv/[tv_色].png",
+        "bilibilitv43": "bilibilitv/[tv_调侃].png",
+        "bilibilitv44": "bilibilitv/[tv_调皮].png",
+        "bilibilitv45": "bilibilitv/[tv_鄙视].png",
+        "bilibilitv46": "bilibilitv/[tv_闭嘴].png",
+        "bilibilitv47": "bilibilitv/[tv_难过].png",
+        "bilibilitv48": "bilibilitv/[tv_馋].png",
+        "bilibilitv49": "bilibilitv/[tv_鬼脸].png",
+        "bilibilitv50": "bilibilitv/[tv_黑人问号].png",
+        "bilibilitv51": "bilibilitv/[tv_鼓掌].png",
+        "HONKAI3-MEI1": "HONKAI3-MEI/501ac209b259bb545dea898838c24229483fcfeb.gif",
+        "HONKAI3-MEI2": "HONKAI3-MEI/5baf4306d1f685bf47922fbae365ccfba7721beb.gif",
+        "HONKAI3-MEI3": "HONKAI3-MEI/624857651c863ea9571f5e557fca8516dd41e0fc.gif",
+        "HONKAI3-MEI4": "HONKAI3-MEI/680311714674014d0c17f757eb40c3071448222a.gif",
+        "HONKAI3-MEI5": "HONKAI3-MEI/bf68423446465d396d3cbd8856882b5e9fb1c0c7.gif",
+        "HONKAI3-MEI6": "HONKAI3-MEI/d3a2a9c6ad1e2a0b262dca9354ab8de736d81cdf.gif",
+        "HONKAI3-MEI7": "HONKAI3-MEI/dd0fd1f3668f4907c9f6fcd39c6138417ac0e1f5.gif"
+      },
+      placeholder: "Leave a comment now!",
+      avatar     : 'wavatar',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-CN' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : 'https://chat.luobuyu.site',
+      requiredFields: requiredField
+    });
+  }, window.Valine);
+});
+</script><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({pluginRootPath:"live2dw/",pluginJsPath:"lib/",pluginModelPath:"assets/",tagMode:!1,debug:!1,model:{jsonPath:"/live2dw/assets/assets/haru01.model.json"},display:{superSample:2,width:200,height:400,position:"right",hOffset:0,vOffset:-20},mobile:{show:!0,scale:.5},react:{opacityDefault:.7,opacityOnHover:.8},log:!1})</script></body></html>
